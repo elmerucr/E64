@@ -64,6 +64,7 @@
 		4615DC6D2AA875A000519477 /* sid.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4615DC5D2AA875A000519477 /* sid.cc */; };
 		4615DC712AA92D8C00519477 /* host.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4615DC702AA92D8C00519477 /* host.cpp */; };
 		466137C32AADE620005E04F9 /* settings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 466137C12AADE620005E04F9 /* settings.cpp */; };
+		4675EB712AAE47CC00CFB786 /* core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4675EB6F2AAE47CC00CFB786 /* core.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -181,6 +182,8 @@
 		4615DC702AA92D8C00519477 /* host.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = host.cpp; path = ../../src/host/host.cpp; sourceTree = "<group>"; };
 		466137C12AADE620005E04F9 /* settings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = settings.cpp; path = ../../src/host/settings.cpp; sourceTree = "<group>"; };
 		466137C22AADE620005E04F9 /* settings.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = settings.hpp; path = ../../src/host/settings.hpp; sourceTree = "<group>"; };
+		4675EB6F2AAE47CC00CFB786 /* core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core.cpp; path = ../../src/components/core/core.cpp; sourceTree = "<group>"; };
+		4675EB702AAE47CC00CFB786 /* core.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = core.hpp; path = ../../src/components/core/core.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -321,6 +324,7 @@
 		4615DC3B2AA873A100519477 /* components */ = {
 			isa = PBXGroup;
 			children = (
+				4675EB6E2AAE479700CFB786 /* core */,
 				4615DC3C2AA873E000519477 /* sound */,
 			);
 			name = components;
@@ -379,6 +383,15 @@
 				466137C12AADE620005E04F9 /* settings.cpp */,
 			);
 			name = host;
+			sourceTree = "<group>";
+		};
+		4675EB6E2AAE479700CFB786 /* core */ = {
+			isa = PBXGroup;
+			children = (
+				4675EB702AAE47CC00CFB786 /* core.hpp */,
+				4675EB6F2AAE47CC00CFB786 /* core.cpp */,
+			);
+			name = core;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -454,6 +467,7 @@
 			files = (
 				4615DC642AA875A000519477 /* wave.cc in Sources */,
 				4615DC672AA875A000519477 /* wave8580_PS_.cc in Sources */,
+				4675EB712AAE47CC00CFB786 /* core.cpp in Sources */,
 				4615DC2E2AA872B700519477 /* lcode.c in Sources */,
 				4615DC232AA872B700519477 /* lctype.c in Sources */,
 				4615DC292AA872B700519477 /* loadlib.c in Sources */,

@@ -29,11 +29,7 @@ E64 is a virtual console that runs on macOS and linux. It's mainly inspired by t
 * ```ALT```+```R``` resets the system
 * ```ALT```+```B``` switches between nearest pixel and bilinear filtering mode
 * ```ALT```+```S``` changes intensity of embedded scanlines
-* ```ALT```+```F``` switches between fullscreen and window
-* ```F1``` Executes 1 instruction (debug mode)
-* ```F2``` Executes 8 instructions (debug mode)
-* ```F3``` Executes 64 instructions (debug mode)
-* ```F4``` Toggles between full disassembly and hex (debug mode)
+* ```ALT```+```F``` switches between fullscreen and window(debug mode)
 * ```F9``` switches between normal and debug mode
 * ```F10``` switches stats on/off
 

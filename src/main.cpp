@@ -6,10 +6,10 @@
  */
 
 #include "common.hpp"
-#include "lua.hpp"
 #include "host.hpp"
 #include "settings.hpp"
 #include "sound.hpp"
+#include "core.hpp"
 #include <chrono>
 #include <thread>
 
@@ -21,35 +21,9 @@ int main(int argc, char **argv)
 	E64::host_t *host = new E64::host_t();
 	E64::settings_t *settings = new E64::settings_t(host);
 	E64::sound_ic *sound = new E64::sound_ic(host);
-	
-	// Lua test
-	lua_State *L;
-	L = luaL_newstate();
-	if (!L) exit(1); else printf("[Lua] %s\n", LUA_COPYRIGHT);
-	luaL_openlibs(L);
-	char lua_code[] = R"Lua(
-		function test()
-			print ("\nHi!")
-		end
-
-		rt = 45.345
-		print("result is " .. rt / 3)
-		test()
-	)Lua";
-	luaL_dostring(L, lua_code);
-	lua_close(L);
-	// end Lua test
-	
-	/*
-	 * Volume
-	 */
-	sound->write_byte(0x208, 0x7f);
-	sound->write_byte(0x209, 0x7f);
+	E64::core_t *core = new E64::core_t(sound);
 	
 	bool running = true;
-	
-	// temp hack
-	int8_t teller = 40;
 	
 	// place this in a class
 	uint32_t cycles_per_tick = SID_CLOCK_SPEED / 50;
@@ -80,15 +54,11 @@ int main(int argc, char **argv)
 			} else {
 				frame_cycles_remaining -= tick_cycles_remaining;
 				sound->run(tick_cycles_remaining);
+				
 				// do_callback
-				if (!teller) {
-					sound->write_byte(0x100, 0x03); // start kick
-					teller += 29;
-				} else {
-					sound->write_byte(0x100, 0x02); // silence
-				}
-				teller--;
+				core->tick();
 				// end of do_callback
+				
 				tick_cycles_remaining = cycles_per_tick;
 			}
 		}
@@ -129,6 +99,7 @@ int main(int argc, char **argv)
 	
 	printf("[E64] Virtual machine ran for %.2f seconds\n", (double)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - app_start_time).count() / 1000);
 	
+	delete core;
 	delete sound;
 	delete settings;
 	delete host;
