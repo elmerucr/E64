@@ -4,6 +4,11 @@
 
 E64::host_t::host_t()
 {
+	printf("[Host] E64 version %i.%i.%i (C)2019-%i elmerucr\n",
+	       E64_MAJOR_VERSION,
+	       E64_MINOR_VERSION,
+	       E64_BUILD, E64_YEAR);
+	
 	SDL_Init(SDL_INIT_EVERYTHING);
 	
 	SDL_version compiled;

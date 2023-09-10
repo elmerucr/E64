@@ -15,9 +15,8 @@
 
 int main(int argc, char **argv)
 {
-	std::chrono::time_point<std::chrono::steady_clock> start_time;
-	std::chrono::time_point<std::chrono::steady_clock> refresh_moment;
-	std::chrono::time_point<std::chrono::steady_clock> end_time;
+	std::chrono::time_point<std::chrono::steady_clock> app_start_time = std::chrono::steady_clock::now();
+	std::chrono::time_point<std::chrono::steady_clock> end_of_frame_time;
 	
 	E64::host_t *host = new E64::host_t();
 	E64::settings_t *settings = new E64::settings_t(host);
@@ -56,14 +55,14 @@ int main(int argc, char **argv)
 	uint32_t cycles_per_tick = SID_CLOCK_SPEED / 50;
 	uint32_t tick_cycles_remaining = 0;
 	
-	start_time = refresh_moment = std::chrono::steady_clock::now();
+	end_of_frame_time = std::chrono::steady_clock::now();
 	
 	/*
 	 * Frame loop
 	 */
 	while (running) {
 		/*
-		 * Start with measuring audio_buffer and determine cycles to run in audio
+		 * Audio: Measure audio_buffer and determine total cycles to run
 		 */
 		double frame_cycles_remaining = host->get_queued_audio_size_bytes(); // contains buffer in bytes
 		//printf("buffer in bytes: %i\n", (int32_t)frame_cycles_remaining); // print it
@@ -71,7 +70,7 @@ int main(int argc, char **argv)
 		frame_cycles_remaining += SID_CLOCK_SPEED / FPS;
 		
 		/*
-		 * Run needed frame cycles, keeping audio_callback ticks into account
+		 * Audio: Run cycles, keeping audio_callback ticks into account
 		 */
 		while (frame_cycles_remaining) {
 			if (tick_cycles_remaining > frame_cycles_remaining) {
@@ -113,23 +112,22 @@ int main(int argc, char **argv)
 		 * When there's no vsync, sleep time is done manually.
 		 */
 		if (host->vsync_disabled()) {
-			refresh_moment += std::chrono::microseconds(1000000/FPS);
+			end_of_frame_time += std::chrono::microseconds(1000000/FPS);
 			/*
-			 * Check if the next update is in the past. If so,
-			 * calculate a new update moment. This will avoid
-			 * "playing catch-up" by the virtual machine.
+			 * If the next update is in the past, calculate a
+			 * new update moment.
 			 */
-			if (refresh_moment > std::chrono::steady_clock::now()) {
-				std::this_thread::sleep_until(refresh_moment);
+			if (end_of_frame_time > std::chrono::steady_clock::now()) {
+				std::this_thread::sleep_until(end_of_frame_time);
 			} else {
-				refresh_moment = std::chrono::steady_clock::now();
+				end_of_frame_time = std::chrono::steady_clock::now();
 			}
 		}
 		
 		host->update_screen();
 	}
 	
-	end_time = std::chrono::steady_clock::now();
+	printf("[E64] Virtual machine ran for %.2f seconds\n", (double)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - app_start_time).count() / 1000);
 	
 	delete sound;
 	delete settings;
