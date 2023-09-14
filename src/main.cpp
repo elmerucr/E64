@@ -10,6 +10,8 @@
 #include "settings.hpp"
 #include "sound.hpp"
 #include "core.hpp"
+#include "blitter.hpp"
+#include "stats.hpp"
 #include <chrono>
 #include <thread>
 
@@ -18,18 +20,28 @@ int main(int argc, char **argv)
 	std::chrono::time_point<std::chrono::steady_clock> app_start_time = std::chrono::steady_clock::now();
 	std::chrono::time_point<std::chrono::steady_clock> end_of_frame_time;
 	
-	E64::host_t *host = new E64::host_t();
+	E64::blitter_ic *blitter = new E64::blitter_ic(VM_MAX_PIXELS_PER_SCANLINE, VM_MAX_SCANLINES);
+	E64::host_t *host = new E64::host_t(blitter);
 	E64::settings_t *settings = new E64::settings_t(host);
 	E64::sound_ic *sound = new E64::sound_ic(host);
 	E64::core_t *core = new E64::core_t(sound);
+	E64::stats_t *stats = new E64::stats_t(host);
 	
 	bool running = true;
 	
-	// place this in a class
+	// place this in a future class
 	uint32_t cycles_per_tick = SID_CLOCK_SPEED / 50;
 	uint32_t tick_cycles_remaining = 0;
 	
 	end_of_frame_time = std::chrono::steady_clock::now();
+	
+	blitter->set_clear_color(0xf0f0);
+	blitter->set_hor_border_size(0x20);
+	blitter->set_hor_border_color(0xf00f);
+	blitter->set_ver_border_size(0x20);
+	blitter->set_ver_border_color(0xff00);
+	
+	stats->reset();
 	
 	/*
 	 * Frame loop
@@ -72,6 +84,16 @@ int main(int argc, char **argv)
 		}
 		
 		/*
+		 * Blitting
+		 */
+		blitter->clear_framebuffer();
+		blitter->add_operation_draw_ver_border();
+		blitter->add_operation_draw_hor_border();
+		while (blitter->run_next_operation()) {}
+		
+		host->update_textures();
+		
+		/*
 		 * If vsync is enabled, the update screen function takes more
 		 * time, i.e. it will return after a few milliseconds, exactly
 		 * when vertical refresh is done. This will avoid tearing.
@@ -95,14 +117,28 @@ int main(int argc, char **argv)
 		}
 		
 		host->update_screen();
+		
+		/*
+		 * time measurement, starting vm time
+		 *
+		 * This point marks the start of a new frame, also at this very
+		 * moment it's good to measure the soundbuffer size.
+		 */
+		stats->start_vm_time();
+		
+		stats->process_parameters();
+		
+		printf("%s\n", stats->summary());
 	}
 	
 	printf("[E64] Virtual machine ran for %.2f seconds\n", (double)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - app_start_time).count() / 1000);
 	
+	delete stats;
 	delete core;
 	delete sound;
 	delete settings;
 	delete host;
+	delete blitter;
 	
 	return 0;
 }

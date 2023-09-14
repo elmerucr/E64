@@ -65,6 +65,11 @@
 		4615DC712AA92D8C00519477 /* host.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4615DC702AA92D8C00519477 /* host.cpp */; };
 		466137C32AADE620005E04F9 /* settings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 466137C12AADE620005E04F9 /* settings.cpp */; };
 		4675EB712AAE47CC00CFB786 /* core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4675EB6F2AAE47CC00CFB786 /* core.cpp */; };
+		467F17BB2AB25D8D00F0BBFB /* blitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 467F17B82AB25D8D00F0BBFB /* blitter.cpp */; };
+		467F17BC2AB25D8D00F0BBFB /* blitter_terminal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 467F17BA2AB25D8D00F0BBFB /* blitter_terminal.cpp */; };
+		467F17C02AB25F2700F0BBFB /* amiga_cp437_font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 467F17BE2AB25F2700F0BBFB /* amiga_cp437_font.cpp */; };
+		467F17C12AB25F2700F0BBFB /* cbm_cp437_font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 467F17BF2AB25F2700F0BBFB /* cbm_cp437_font.cpp */; };
+		469F512B2AB3882700552EC1 /* stats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 469F512A2AB3882700552EC1 /* stats.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -184,6 +189,15 @@
 		466137C22AADE620005E04F9 /* settings.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = settings.hpp; path = ../../src/host/settings.hpp; sourceTree = "<group>"; };
 		4675EB6F2AAE47CC00CFB786 /* core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core.cpp; path = ../../src/components/core/core.cpp; sourceTree = "<group>"; };
 		4675EB702AAE47CC00CFB786 /* core.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = core.hpp; path = ../../src/components/core/core.hpp; sourceTree = "<group>"; };
+		467F17B72AB25D8C00F0BBFB /* blitter.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = blitter.hpp; path = ../../src/components/blitter/blitter.hpp; sourceTree = "<group>"; };
+		467F17B82AB25D8D00F0BBFB /* blitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = blitter.cpp; path = ../../src/components/blitter/blitter.cpp; sourceTree = "<group>"; };
+		467F17B92AB25D8D00F0BBFB /* blit.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = blit.hpp; path = ../../src/components/blitter/blit.hpp; sourceTree = "<group>"; };
+		467F17BA2AB25D8D00F0BBFB /* blitter_terminal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = blitter_terminal.cpp; path = ../../src/components/blitter/blitter_terminal.cpp; sourceTree = "<group>"; };
+		467F17BD2AB25F2700F0BBFB /* rom.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rom.hpp; path = ../../src/components/blitter/rom.hpp; sourceTree = "<group>"; };
+		467F17BE2AB25F2700F0BBFB /* amiga_cp437_font.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = amiga_cp437_font.cpp; path = ../../src/components/blitter/amiga_cp437_font.cpp; sourceTree = "<group>"; };
+		467F17BF2AB25F2700F0BBFB /* cbm_cp437_font.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cbm_cp437_font.cpp; path = ../../src/components/blitter/cbm_cp437_font.cpp; sourceTree = "<group>"; };
+		469F51292AB3882700552EC1 /* stats.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = stats.hpp; path = ../../src/host/stats.hpp; sourceTree = "<group>"; };
+		469F512A2AB3882700552EC1 /* stats.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stats.cpp; path = ../../src/host/stats.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -324,6 +338,7 @@
 		4615DC3B2AA873A100519477 /* components */ = {
 			isa = PBXGroup;
 			children = (
+				467F17B62AB25C7000F0BBFB /* blitter */,
 				4675EB6E2AAE479700CFB786 /* core */,
 				4615DC3C2AA873E000519477 /* sound */,
 			);
@@ -381,6 +396,8 @@
 				4615DC702AA92D8C00519477 /* host.cpp */,
 				466137C22AADE620005E04F9 /* settings.hpp */,
 				466137C12AADE620005E04F9 /* settings.cpp */,
+				469F51292AB3882700552EC1 /* stats.hpp */,
+				469F512A2AB3882700552EC1 /* stats.cpp */,
 			);
 			name = host;
 			sourceTree = "<group>";
@@ -392,6 +409,20 @@
 				4675EB6F2AAE47CC00CFB786 /* core.cpp */,
 			);
 			name = core;
+			sourceTree = "<group>";
+		};
+		467F17B62AB25C7000F0BBFB /* blitter */ = {
+			isa = PBXGroup;
+			children = (
+				467F17B92AB25D8D00F0BBFB /* blit.hpp */,
+				467F17B72AB25D8C00F0BBFB /* blitter.hpp */,
+				467F17B82AB25D8D00F0BBFB /* blitter.cpp */,
+				467F17BA2AB25D8D00F0BBFB /* blitter_terminal.cpp */,
+				467F17BD2AB25F2700F0BBFB /* rom.hpp */,
+				467F17BE2AB25F2700F0BBFB /* amiga_cp437_font.cpp */,
+				467F17BF2AB25F2700F0BBFB /* cbm_cp437_font.cpp */,
+			);
+			name = blitter;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -479,6 +510,7 @@
 				4615DC1B2AA872B600519477 /* lgc.c in Sources */,
 				4615DC1E2AA872B600519477 /* lopcodes.c in Sources */,
 				4615DC382AA872B700519477 /* lzio.c in Sources */,
+				467F17C02AB25F2700F0BBFB /* amiga_cp437_font.cpp in Sources */,
 				4615DC602AA875A000519477 /* wave6581_P_T.cc in Sources */,
 				4615DC622AA875A000519477 /* filter.cc in Sources */,
 				4615DC2C2AA872B700519477 /* lobject.c in Sources */,
@@ -497,13 +529,16 @@
 				4615DC362AA872B700519477 /* ldump.c in Sources */,
 				4615DC662AA875A000519477 /* extfilt.cc in Sources */,
 				4615DC422AA8748900519477 /* sound.cpp in Sources */,
+				467F17BB2AB25D8D00F0BBFB /* blitter.cpp in Sources */,
 				4615DC652AA875A000519477 /* pot.cc in Sources */,
 				4615DC1D2AA872B600519477 /* lauxlib.c in Sources */,
 				4615DC302AA872B700519477 /* lbaselib.c in Sources */,
 				4615DC2A2AA872B700519477 /* ldebug.c in Sources */,
 				466137C32AADE620005E04F9 /* settings.cpp in Sources */,
+				467F17BC2AB25D8D00F0BBFB /* blitter_terminal.cpp in Sources */,
 				4615DC2B2AA872B700519477 /* lundump.c in Sources */,
 				4615DC3A2AA872B700519477 /* lmem.c in Sources */,
+				469F512B2AB3882700552EC1 /* stats.cpp in Sources */,
 				4615DC5E2AA875A000519477 /* wave6581_PST.cc in Sources */,
 				4615DC252AA872B700519477 /* lvm.c in Sources */,
 				4615DC5F2AA875A000519477 /* wave6581__ST.cc in Sources */,
@@ -511,6 +546,7 @@
 				4615DC372AA872B700519477 /* lapi.c in Sources */,
 				4615DC6B2AA875A000519477 /* wave8580_PST.cc in Sources */,
 				4615DC6D2AA875A000519477 /* sid.cc in Sources */,
+				467F17C12AB25F2700F0BBFB /* cbm_cp437_font.cpp in Sources */,
 				4615DC682AA875A000519477 /* voice.cc in Sources */,
 				4615DC312AA872B700519477 /* ldo.c in Sources */,
 				4615DC6A2AA875A000519477 /* wave6581_PS_.cc in Sources */,

@@ -27,20 +27,25 @@ static int l_peek_sound(lua_State *L)
 }
 
 char lua_code[] = R"Lua(
-	local ticks = 50
 
-	function tick()
-	  if ticks == 0 then
-	    poke_sound(0x100, 0x03)
-	    ticks = 29
-	  else
-	    poke_sound(0x100, 0x02)
-	  end
-	  ticks = ticks - 1
-	end
+-- set volume
+poke_sound(0x208, 0x7f)
+poke_sound(0x209, 0x7f)
 
-	poke_sound(0x208, 0x7f)
-	poke_sound(0x209, 0x7f)
+-- initial value of ticks
+local ticks = 50
+
+-- callback function
+function tick()
+  if ticks == 0 then
+    poke_sound(0x100, 0x03)
+    ticks = 29
+  else
+    poke_sound(0x100, 0x02)
+  end
+  ticks = ticks - 1
+end
+
 )Lua";
 
 E64::core_t::core_t(E64::sound_ic *s)

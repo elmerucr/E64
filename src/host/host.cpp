@@ -2,8 +2,10 @@
 #include "host.hpp"
 #include "common.hpp"
 
-E64::host_t::host_t()
+E64::host_t::host_t(E64::blitter_ic *b)
 {
+	blitter = b;
+	
 	printf("[Host] E64 version %i.%i.%i (C)2019-%i elmerucr\n",
 	       E64_MAJOR_VERSION,
 	       E64_MINOR_VERSION,
@@ -206,6 +208,29 @@ void E64::host_t::init_video()
 	printf("[SDL] Renderer %saccelerated\n",
 	       (current_renderer.flags & SDL_RENDERER_ACCELERATED) ? "" : "not ");
 	printf("[SDL] Renderer vsync is %s\n", vsync ? "enabled" : "disabled");
+	
+	/*
+	 * Create two textures that are able to refresh very frequently
+	 */
+	vm_texture = nullptr;
+	//hud_texture = nullptr;
+	create_vm_texture(vm_linear_filtering);
+	//create_hud_texture(hud_linear_filtering);
+	
+	/*
+	 * Scanlines: A static texture that mimics scanlines
+	 */
+	scanline_buffer = new uint16_t[4 * VM_MAX_PIXELS_PER_SCANLINE * VM_MAX_SCANLINES];
+	scanlines_texture = nullptr;
+	create_scanlines_texture(scanlines_linear_filtering);
+
+	/*
+	 * Make sure mouse cursor isn't visible
+	 */
+	SDL_ShowCursor(SDL_DISABLE);
+	
+	//scanlines_alpha = host.settings->scanlines_alpha_at_init;
+	scanlines_alpha = 64;
 }
 
 void E64::host_t::stop_video()
@@ -227,16 +252,86 @@ void E64::host_t::update_title()
 //	}
 }
 
+void E64::host_t::update_textures()
+{
+	SDL_UpdateTexture(vm_texture, NULL, blitter->fb, VM_MAX_PIXELS_PER_SCANLINE * sizeof(uint16_t));
+	//SDL_UpdateTexture(hud_texture, NULL, hud.blitter->fb, HUD_PIXELS_PER_SCANLINE * sizeof(uint16_t));
+}
+
 void E64::host_t::update_screen()
 {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
-	
-//	SDL_RenderCopy(renderer, vm_texture, &machine.blitter->screen_size, NULL);
-//	SDL_SetTextureAlphaMod(scanlines_texture, scanlines_alpha);
-//	SDL_RenderCopy(renderer, scanlines_texture, &machine.blitter->scanline_screen_size, NULL);
+
+	SDL_RenderCopy(renderer, vm_texture, &blitter->screen_size, NULL);
+	SDL_SetTextureAlphaMod(scanlines_texture, scanlines_alpha);
+	SDL_RenderCopy(renderer, scanlines_texture, &blitter->scanline_screen_size, NULL);
 //	
 //	SDL_RenderCopy(renderer, hud_texture, NULL, NULL);
 
 	SDL_RenderPresent(renderer);
+}
+
+void E64::host_t::create_vm_texture(bool linear_filtering)
+{
+	if (vm_texture) SDL_DestroyTexture(vm_texture);
+	
+	if (linear_filtering) {
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+	} else {
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+	}
+	
+	vm_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB4444,
+				    SDL_TEXTUREACCESS_STREAMING,
+				    VM_MAX_PIXELS_PER_SCANLINE, VM_MAX_SCANLINES);
+	SDL_SetTextureBlendMode(vm_texture, SDL_BLENDMODE_NONE);
+}
+
+//void E64::host_t::create_hud_texture(bool linear_filtering)
+//{
+//	if (hud_texture) SDL_DestroyTexture(hud_texture);
+//	
+//	if (linear_filtering) {
+//		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+//	} else {
+//		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+//	}
+//
+//	hud_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB4444,
+//				    SDL_TEXTUREACCESS_STREAMING,
+//				    HUD_PIXELS_PER_SCANLINE, HUD_SCANLINES);
+//	SDL_SetTextureBlendMode(hud_texture, SDL_BLENDMODE_BLEND);
+//}
+
+void E64::host_t::create_scanlines_texture(bool linear_filtering)
+{
+	if (scanlines_texture) SDL_DestroyTexture(scanlines_texture);
+
+	if (linear_filtering) {
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+	} else {
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+	}
+	
+	scanlines_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB4444,
+				    SDL_TEXTUREACCESS_STATIC,
+				    VM_MAX_PIXELS_PER_SCANLINE, 4 * VM_MAX_SCANLINES);
+	SDL_SetTextureBlendMode(scanlines_texture, SDL_BLENDMODE_BLEND);
+	
+	for (int i=0; i<4*VM_MAX_SCANLINES; i++) {
+		for (int j=0; j < VM_MAX_PIXELS_PER_SCANLINE; j++) {
+			uint16_t color;
+			switch (i & 0b11) {
+				case 0b00: color = 0xf000; break;
+				case 0b01: color = 0x0000; break;
+				case 0b10: color = 0x0000; break;
+				case 0b11: color = 0xf000; break;
+				default:   color = 0x0000;
+			};
+			scanline_buffer[(i * VM_MAX_PIXELS_PER_SCANLINE) + j] = color;
+		}
+	}
+	SDL_UpdateTexture(scanlines_texture, NULL, scanline_buffer,
+		VM_MAX_PIXELS_PER_SCANLINE * sizeof(uint16_t));
 }

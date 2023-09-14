@@ -144,11 +144,11 @@ void E64::settings_t::write_settings()
 			fwrite("\nvm_linear_filtering = false", 1, 28, temp_file);
 		}
 		
-		if (host->is_using_hud_linear_filtering()) {
-			fwrite("\nhud_linear_filtering = true", 1, 28, temp_file);
-		} else {
-			fwrite("\nhud_linear_filtering = false", 1, 29, temp_file);
-		}
+//		if (host->is_using_hud_linear_filtering()) {
+//			fwrite("\nhud_linear_filtering = true", 1, 28, temp_file);
+//		} else {
+//			fwrite("\nhud_linear_filtering = false", 1, 29, temp_file);
+//		}
 		
 		fclose(temp_file);
 	}
