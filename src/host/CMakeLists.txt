@@ -1,1 +1,1 @@
-add_library(host STATIC host.cpp settings.cpp)
+add_library(host STATIC host.cpp settings.cpp stats.cpp)
