@@ -1,3 +1,1 @@
-add_library(blitter STATIC blitter.cpp blitter_terminal.cpp)
-
-target_link_libraries(blitter rom)
+add_library(blitter STATIC blitter.cpp blitter_terminal.cpp cbm_cp437_font.cpp amiga_cp437_font.cpp)
