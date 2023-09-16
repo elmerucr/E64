@@ -25,7 +25,6 @@ private:
 	/*
 	 * sid variables etc...
 	 */
-	SID sid[4];
 	cycle_count delta_t_sid0;
 	int16_t sample_buffer_mono_sid0[65536];
 	cycle_count delta_t_sid1;
@@ -69,6 +68,9 @@ private:
 public:
 	sound_ic(host_t *h);
 	~sound_ic();
+	
+	SID sid[4];
+	
 	// read and write functions to data registers of sid array and mixer
 	uint8_t read_byte(uint16_t address);
 	void write_byte(uint16_t address, uint8_t byte);

@@ -20,13 +20,13 @@ class stats_t
 private:
 	E64::host_t *host;
 	
-	std::chrono::time_point<std::chrono::steady_clock> start_vm;
-	std::chrono::time_point<std::chrono::steady_clock> start_vm_old;
+	std::chrono::time_point<std::chrono::steady_clock> start_core;
+	std::chrono::time_point<std::chrono::steady_clock> start_core_old;
 	std::chrono::time_point<std::chrono::steady_clock> start_update_textures;
 	std::chrono::time_point<std::chrono::steady_clock> start_idle;
 	
 	int64_t total_time;
-	int64_t total_vm_time;
+	int64_t total_core_time;
 	int64_t total_textures_time;
 	int64_t total_idle_time;
 
@@ -46,11 +46,13 @@ private:
 	//double smoothed_audio_queue_size_bytes;
 	
 	double vm_per_frame;
-	double smoothed_vm_per_frame;
+	double smoothed_core_per_frame;
 	double textures_per_frame;
 	double smoothed_textures_per_frame;
 	double idle_per_frame;
 	double smoothed_idle_per_frame;
+	
+	double cpu_percentage;
     
 	char statistics_string[256];
     
@@ -61,18 +63,18 @@ public:
     
 	uint32_t frametime;      // in microseconds
 	
-	inline void start_vm_time()
+	inline void start_core_time()
 	{
-		start_vm = std::chrono::steady_clock::now();
-		total_idle_time += std::chrono::duration_cast<std::chrono::microseconds>(start_vm - start_idle).count();
-		total_time += std::chrono::duration_cast<std::chrono::microseconds>(start_vm - start_vm_old).count();
-		start_vm_old = start_vm;
+		start_core = std::chrono::steady_clock::now();
+		total_idle_time += std::chrono::duration_cast<std::chrono::microseconds>(start_core - start_idle).count();
+		total_time += std::chrono::duration_cast<std::chrono::microseconds>(start_core - start_core_old).count();
+		start_core_old = start_core;
 	}
 	
 	inline void start_update_textures_time()
 	{
 		start_update_textures = std::chrono::steady_clock::now();
-		total_vm_time += std::chrono::duration_cast<std::chrono::microseconds>(start_update_textures - start_vm).count();
+		total_core_time += std::chrono::duration_cast<std::chrono::microseconds>(start_update_textures - start_core).count();
 	}
 	
 	inline void start_idle_time()

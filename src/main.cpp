@@ -35,11 +35,11 @@ int main(int argc, char **argv)
 	
 	end_of_frame_time = std::chrono::steady_clock::now();
 	
-	blitter->set_clear_color(0xf0f0);
-	blitter->set_hor_border_size(0x20);
-	blitter->set_hor_border_color(0xf00f);
-	blitter->set_ver_border_size(0x20);
-	blitter->set_ver_border_color(0xff00);
+	blitter->set_clear_color(BLUE_03);
+	blitter->set_hor_border_size(16);
+	blitter->set_hor_border_color(BLUE_01);
+	blitter->set_ver_border_size(0x00);
+	blitter->set_ver_border_color(BLUE_01);
 	
 	stats->reset();
 	
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
 		}
 		
 		/*
-		 * Process events
+		 * Process events placeholder
 		 */
 		SDL_Event my_event;
 		while (SDL_PollEvent(&my_event)) {
@@ -91,7 +91,13 @@ int main(int argc, char **argv)
 		blitter->add_operation_draw_hor_border();
 		while (blitter->run_next_operation()) {}
 		
+		// time measurement
+		stats->start_update_textures_time();
+		
 		host->update_textures();
+		
+		// time measurement
+		stats->start_idle_time();
 		
 		/*
 		 * If vsync is enabled, the update screen function takes more
@@ -119,16 +125,16 @@ int main(int argc, char **argv)
 		host->update_screen();
 		
 		/*
-		 * time measurement, starting vm time
+		 * time measurement, starting core time
 		 *
 		 * This point marks the start of a new frame, also at this very
 		 * moment it's good to measure the soundbuffer size.
 		 */
-		stats->start_vm_time();
+		stats->start_core_time();
 		
 		stats->process_parameters();
 		
-		printf("%s\n", stats->summary());
+		printf("%s\n\n", stats->summary());
 	}
 	
 	printf("[E64] Virtual machine ran for %.2f seconds\n", (double)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - app_start_time).count() / 1000);

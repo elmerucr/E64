@@ -26,14 +26,14 @@
 /*
  * Audio related
  */
-#define	SAMPLE_RATE		44100
+#define	SAMPLE_RATE		48000
 #define AUDIO_BUFFER_SIZE	8000.0
 
 /*
  * Video related
  */
-#define VM_MAX_PIXELS_PER_SCANLINE	640
-#define VM_MAX_SCANLINES		400
+#define VM_MAX_PIXELS_PER_SCANLINE	384
+#define VM_MAX_SCANLINES		240
 #define FPS				60
 
 /*

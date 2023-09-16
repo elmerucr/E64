@@ -137,10 +137,10 @@ void E64::host_t::init_video()
 		printf(" \'%s\' ", SDL_GetVideoDriver(i));
 	printf("\n[SDL] Display now using backend '%s'\n", SDL_GetCurrentVideoDriver());
 
-	/* default starts at 3
+	/*
 	 * TODO: add config option to lua?
 	 */
-	current_window_size = 3;
+	current_window_size = 2;
 	
 	/*
 	 * Start with windowed screen
