@@ -23,4 +23,4 @@ add_subdirectory(src/)
 
 add_executable(E64 src/main.cpp)
 
-target_link_libraries(E64 blitter core host sound ${SDL2_LIBRARIES})
+target_link_libraries(E64 blitter core host hud sound ${SDL2_LIBRARIES})
