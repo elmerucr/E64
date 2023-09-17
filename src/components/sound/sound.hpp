@@ -13,7 +13,6 @@
 
 #include "sid.h" // resid header
 #include "analog.hpp"
-
 #include "host.hpp"
 
 namespace E64
@@ -21,7 +20,6 @@ namespace E64
 
 class sound_ic {
 private:
-	host_t *host;
 	/*
 	 * sid variables etc...
 	 */
@@ -66,7 +64,7 @@ private:
 	
 	uint16_t sound_starting;
 public:
-	sound_ic(host_t *h);
+	sound_ic();
 	~sound_ic();
 	
 	SID sid[4];
@@ -76,7 +74,7 @@ public:
 	void write_byte(uint16_t address, uint8_t byte);
 	// run the no of cycles that need to be processed by the sid chips on the sound device
 	// and process all the accumulated cycles (flush into soundbuffer)
-	void run(uint32_t number_of_cycles);
+	void run(uint32_t number_of_cycles, host_t *h);
 	void reset();
 	
 	

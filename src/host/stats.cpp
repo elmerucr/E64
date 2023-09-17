@@ -13,11 +13,6 @@
 #include "stats.hpp"
 #include "common.hpp"
 
-E64::stats_t::stats_t(E64::host_t *h)
-{
-	host = h;
-}
-
 void E64::stats_t::reset()
 {
 	total_time = 0;
@@ -89,15 +84,13 @@ void E64::stats_t::process_parameters()
 		status_bar_framecounter = 0;
 		
 		snprintf(statistics_string, 256, "                                      snd+core: %5.2f ms\n"
-						 "    screen refresh: %6.2f fps  texture update: %5.2f ms\n"
+						 "         framerate: %6.2f fps  texture update: %5.2f ms\n"
 						 "       soundbuffer: %6.2f kb             idle: %5.2f ms\n"
-			 "          host cpu: %6.2f %%             total: %5.2f ms",
+						 "          host cpu: %6.2f %%             total: %5.2f ms",
 						 smoothed_core_per_frame/1000,
 						 smoothed_framerate, smoothed_textures_per_frame/1000,
 						 audio_queue_size_bytes/1024, smoothed_idle_per_frame/1000,
-			 cpu_percentage,
+						 cpu_percentage,
 						 (smoothed_core_per_frame+smoothed_textures_per_frame+smoothed_idle_per_frame)/1000);
 	}
-	
-	audio_queue_size_bytes = host->get_queued_audio_size_bytes();
 }

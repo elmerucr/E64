@@ -17,12 +17,12 @@ class core_t {
 private:
 	lua_State *L;
 	
-	bool tick_active{false};
+	bool timer0_active{false};
 public:
 	core_t(sound_ic *s);
 	~core_t();
 	
-	void tick();
+	void timer0_callback();
 };
 
 }

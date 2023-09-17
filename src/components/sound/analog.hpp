@@ -7,7 +7,8 @@
 /*
  * All 2 byte pairs are unsigned 16bit BIG ENDIAN
  *
- * 0x00     :Waveforms and Gate
+ * 0x00     : Waveforms and Gate
+ *
  *   7 6 5 4 3 2 1 0
  *   | | | |   | | |
  *   | | | |   | | +-- Gate bit, 1=open, 0=closed
@@ -21,8 +22,7 @@
  *                      0011 = Sawtooth
  *                      0100 = Noise
  *
- * 0x01     : Pitch Fact
- or in semitones difference
+ * 0x01     : Pitch Factor in semitones difference
  * 0x02/0x03: Digital frequency like SID chip @985248Hz
  * 0x04/0x05: Square wave duty, 0=0% and 65535=100%
  * 0x06/0x07: Attack, 0=0.0000s and 65535=6.5535s
@@ -30,7 +30,6 @@
  * 0x0a/0x0b: Sustain, 0=zero volume, 65535=max volume
  * 0x0c/0x0d: Release, 0=0.000s and 65535=65.535s
  * 0x0e/0x0f: Pitch bend duration, 0=0.000s and 65535=65.535s
- *
  */
 
 #ifndef ANALOG_HPP
@@ -195,6 +194,9 @@ public:
 	void write_byte(uint8_t address, uint8_t byte);
 	
 	void run(uint16_t no_samples, int16_t *buffer);
+	
+	inline void set_digital_frequency(uint16_t f) { digital_freq = f; set_frequency(); }
+	inline uint16_t get_digital_frequency() { return digital_freq; }
 };
 
 }

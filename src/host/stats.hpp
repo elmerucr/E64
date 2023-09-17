@@ -7,7 +7,6 @@
  
 #include <cstdint>
 #include <chrono>
-#include "host.hpp"
 
 #ifndef STATS_HPP
 #define STATS_HPP
@@ -18,8 +17,6 @@ namespace E64
 class stats_t
 {
 private:
-	E64::host_t *host;
-	
 	std::chrono::time_point<std::chrono::steady_clock> start_core;
 	std::chrono::time_point<std::chrono::steady_clock> start_core_old;
 	std::chrono::time_point<std::chrono::steady_clock> start_update_textures;
@@ -43,7 +40,6 @@ private:
 	double smoothed_framerate;
 
 	double audio_queue_size_bytes;
-	//double smoothed_audio_queue_size_bytes;
 	
 	double vm_per_frame;
 	double smoothed_core_per_frame;
@@ -57,8 +53,6 @@ private:
 	char statistics_string[256];
     
 public:
-	stats_t(E64::host_t *h);
-	
 	void reset();
     
 	uint32_t frametime;      // in microseconds
@@ -82,13 +76,17 @@ public:
 		start_idle = std::chrono::steady_clock::now();
 		total_textures_time += std::chrono::duration_cast<std::chrono::microseconds>(start_idle - start_update_textures).count();
 	}
+	
+	inline void set_queued_audio_bytes(double b)
+	{
+		audio_queue_size_bytes = b;
+	}
 
 	// process calculations on parameters (fps/mhz/buffersize)
 	void process_parameters();
 
 	inline double current_framerate()          { return framerate; }
 	inline double current_smoothed_framerate() { return smoothed_framerate; }
-	inline double current_audio_queue_size()   { return audio_queue_size_bytes; }
 	inline char   *summary()                   { return statistics_string; }
 };
 

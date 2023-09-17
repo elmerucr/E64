@@ -12,6 +12,7 @@
 #include "core.hpp"
 #include "blitter.hpp"
 #include "stats.hpp"
+#include "hud.hpp"
 #include <chrono>
 #include <thread>
 
@@ -20,12 +21,14 @@ int main(int argc, char **argv)
 	std::chrono::time_point<std::chrono::steady_clock> app_start_time = std::chrono::steady_clock::now();
 	std::chrono::time_point<std::chrono::steady_clock> end_of_frame_time;
 	
-	E64::blitter_ic *blitter = new E64::blitter_ic(VM_MAX_PIXELS_PER_SCANLINE, VM_MAX_SCANLINES);
-	E64::host_t *host = new E64::host_t(blitter);
+	E64::blitter_ic *vm_blitter = new E64::blitter_ic(VM_MAX_PIXELS_PER_SCANLINE, VM_MAX_SCANLINES);
+	E64::blitter_ic *hud_blitter = new E64::blitter_ic(VM_MAX_PIXELS_PER_SCANLINE, VM_MAX_SCANLINES);
+	E64::host_t *host = new E64::host_t();
 	E64::settings_t *settings = new E64::settings_t(host);
-	E64::sound_ic *sound = new E64::sound_ic(host);
+	E64::sound_ic *sound = new E64::sound_ic();
 	E64::core_t *core = new E64::core_t(sound);
-	E64::stats_t *stats = new E64::stats_t(host);
+	E64::stats_t *stats = new E64::stats_t();
+	E64::hud_t *hud = new E64::hud_t(hud_blitter);
 	
 	bool running = true;
 	
@@ -35,13 +38,17 @@ int main(int argc, char **argv)
 	
 	end_of_frame_time = std::chrono::steady_clock::now();
 	
-	blitter->set_clear_color(BLUE_03);
-	blitter->set_hor_border_size(16);
-	blitter->set_hor_border_color(BLUE_01);
-	blitter->set_ver_border_size(0x00);
-	blitter->set_ver_border_color(BLUE_01);
+	vm_blitter->set_clear_color(BLUE_03);
+	vm_blitter->set_hor_border_size(16);
+	vm_blitter->set_hor_border_color(BLUE_01);
+	vm_blitter->set_ver_border_size(0x00);
+	vm_blitter->set_ver_border_color(BLUE_01);
+	
+	hud_blitter->set_ver_border_size(16);
+	hud_blitter->set_ver_border_color(AMBER_04);
 	
 	stats->reset();
+	hud_blitter->reset();
 	
 	/*
 	 * Frame loop
@@ -51,6 +58,7 @@ int main(int argc, char **argv)
 		 * Audio: Measure audio_buffer and determine total cycles to run
 		 */
 		double frame_cycles_remaining = host->get_queued_audio_size_bytes(); // contains buffer in bytes
+		stats->set_queued_audio_bytes(frame_cycles_remaining);
 		//printf("buffer in bytes: %i\n", (int32_t)frame_cycles_remaining); // print it
 		frame_cycles_remaining = SID_CLOCK_SPEED * (AUDIO_BUFFER_SIZE - frame_cycles_remaining) / (host->get_bytes_per_ms() * 1000); // adjust to needed buffer size + change to cycles
 		frame_cycles_remaining += SID_CLOCK_SPEED / FPS;
@@ -61,16 +69,12 @@ int main(int argc, char **argv)
 		while (frame_cycles_remaining) {
 			if (tick_cycles_remaining > frame_cycles_remaining) {
 				tick_cycles_remaining -= frame_cycles_remaining;
-				sound->run(frame_cycles_remaining);
+				sound->run(frame_cycles_remaining, host);
 				frame_cycles_remaining = 0;
 			} else {
 				frame_cycles_remaining -= tick_cycles_remaining;
-				sound->run(tick_cycles_remaining);
-				
-				// do_callback
-				core->tick();
-				// end of do_callback
-				
+				sound->run(tick_cycles_remaining, host);
+				core->timer0_callback();
 				tick_cycles_remaining = cycles_per_tick;
 			}
 		}
@@ -84,17 +88,22 @@ int main(int argc, char **argv)
 		}
 		
 		/*
-		 * Blitting
+		 * Blitting vm
 		 */
-		blitter->clear_framebuffer();
-		blitter->add_operation_draw_ver_border();
-		blitter->add_operation_draw_hor_border();
-		while (blitter->run_next_operation()) {}
+		vm_blitter->clear_framebuffer();
+		vm_blitter->add_operation_draw_ver_border();
+		vm_blitter->add_operation_draw_hor_border();
+		while (vm_blitter->run_next_operation()) {}
+		
+		hud_blitter->clear_framebuffer();
+		hud_blitter->add_operation_draw_ver_border();
+		hud_blitter->add_operation_draw_blit(&hud_blitter->blit[0]);
+		while (hud_blitter->run_next_operation()) {}
 		
 		// time measurement
 		stats->start_update_textures_time();
 		
-		host->update_textures();
+		host->update_textures(vm_blitter, hud_blitter);
 		
 		// time measurement
 		stats->start_idle_time();
@@ -122,7 +131,7 @@ int main(int argc, char **argv)
 			}
 		}
 		
-		host->update_screen();
+		host->update_screen(vm_blitter);
 		
 		/*
 		 * time measurement, starting core time
@@ -139,12 +148,14 @@ int main(int argc, char **argv)
 	
 	printf("[E64] Virtual machine ran for %.2f seconds\n", (double)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - app_start_time).count() / 1000);
 	
+	delete hud;
 	delete stats;
 	delete core;
 	delete sound;
 	delete settings;
 	delete host;
-	delete blitter;
+	delete hud_blitter;
+	delete vm_blitter;
 	
 	return 0;
 }

@@ -8,10 +8,8 @@
 #include "sound.hpp"
 #include "common.hpp"
 
-E64::sound_ic::sound_ic(host_t *h) : analog0(0), analog1(1), analog2(2), analog3(3)
+E64::sound_ic::sound_ic() : analog0(0), analog1(1), analog2(2), analog3(3)
 {
-	host = h;
-	
 	/*
 	 * Remapping SID registers, rewiring necessary to have big endian
 	 * support and even addresses for word access.
@@ -232,7 +230,7 @@ void E64::sound_ic::write_byte(uint16_t address, uint8_t byte)
 	}
 }
 
-void E64::sound_ic::run(uint32_t number_of_cycles)
+void E64::sound_ic::run(uint32_t number_of_cycles, E64::host_t *h)
 {
 	delta_t_sid0 += number_of_cycles;
 	delta_t_sid1 = delta_t_sid0;
@@ -304,7 +302,7 @@ void E64::sound_ic::run(uint32_t number_of_cycles)
 		record_buffer_push(sample_buffer_stereo[(2 * i) + 1]);
 	}
 
-	host->queue_audio((void *)sample_buffer_stereo, 2 * n * host->get_bytes_per_sample());
+	h->queue_audio((void *)sample_buffer_stereo, 2 * n * h->get_bytes_per_sample());
 }
 
 void E64::sound_ic::reset()

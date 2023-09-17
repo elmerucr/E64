@@ -2,11 +2,9 @@
 #include "host.hpp"
 #include "common.hpp"
 
-E64::host_t::host_t(E64::blitter_ic *b)
+E64::host_t::host_t()
 {
-	blitter = b;
-	
-	printf("[Host] E64 version %i.%i.%i (C)2019-%i elmerucr\n",
+	printf("E64 version %i.%i.%i (C)2019-%i elmerucr\n",
 	       E64_MAJOR_VERSION,
 	       E64_MINOR_VERSION,
 	       E64_BUILD, E64_YEAR);
@@ -28,18 +26,18 @@ E64::host_t::host_t(E64::blitter_ic *b)
 	sdl_preference_path = SDL_GetPrefPath("elmerucr", "E64");
 	printf("[SDL] Preference path is: %s\n", sdl_preference_path);
 	
-	init_audio();
-	init_video();
+	audio_init();
+	video_init();
 }
 
 E64::host_t::~host_t()
 {
-	stop_video();
-	stop_audio();
+	video_stop();
+	audio_stop();
 	SDL_Quit();
 }
 
-void E64::host_t::init_audio()
+void E64::host_t::audio_init()
 {
 	/*
 	 * Print the list of audio backends
@@ -52,23 +50,23 @@ void E64::host_t::init_audio()
 	printf("\n");
 	
 	// What's this all about???
-	SDL_zero(want);
+	SDL_zero(audio_spec_want);
 	
 	/*
 	 * Define audio specification
 	 */
-	want.freq = SAMPLE_RATE;
-	want.format = AUDIO_F32SYS;
-	want.channels = 2;
-	want.samples = 512;
-	want.callback = nullptr;
+	audio_spec_want.freq = SAMPLE_RATE;
+	audio_spec_want.format = AUDIO_F32SYS;
+	audio_spec_want.channels = 2;
+	audio_spec_want.samples = 512;
+	audio_spec_want.callback = nullptr;
 	
 	/*
 	 * Open audio device, allowing any changes to the specification
 	 */
-	audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have,
+	audio_device = SDL_OpenAudioDevice(NULL, 0, &audio_spec_want, &audio_spec_have,
 						 SDL_AUDIO_ALLOW_ANY_CHANGE);
-	if(!audio_dev) {
+	if(!audio_device) {
 		printf("[SDL] failed to open audio device: %s\n", SDL_GetError());
 		// this is not enough and even wrong...
 		// consider a system without audio support?
@@ -77,55 +75,55 @@ void E64::host_t::init_audio()
 	
 	printf("[SDL] audio now using backend '%s'\n", SDL_GetCurrentAudioDriver());
 	printf("[SDL] audio information:        want\thave\n");
-	printf("[SDL]         frequency         %d\t%d\n", want.freq, have.freq);
+	printf("[SDL]         frequency         %d\t%d\n", audio_spec_want.freq, audio_spec_have.freq);
 	printf("[SDL]         format\n"
 	       "[SDL]          float            %s\t%s\n",
-	       SDL_AUDIO_ISFLOAT(want.format) ? "yes" : "no",
-	       SDL_AUDIO_ISFLOAT(have.format) ? "yes" : "no");
+	       SDL_AUDIO_ISFLOAT(audio_spec_want.format) ? "yes" : "no",
+	       SDL_AUDIO_ISFLOAT(audio_spec_have.format) ? "yes" : "no");
 	printf("[SDL]          signed           %s\t%s\n",
-	       SDL_AUDIO_ISSIGNED(want.format) ? "yes" : "no",
-	       SDL_AUDIO_ISSIGNED(have.format) ? "yes" : "no");
+	       SDL_AUDIO_ISSIGNED(audio_spec_want.format) ? "yes" : "no",
+	       SDL_AUDIO_ISSIGNED(audio_spec_have.format) ? "yes" : "no");
 	printf("[SDL]          big endian       %s\t%s\n",
-	       SDL_AUDIO_ISBIGENDIAN(want.format) ? "yes" : "no",
-	       SDL_AUDIO_ISBIGENDIAN(have.format) ? "yes" : "no");
+	       SDL_AUDIO_ISBIGENDIAN(audio_spec_want.format) ? "yes" : "no",
+	       SDL_AUDIO_ISBIGENDIAN(audio_spec_have.format) ? "yes" : "no");
 	printf("[SDL]          bitsize          %d\t%d\n",
-	       SDL_AUDIO_BITSIZE(want.format),
-	       SDL_AUDIO_BITSIZE(have.format));
-	printf("[SDL]          channels         %d\t%d\n", want.channels, have.channels);
-	printf("[SDL]          samples          %d\t%d\n", want.samples, have.samples);
+	       SDL_AUDIO_BITSIZE(audio_spec_want.format),
+	       SDL_AUDIO_BITSIZE(audio_spec_have.format));
+	printf("[SDL]          channels         %d\t%d\n", audio_spec_want.channels, audio_spec_have.channels);
+	printf("[SDL]          samples          %d\t%d\n", audio_spec_want.samples, audio_spec_have.samples);
 	
-	bytes_per_sample = SDL_AUDIO_BITSIZE(have.format) / 8;
-	printf("[SDL] audio is using %d bytes per sample per channel\n", bytes_per_sample);
+	audio_bytes_per_sample = SDL_AUDIO_BITSIZE(audio_spec_have.format) / 8;
+	printf("[SDL] audio is using %d bytes per sample per channel\n", audio_bytes_per_sample);
 	
-	bytes_per_ms = (double)SAMPLE_RATE * have.channels * bytes_per_sample / 1000;
-	printf("[SDL] audio is using %f bytes per ms\n", bytes_per_ms);
+	audio_bytes_per_ms = (double)SAMPLE_RATE * audio_spec_have.channels * audio_bytes_per_sample / 1000;
+	printf("[SDL] audio is using %f bytes per ms\n", audio_bytes_per_ms);
 	
 	audio_running = false;
 	
-	start_audio();
+	audio_start();
 }
 
-void E64::host_t::start_audio()
+void E64::host_t::audio_start()
 {
 	if (!audio_running) {
 		printf("[SDL] start audio\n");
 		// Unpause audiodevice, and process audiostream
-		SDL_PauseAudioDevice(audio_dev, 0);
+		SDL_PauseAudioDevice(audio_device, 0);
 		audio_running = true;
 	}
 }
 
-void E64::host_t::stop_audio()
+void E64::host_t::audio_stop()
 {
 	if (audio_running) {
 		printf("[SDL] stop audio\n");
 		// Pause audiodevice
-		SDL_PauseAudioDevice(audio_dev, 1);
+		SDL_PauseAudioDevice(audio_device, 1);
 		audio_running = false;
 	}
 }
 
-void E64::host_t::init_video()
+void E64::host_t::video_init()
 {
 	/*
 	 * Print the list of video backends
@@ -152,14 +150,14 @@ void E64::host_t::init_video()
 	 * Note: Usage of SDL_WINDOW_ALLOW_HIGHDPI actually helps: interpolation
 	 * of pixels at unlogical window sizes looks a lot better!
 	 */
-	window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED,
+	video_window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED,
 				  SDL_WINDOWPOS_CENTERED,
-				  window_sizes[current_window_size].x,
-				  window_sizes[current_window_size].y,
+				  video_window_sizes[current_window_size].x,
+				  video_window_sizes[current_window_size].y,
 				  SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE |
 				  SDL_WINDOW_ALLOW_HIGHDPI);
     
-	SDL_GetWindowSize(window, &window_width, &window_height);
+	SDL_GetWindowSize(video_window, &window_width, &window_height);
 	printf("[SDL] Display window dimension: %u x %u pixels\n",
 	       window_width, window_height);
 	
@@ -174,7 +172,7 @@ void E64::host_t::init_video()
 
 	SDL_DisplayMode current_mode;
 
-	SDL_GetCurrentDisplayMode(SDL_GetWindowDisplayIndex(window), &current_mode);
+	SDL_GetCurrentDisplayMode(SDL_GetWindowDisplayIndex(video_window), &current_mode);
 
 	printf("[SDL] Display current desktop dimension: %i x %i\n",
 	       current_mode.w, current_mode.h);
@@ -188,13 +186,13 @@ void E64::host_t::init_video()
     
 	if (current_mode.refresh_rate == FPS) {
 		printf("[SDL] Display: this is equal to the FPS of E64, trying for vsync\n");
-		renderer = SDL_CreateRenderer(window, -1,
+		renderer = SDL_CreateRenderer(video_window, -1,
 					      SDL_RENDERER_ACCELERATED |
 					      SDL_RENDERER_TARGETTEXTURE |
 					      SDL_RENDERER_PRESENTVSYNC);
 	} else {
 		printf("[SDL] Display: this differs from the FPS of E64, going for software FPS\n");
-		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
+		renderer = SDL_CreateRenderer(video_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
 	}
 	
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -213,9 +211,9 @@ void E64::host_t::init_video()
 	 * Create two textures that are able to refresh very frequently
 	 */
 	vm_texture = nullptr;
-	//hud_texture = nullptr;
-	create_vm_texture(vm_linear_filtering);
-	//create_hud_texture(hud_linear_filtering);
+	hud_texture = nullptr;
+	create_vm_texture(linear_filtering);
+	create_hud_texture(linear_filtering);
 	
 	/*
 	 * Scanlines: A static texture that mimics scanlines
@@ -233,10 +231,10 @@ void E64::host_t::init_video()
 	scanlines_alpha = 64;
 }
 
-void E64::host_t::stop_video()
+void E64::host_t::video_stop()
 {
 	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
+	SDL_DestroyWindow(video_window);
 }
 
 void E64::host_t::update_title()
@@ -246,28 +244,28 @@ void E64::host_t::update_title()
 //		// TODO: ?
 //		//SDL_SetWindowIcon(SDL_Window *window, SDL_Surface *icon);
 //	} else {
-		SDL_SetWindowTitle(window, "E64");
+		SDL_SetWindowTitle(video_window, "E64");
 //		// TODO: ?
 //		//SDL_SetWindowIcon(SDL_Window *window, SDL_Surface *icon);
 //	}
 }
 
-void E64::host_t::update_textures()
+void E64::host_t::update_textures(E64::blitter_ic *vm_b, E64::blitter_ic *hud_b)
 {
-	SDL_UpdateTexture(vm_texture, NULL, blitter->fb, VM_MAX_PIXELS_PER_SCANLINE * sizeof(uint16_t));
-	//SDL_UpdateTexture(hud_texture, NULL, hud.blitter->fb, HUD_PIXELS_PER_SCANLINE * sizeof(uint16_t));
+	SDL_UpdateTexture(vm_texture, NULL, vm_b->fb, VM_MAX_PIXELS_PER_SCANLINE * sizeof(uint16_t));
+	SDL_UpdateTexture(hud_texture, NULL, hud_b->fb, VM_MAX_PIXELS_PER_SCANLINE * sizeof(uint16_t));
 }
 
-void E64::host_t::update_screen()
+void E64::host_t::update_screen(E64::blitter_ic *vm_b)
 {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
 
-	SDL_RenderCopy(renderer, vm_texture, &blitter->screen_size, NULL);
+	SDL_RenderCopy(renderer, vm_texture, &vm_b->screen_size, NULL);
 	SDL_SetTextureAlphaMod(scanlines_texture, scanlines_alpha);
-	SDL_RenderCopy(renderer, scanlines_texture, &blitter->scanline_screen_size, NULL);
-//	
-//	SDL_RenderCopy(renderer, hud_texture, NULL, NULL);
+	SDL_RenderCopy(renderer, scanlines_texture, &vm_b->scanline_screen_size, NULL);
+
+	SDL_RenderCopy(renderer, hud_texture, NULL, NULL);
 
 	SDL_RenderPresent(renderer);
 }
@@ -288,21 +286,21 @@ void E64::host_t::create_vm_texture(bool linear_filtering)
 	SDL_SetTextureBlendMode(vm_texture, SDL_BLENDMODE_NONE);
 }
 
-//void E64::host_t::create_hud_texture(bool linear_filtering)
-//{
-//	if (hud_texture) SDL_DestroyTexture(hud_texture);
-//	
-//	if (linear_filtering) {
-//		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
-//	} else {
-//		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
-//	}
-//
-//	hud_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB4444,
-//				    SDL_TEXTUREACCESS_STREAMING,
-//				    HUD_PIXELS_PER_SCANLINE, HUD_SCANLINES);
-//	SDL_SetTextureBlendMode(hud_texture, SDL_BLENDMODE_BLEND);
-//}
+void E64::host_t::create_hud_texture(bool linear_filtering)
+{
+	if (hud_texture) SDL_DestroyTexture(hud_texture);
+	
+	if (linear_filtering) {
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+	} else {
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+	}
+
+	hud_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB4444,
+				    SDL_TEXTUREACCESS_STREAMING,
+				    VM_MAX_PIXELS_PER_SCANLINE, VM_MAX_SCANLINES);
+	SDL_SetTextureBlendMode(hud_texture, SDL_BLENDMODE_BLEND);
+}
 
 void E64::host_t::create_scanlines_texture(bool linear_filtering)
 {

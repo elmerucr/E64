@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4603A9E62AB796C8001018FF /* hud.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4603A9E42AB796C8001018FF /* hud.cpp */; };
 		4615DBCC2AA86F2A00519477 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4615DBCB2AA86F2A00519477 /* Assets.xcassets */; };
 		4615DBCF2AA86F2A00519477 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4615DBCE2AA86F2A00519477 /* Preview Assets.xcassets */; };
 		4615DBD82AA86FD100519477 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4615DBD72AA86FD100519477 /* main.cpp */; };
@@ -87,6 +88,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4603A9E42AB796C8001018FF /* hud.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hud.cpp; path = ../../src/hud/hud.cpp; sourceTree = "<group>"; };
+		4603A9E52AB796C8001018FF /* hud.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = hud.hpp; path = ../../src/hud/hud.hpp; sourceTree = "<group>"; };
 		4615DBC42AA86F2900519477 /* E64.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = E64.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4615DBCB2AA86F2A00519477 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4615DBCE2AA86F2A00519477 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -212,6 +215,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4603A9E32AB7943E001018FF /* hud */ = {
+			isa = PBXGroup;
+			children = (
+				4603A9E52AB796C8001018FF /* hud.hpp */,
+				4603A9E42AB796C8001018FF /* hud.cpp */,
+			);
+			name = hud;
+			sourceTree = "<group>";
+		};
 		4615DBBB2AA86F2900519477 = {
 			isa = PBXGroup;
 			children = (
@@ -252,6 +264,7 @@
 			isa = PBXGroup;
 			children = (
 				4615DC6E2AA876ED00519477 /* host */,
+				4603A9E32AB7943E001018FF /* hud */,
 				4615DC3B2AA873A100519477 /* components */,
 				4615DBDE2AA8721800519477 /* Lua */,
 				4615DBD72AA86FD100519477 /* main.cpp */,
@@ -541,6 +554,7 @@
 				469F512B2AB3882700552EC1 /* stats.cpp in Sources */,
 				4615DC5E2AA875A000519477 /* wave6581_PST.cc in Sources */,
 				4615DC252AA872B700519477 /* lvm.c in Sources */,
+				4603A9E62AB796C8001018FF /* hud.cpp in Sources */,
 				4615DC5F2AA875A000519477 /* wave6581__ST.cc in Sources */,
 				4615DC212AA872B700519477 /* lstrlib.c in Sources */,
 				4615DC372AA872B700519477 /* lapi.c in Sources */,

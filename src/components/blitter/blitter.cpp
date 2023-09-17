@@ -207,17 +207,9 @@ uint32_t E64::blitter_ic::clear_framebuffer()
 
 uint32_t E64::blitter_ic::draw_horizontal_border()
 {
-	//uint32_t pixels = pixels_per_scanline * hor_border_size;
 	uint32_t pixels{0};
 	
 	uint32_t constant = ((current_blitter_height * 8) - hor_border_size) * pixels_per_scanline;
-	
-//	// still doing too much
-//	while (pixels--) {
-//		alpha_blend(&fb[pixels], &hor_border_color);
-//		alpha_blend(&fb[pixels + constant], &hor_border_color);
-//		//alpha_blend(&fb[total_pixels - 1 - pixels], &hor_border_color);
-//	}
 	
 	for (uint32_t y=0; y<hor_border_size; y++) {
 		for (uint32_t x=0; x<(current_blitter_width*8); x++) {
@@ -227,22 +219,12 @@ uint32_t E64::blitter_ic::draw_horizontal_border()
 			pixels += 2;
 		}
 	}
+	
 	return pixels;
-//	return 2 * pixels_per_scanline * hor_border_size;
 }
 
 uint32_t E64::blitter_ic::draw_vertical_border()
 {
-//	uint32_t pixels = scanlines * ver_border_size;
-//	while (pixels--) {
-//		uint32_t norm = (pixels % ver_border_size) + ((pixels / ver_border_size) * pixels_per_scanline);
-//		//fb[norm] = fb[TOTAL_PIXELS - 1 - norm] = ver_border_color;
-//		alpha_blend(&fb[norm], &ver_border_color);
-//		alpha_blend(&fb[total_pixels - 1 - norm], &ver_border_color);
-//	}
-//
-//	return 2 * scanlines * ver_border_size;
-	
 	uint32_t pixels{0};
 	uint32_t constant = (8 * current_blitter_width) - ver_border_size;
 	
