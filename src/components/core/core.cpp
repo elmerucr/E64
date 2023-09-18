@@ -65,9 +65,21 @@ static int l_sid1_set_mode_volume(lua_State *L)
 	return 0;
 }
 
+static int l_mixer_sid1_left_set_volume(lua_State *L)
+{
+	uint8_t vol = lua_tointeger(L, 1);
+	sound->write_byte(0x200, vol);
+	return 0;
+}
+
+static int l_mixer_sid1_right_set_volume(lua_State *L)
+{
+	uint8_t vol = lua_tointeger(L, 1);
+	sound->write_byte(0x201, vol);
+	return 0;
+}
+
 char lua_code[] = R"Lua(  
-
-
 
 -- spy vs spy i track 1
 local track1 = {
@@ -104,9 +116,8 @@ local track2 = {
  }
 
 -- volume
---mixer_sid1_left_set_volume(128)
-poke_sound(0x200,128)
-poke_sound(0x201,128)
+mixer_sid1_left_set_volume(128)
+mixer_sid1_right_set_volume(128)
 sid1_set_mode_volume(15)
 
 -- pulse width
@@ -181,6 +192,11 @@ E64::core_t::core_t(E64::sound_ic *s)
 	
 	lua_pushcfunction(L, l_sid1_set_mode_volume);
 	lua_setglobal(L, "sid1_set_mode_volume");
+	
+	lua_pushcfunction(L, l_mixer_sid1_left_set_volume);
+	lua_setglobal(L, "mixer_sid1_left_set_volume");
+	lua_pushcfunction(L, l_mixer_sid1_right_set_volume);
+	lua_setglobal(L, "mixer_sid1_right_set_volume");
 	
 	luaL_dostring(L, lua_code);
 }

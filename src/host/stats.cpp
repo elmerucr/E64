@@ -83,10 +83,10 @@ void E64::stats_t::process_parameters()
 	if (status_bar_framecounter == status_bar_framecounter_interval) {
 		status_bar_framecounter = 0;
 		
-		snprintf(statistics_string, 256, "                                      snd+core: %5.2f ms\n"
-						 "         framerate: %6.2f fps  texture update: %5.2f ms\n"
-						 "       soundbuffer: %6.2f kb             idle: %5.2f ms\n"
-						 "          host cpu: %6.2f %%             total: %5.2f ms",
+		snprintf(statistics_string, 256, "\n                          snd+core: %5.2f ms\n"
+						 "   framerate: %6.2f fps  textures: %5.2f ms\n"
+						 " soundbuffer: %6.2f kb       idle: %5.2f ms\n"
+						 "    host cpu: %6.2f %%       total: %5.2f ms",
 						 smoothed_core_per_frame/1000,
 						 smoothed_framerate, smoothed_textures_per_frame/1000,
 						 audio_queue_size_bytes/1024, smoothed_idle_per_frame/1000,

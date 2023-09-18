@@ -17,6 +17,8 @@ private:
 	blitter_ic *blitter;
 public:
 	hud_t(E64::blitter_ic *b);
+	
+	void print_stats(const char *text);
 };
 
 

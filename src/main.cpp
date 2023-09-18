@@ -44,8 +44,8 @@ int main(int argc, char **argv)
 	vm_blitter->set_ver_border_size(0x00);
 	vm_blitter->set_ver_border_color(BLUE_01);
 	
-	hud_blitter->set_ver_border_size(16);
-	hud_blitter->set_ver_border_color(AMBER_04);
+	//hud_blitter->set_ver_border_size(16);
+	//hud_blitter->set_ver_border_color(AMBER_04);
 	
 	stats->reset();
 	hud_blitter->reset();
@@ -55,11 +55,10 @@ int main(int argc, char **argv)
 	 */
 	while (running) {
 		/*
-		 * Audio: Measure audio_buffer and determine total cycles to run
+		 * Audio: Measure audio_buffer and determine cycles to run
 		 */
 		double frame_cycles_remaining = host->get_queued_audio_size_bytes(); // contains buffer in bytes
 		stats->set_queued_audio_bytes(frame_cycles_remaining);
-		//printf("buffer in bytes: %i\n", (int32_t)frame_cycles_remaining); // print it
 		frame_cycles_remaining = SID_CLOCK_SPEED * (AUDIO_BUFFER_SIZE - frame_cycles_remaining) / (host->get_bytes_per_ms() * 1000); // adjust to needed buffer size + change to cycles
 		frame_cycles_remaining += SID_CLOCK_SPEED / FPS;
 		
@@ -95,17 +94,21 @@ int main(int argc, char **argv)
 		vm_blitter->add_operation_draw_hor_border();
 		while (vm_blitter->run_next_operation()) {}
 		
+		/*
+		 * Blitting hud
+		 */
 		hud_blitter->clear_framebuffer();
-		hud_blitter->add_operation_draw_ver_border();
+		//hud_blitter->add_operation_draw_ver_border();
+		hud->print_stats(stats->summary());
 		hud_blitter->add_operation_draw_blit(&hud_blitter->blit[0]);
 		while (hud_blitter->run_next_operation()) {}
 		
-		// time measurement
+		// Time measurement
 		stats->start_update_textures_time();
 		
 		host->update_textures(vm_blitter, hud_blitter);
 		
-		// time measurement
+		// Time measurement
 		stats->start_idle_time();
 		
 		/*
@@ -142,8 +145,6 @@ int main(int argc, char **argv)
 		stats->start_core_time();
 		
 		stats->process_parameters();
-		
-		printf("%s\n\n", stats->summary());
 	}
 	
 	printf("[E64] Virtual machine ran for %.2f seconds\n", (double)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - app_start_time).count() / 1000);
