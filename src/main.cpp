@@ -24,7 +24,12 @@ int main(int argc, char **argv)
 	E64::blitter_ic *vm_blitter = new E64::blitter_ic(VM_MAX_PIXELS_PER_SCANLINE, VM_MAX_SCANLINES);
 	E64::blitter_ic *hud_blitter = new E64::blitter_ic(VM_MAX_PIXELS_PER_SCANLINE, VM_MAX_SCANLINES);
 	E64::host_t *host = new E64::host_t();
+	
 	E64::settings_t *settings = new E64::settings_t(host);
+	if (settings->fullscreen_at_init) host->video_toggle_fullscreen();
+	host->set_scanline_alpha(settings->scanlines_alpha_at_init);
+	if (settings->linear_filtering_at_init) host->video_toggle_linear_filtering();
+	
 	E64::sound_ic *sound = new E64::sound_ic();
 	E64::core_t *core = new E64::core_t(sound);
 	E64::stats_t *stats = new E64::stats_t();
@@ -81,10 +86,7 @@ int main(int argc, char **argv)
 		/*
 		 * Process events placeholder
 		 */
-		SDL_Event my_event;
-		while (SDL_PollEvent(&my_event)) {
-			if (my_event.type == SDL_QUIT) running = false;
-		}
+		if (host->events_process_events() == E64::QUIT_EVENT) running = false;
 		
 		/*
 		 * Blitting vm

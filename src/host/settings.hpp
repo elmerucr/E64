@@ -67,8 +67,8 @@ public:
 	
 	bool fullscreen_at_init;
 	char working_dir[256];
-	bool vm_linear_filtering_at_init;
-	bool hud_linear_filtering_at_init;
+	bool linear_filtering_at_init;
+	//bool hud_linear_filtering_at_init;
 	bool scanlines_linear_filtering_at_init;
 	uint8_t scanlines_alpha_at_init;
 	

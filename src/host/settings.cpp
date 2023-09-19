@@ -52,25 +52,25 @@ E64::settings_t::settings_t(host_t *h)
 		working_dir[0] = '\0';
 	}
 	
-	lua_getglobal(L, "vm_linear_filtering");
+	lua_getglobal(L, "linear_filtering");
 	if (lua_isboolean(L, -1)) {
-		vm_linear_filtering_at_init = lua_toboolean(L, -1);
+		linear_filtering_at_init = lua_toboolean(L, -1);
 	} else {
-		vm_linear_filtering_at_init = false;
+		linear_filtering_at_init = false;
 	}
 	
-	lua_getglobal(L, "hud_linear_filtering");
-	if (lua_isboolean(L, -1)) {
-		hud_linear_filtering_at_init = lua_toboolean(L, -1);
-	} else {
-		hud_linear_filtering_at_init = false;
-	}
+//	lua_getglobal(L, "hud_linear_filtering");
+//	if (lua_isboolean(L, -1)) {
+//		hud_linear_filtering_at_init = lua_toboolean(L, -1);
+//	} else {
+//		hud_linear_filtering_at_init = false;
+//	}
 	
 	lua_getglobal(L, "scanlines_alpha");
 	if (lua_isinteger(L, -1)) {
 		scanlines_alpha_at_init = (lua_tointeger(L, -1)) & 0xff;
 	} else {
-		scanlines_alpha_at_init = 192;
+		scanlines_alpha_at_init = 64;
 	}
 	
 	scanlines_linear_filtering_at_init = true;	// always
@@ -139,9 +139,9 @@ void E64::settings_t::write_settings()
 		fwrite(buffer, 1, number_of_chars, temp_file);
 		
 		if (host->is_using_vm_linear_filtering()) {
-			fwrite("\nvm_linear_filtering = true", 1, 27, temp_file);
+			fwrite("\nlinear_filtering = true", 1, 24, temp_file);
 		} else {
-			fwrite("\nvm_linear_filtering = false", 1, 28, temp_file);
+			fwrite("\nlinear_filtering = false", 1, 25, temp_file);
 		}
 		
 //		if (host->is_using_hud_linear_filtering()) {

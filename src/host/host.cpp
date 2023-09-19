@@ -1,6 +1,8 @@
 
 #include "host.hpp"
 #include "common.hpp"
+#include <thread>
+#include <chrono>
 
 E64::host_t::host_t()
 {
@@ -10,6 +12,12 @@ E64::host_t::host_t()
 	       E64_BUILD, E64_YEAR);
 	
 	SDL_Init(SDL_INIT_EVERYTHING);
+	
+	/*
+	 * Each call to SDL_PollEvent invokes SDL_PumpEvents() that
+	 * updates this array.
+	 */
+	events_sdl2_keyboard_state = SDL_GetKeyboardState(NULL);
 	
 	SDL_version compiled;
 	SDL_VERSION(&compiled);
@@ -162,13 +170,6 @@ void E64::host_t::video_init()
 	       window_width, window_height);
 	
 	update_title();
-	
-//	/*
-//	 * now change to former window/fullscreen setting
-//	 */
-//	if (host.settings->fullscreen_at_init) {
-//		toggle_fullscreen();
-//	}
 
 	SDL_DisplayMode current_mode;
 
@@ -226,9 +227,6 @@ void E64::host_t::video_init()
 	 * Make sure mouse cursor isn't visible
 	 */
 	SDL_ShowCursor(SDL_DISABLE);
-	
-	//scanlines_alpha = host.settings->scanlines_alpha_at_init;
-	scanlines_alpha = 64;
 }
 
 void E64::host_t::video_stop()
@@ -262,7 +260,7 @@ void E64::host_t::update_screen(E64::blitter_ic *vm_b)
 	SDL_RenderClear(renderer);
 
 	SDL_RenderCopy(renderer, vm_texture, &vm_b->screen_size, NULL);
-	SDL_SetTextureAlphaMod(scanlines_texture, scanlines_alpha);
+	SDL_SetTextureAlphaMod(scanlines_texture, video_scanlines_alpha);
 	SDL_RenderCopy(renderer, scanlines_texture, &vm_b->scanline_screen_size, NULL);
 
 	SDL_RenderCopy(renderer, hud_texture, NULL, NULL);
@@ -332,4 +330,100 @@ void E64::host_t::create_scanlines_texture(bool linear_filtering)
 	}
 	SDL_UpdateTexture(scanlines_texture, NULL, scanline_buffer,
 		VM_MAX_PIXELS_PER_SCANLINE * sizeof(uint16_t));
+}
+
+enum E64::events_output_state E64::host_t::events_process_events()
+{
+	enum events_output_state return_value = NO_EVENT;
+	
+	SDL_Event event;
+	
+	//bool shift_pressed = E64_sdl2_keyboard_state[SDL_SCANCODE_LSHIFT] | E64_sdl2_keyboard_state[SDL_SCANCODE_RSHIFT];
+	bool alt_pressed   = events_sdl2_keyboard_state[SDL_SCANCODE_LALT] | events_sdl2_keyboard_state[SDL_SCANCODE_RALT];
+	//bool gui_pressed   = E64_sdl2_keyboard_state[SDL_SCANCODE_LGUI] | E64_sdl2_keyboard_state[SDL_SCANCODE_RGUI];
+	
+	while (SDL_PollEvent(&event)) {
+		switch(event.type) {
+			case SDL_KEYDOWN:
+				return_value = KEYPRESS_EVENT;          // default at keydown, may change to QUIT_EVENT
+				if( (event.key.keysym.sym == SDLK_f) && alt_pressed ) {
+					events_wait_until_f_released();
+					video_toggle_fullscreen();
+				} else if( (event.key.keysym.sym == SDLK_s) && alt_pressed ) {
+					//E64::sdl2_wait_until_s_released();
+					video_change_scanlines_intensity();
+				} else if ((event.key.keysym.sym == SDLK_b) && alt_pressed) {
+					// toggle linear filtering vm hud
+					events_wait_until_b_released();
+					video_toggle_linear_filtering();
+				}
+				break;
+			case SDL_QUIT:
+				return_value = E64::QUIT_EVENT;
+				break;
+		}
+	}
+	if (return_value == QUIT_EVENT) printf("[SDL] detected quit event\n");
+	return return_value;
+}
+
+void E64::host_t::events_wait_until_f_released()
+{
+	SDL_Event event;
+	bool wait = true;
+	while(wait) {
+	    SDL_PollEvent(&event);
+	    if ((event.type == SDL_KEYUP) && (event.key.keysym.sym == SDLK_f)) wait = false;
+	    std::this_thread::sleep_for(std::chrono::microseconds(40000));
+	}
+}
+
+void E64::host_t::events_wait_until_b_released()
+{
+	SDL_Event event;
+	bool wait = true;
+	while(wait) {
+	    SDL_PollEvent(&event);
+	    if ((event.type == SDL_KEYUP) && (event.key.keysym.sym == SDLK_b)) wait = false;
+	    std::this_thread::sleep_for(std::chrono::microseconds(40000));
+	}
+}
+
+void E64::host_t::video_toggle_fullscreen()
+{
+	fullscreen = !fullscreen;
+	if (fullscreen) {
+		SDL_SetWindowFullscreen(video_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+	} else {
+		SDL_SetWindowFullscreen(video_window, SDL_WINDOW_RESIZABLE);
+	}
+	SDL_GetWindowSize(video_window, &window_width, &window_height);
+//	hud.show_notification("Switched to %s mode with size %ix%i",
+//			      fullscreen ? "fullscreen" : "window",
+//			      window_width,
+//			      window_height);
+}
+
+void E64::host_t::video_change_scanlines_intensity()
+{
+	if (video_scanlines_alpha < 64) {
+		video_scanlines_alpha = 64;
+	} else if (video_scanlines_alpha < 128) {
+		video_scanlines_alpha = 128;
+	} else if (video_scanlines_alpha < 192) {
+		video_scanlines_alpha = 192;
+	} else if (video_scanlines_alpha < 255) {
+		video_scanlines_alpha = 255;
+	} else {
+		video_scanlines_alpha = 0;
+	}
+	//hud.show_notification("                 scanlines alpha = %3u/255", scanlines_alpha);
+}
+
+void E64::host_t::video_toggle_linear_filtering()
+{
+	linear_filtering = !linear_filtering;
+	create_vm_texture(linear_filtering);
+	create_hud_texture(linear_filtering);
+	//hud.show_notification("                   vm linear filtering = %s", vm_linear_filtering ? "on" : "off");
 }

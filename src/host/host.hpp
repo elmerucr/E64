@@ -12,6 +12,12 @@ struct video_window_size {
 	uint16_t y;
 };
 
+enum events_output_state {
+	QUIT_EVENT = -1,
+	NO_EVENT = 0,
+	KEYPRESS_EVENT = 1
+};
+
 class host_t {
 private:
 	/*
@@ -58,12 +64,18 @@ private:
 	void create_scanlines_texture(bool linear_filtering);
 	void create_textures();
 	
-	uint8_t scanlines_alpha;
+	uint8_t video_scanlines_alpha;
 	bool linear_filtering{false};
 	bool scanlines_linear_filtering{true};
 	
 	void video_init();
 	void video_stop();
+	
+	/*
+	 * events related
+	 */
+	void events_wait_until_b_released();
+	void events_wait_until_f_released();
 public:
 	host_t();
 	~host_t();
@@ -84,11 +96,12 @@ public:
 	void update_title();
 	void increase_window_size();
 	void decrease_window_size();
-	void toggle_fullscreen();
+	void video_toggle_fullscreen();
+	void video_change_scanlines_intensity();
 	void change_scanlines_intensity();
-	void toggle_linear_filtering();
+	void video_toggle_linear_filtering();
     
-	// getters
+	// getters setters
 	uint16_t current_window_width() { return video_window_sizes[current_window_size].x; }
 	uint16_t current_window_height() { return video_window_sizes[current_window_size].y; }
 	inline bool vsync_enabled() { return vsync; }
@@ -96,11 +109,18 @@ public:
 	inline uint8_t get_bytes_per_sample() { return audio_bytes_per_sample; }
 	inline double get_bytes_per_ms() { return audio_bytes_per_ms; }
 	
-	inline uint8_t get_scanlines_alpha() { return scanlines_alpha; }
+	inline uint8_t get_scanlines_alpha() { return video_scanlines_alpha; }
+	inline void set_scanline_alpha(uint8_t a) { video_scanlines_alpha = a; }
 	inline bool is_using_vm_linear_filtering() { return linear_filtering; }
 	//inline bool is_using_hud_linear_filtering() { return hud_linear_filtering; }
 	inline bool is_using_scanlines_linear_filtering() { return scanlines_linear_filtering; }
 	inline bool is_fullscreen() { return fullscreen; }
+	
+	/*
+	 * Events related
+	 */
+	const uint8_t *events_sdl2_keyboard_state;
+	enum events_output_state events_process_events();
 };
 
 }
