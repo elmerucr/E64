@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include "blitter.hpp"
+#include "hud.hpp"
 
 namespace E64
 {
@@ -20,6 +21,8 @@ enum events_output_state {
 
 class host_t {
 private:
+	hud_t *hud{nullptr};
+	
 	/*
 	 * Audio related
 	 */
@@ -36,7 +39,9 @@ private:
 	/*
 	 * Video related
 	 */
-	const struct video_window_size video_window_sizes[7] = {
+	const struct video_window_size video_window_sizes[9] = {
+		{  384, 240 },
+		{  480, 300 },
 		{  512, 320 },
 		{  640, 400 },
 		{  768, 480 },
@@ -74,8 +79,10 @@ private:
 	/*
 	 * events related
 	 */
-	void events_wait_until_b_released();
 	void events_wait_until_f_released();
+	void events_wait_until_q_released();
+	void events_wait_until_minus_released();
+	void events_wait_until_equals_released();
 public:
 	host_t();
 	~host_t();
@@ -94,8 +101,8 @@ public:
 	void update_textures(E64::blitter_ic *vm_b, E64::blitter_ic *hud_b);
 	void update_screen(blitter_ic *b);
 	void update_title();
-	void increase_window_size();
-	void decrease_window_size();
+	void video_increase_window_size();
+	void video_decrease_window_size();
 	void video_toggle_fullscreen();
 	void video_change_scanlines_intensity();
 	void change_scanlines_intensity();
@@ -115,6 +122,7 @@ public:
 	//inline bool is_using_hud_linear_filtering() { return hud_linear_filtering; }
 	inline bool is_using_scanlines_linear_filtering() { return scanlines_linear_filtering; }
 	inline bool is_fullscreen() { return fullscreen; }
+	inline void set_hud(hud_t *h) { hud = h; }
 	
 	/*
 	 * Events related

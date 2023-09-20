@@ -23,3 +23,10 @@ void E64::hud_t::print_stats(const char *text)
 	blitter->terminal_clear(0);
 	blitter->terminal_printf(0, "%s", text);
 }
+
+void E64::hud_t::redraw()
+{
+	blitter->clear_framebuffer();
+	if (stats_visible) blitter->add_operation_draw_blit(&blitter->blit[0]);
+	while (blitter->run_next_operation()) {}
+}

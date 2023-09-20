@@ -146,7 +146,7 @@ void E64::host_t::video_init()
 	/*
 	 * TODO: add config option to lua?
 	 */
-	current_window_size = 2;
+	current_window_size = 4;
 	
 	/*
 	 * Start with windowed screen
@@ -350,16 +350,26 @@ enum E64::events_output_state E64::host_t::events_process_events()
 					events_wait_until_f_released();
 					video_toggle_fullscreen();
 				} else if( (event.key.keysym.sym == SDLK_s) && alt_pressed ) {
-					//E64::sdl2_wait_until_s_released();
 					video_change_scanlines_intensity();
 				} else if ((event.key.keysym.sym == SDLK_b) && alt_pressed) {
-					// toggle linear filtering vm hud
-					events_wait_until_b_released();
 					video_toggle_linear_filtering();
+				} else if( (event.key.keysym.sym == SDLK_q) && alt_pressed ) {
+					events_wait_until_q_released();
+					return_value = QUIT_EVENT;
+				} else if ((event.key.keysym.sym == SDLK_MINUS) && alt_pressed) {
+					// decrease screen size
+					events_wait_until_minus_released();
+					video_decrease_window_size();
+				} else if ((event.key.keysym.sym == SDLK_EQUALS) && alt_pressed) {
+					// decrease screen size
+					events_wait_until_equals_released();
+					video_increase_window_size();
+				} else if(event.key.keysym.sym == SDLK_F10) {
+					hud->toggle_stats();
 				}
 				break;
 			case SDL_QUIT:
-				return_value = E64::QUIT_EVENT;
+				return_value = QUIT_EVENT;
 				break;
 		}
 	}
@@ -376,15 +386,37 @@ void E64::host_t::events_wait_until_f_released()
 	    if ((event.type == SDL_KEYUP) && (event.key.keysym.sym == SDLK_f)) wait = false;
 	    std::this_thread::sleep_for(std::chrono::microseconds(40000));
 	}
-}
+} 
 
-void E64::host_t::events_wait_until_b_released()
+void E64::host_t::events_wait_until_q_released()
 {
 	SDL_Event event;
 	bool wait = true;
 	while(wait) {
 	    SDL_PollEvent(&event);
-	    if ((event.type == SDL_KEYUP) && (event.key.keysym.sym == SDLK_b)) wait = false;
+	    if ((event.type == SDL_KEYUP) && (event.key.keysym.sym == SDLK_q)) wait = false;
+	    std::this_thread::sleep_for(std::chrono::microseconds(40000));
+	}
+}
+
+void E64::host_t::events_wait_until_minus_released()
+{
+	SDL_Event event;
+	bool wait = true;
+	while(wait) {
+	    SDL_PollEvent(&event);
+	    if ((event.type == SDL_KEYUP) && (event.key.keysym.sym == SDLK_MINUS)) wait = false;
+	    std::this_thread::sleep_for(std::chrono::microseconds(40000));
+	}
+}
+
+void E64::host_t::events_wait_until_equals_released()
+{
+	SDL_Event event;
+	bool wait = true;
+	while(wait) {
+	    SDL_PollEvent(&event);
+	    if ((event.type == SDL_KEYUP) && (event.key.keysym.sym == SDLK_EQUALS)) wait = false;
 	    std::this_thread::sleep_for(std::chrono::microseconds(40000));
 	}
 }
@@ -426,4 +458,24 @@ void E64::host_t::video_toggle_linear_filtering()
 	create_vm_texture(linear_filtering);
 	create_hud_texture(linear_filtering);
 	//hud.show_notification("                   vm linear filtering = %s", vm_linear_filtering ? "on" : "off");
+}
+
+void E64::host_t::video_increase_window_size()
+{
+	if (current_window_size < 8) current_window_size++;
+	SDL_SetWindowSize(video_window, video_window_sizes[current_window_size].x,
+			  video_window_sizes[current_window_size].y);
+	SDL_GetWindowSize(video_window, &window_width, &window_height);
+	SDL_SetWindowPosition(video_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+	//hud.show_notification("Set host window size to %ix%i", window_width, window_height);
+}
+
+void E64::host_t::video_decrease_window_size()
+{
+	if (current_window_size > 0) current_window_size--;
+	SDL_SetWindowSize(video_window, video_window_sizes[current_window_size].x,
+			  video_window_sizes[current_window_size].y);
+	SDL_GetWindowSize(video_window, &window_width, &window_height);
+	SDL_SetWindowPosition(video_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+	//hud.show_notification("Set host window size to %ix%i", window_width, window_height);
 }

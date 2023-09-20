@@ -166,6 +166,7 @@ E64::core_t::core_t(E64::sound_ic *s)
 	L = luaL_newstate();
 	
 	if (!L) {
+		printf("[core] error, couldn't start Lua\n");
 		// TODO: failure... exit?
 	} else {
 		printf("[core] %s\n", LUA_COPYRIGHT);

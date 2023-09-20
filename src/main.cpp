@@ -34,6 +34,7 @@ int main(int argc, char **argv)
 	E64::core_t *core = new E64::core_t(sound);
 	E64::stats_t *stats = new E64::stats_t();
 	E64::hud_t *hud = new E64::hud_t(hud_blitter);
+	host->set_hud(hud);
 	
 	bool running = true;
 	
@@ -63,7 +64,7 @@ int main(int argc, char **argv)
 		 * Audio: Measure audio_buffer and determine cycles to run
 		 */
 		double frame_cycles_remaining = host->get_queued_audio_size_bytes(); // contains buffer in bytes
-		stats->set_queued_audio_bytes(frame_cycles_remaining);
+		stats->set_queued_audio_bytes(frame_cycles_remaining); // store in stats
 		frame_cycles_remaining = SID_CLOCK_SPEED * (AUDIO_BUFFER_SIZE - frame_cycles_remaining) / (host->get_bytes_per_ms() * 1000); // adjust to needed buffer size + change to cycles
 		frame_cycles_remaining += SID_CLOCK_SPEED / FPS;
 		
@@ -99,11 +100,8 @@ int main(int argc, char **argv)
 		/*
 		 * Blitting hud
 		 */
-		hud_blitter->clear_framebuffer();
-		//hud_blitter->add_operation_draw_ver_border();
 		hud->print_stats(stats->summary());
-		hud_blitter->add_operation_draw_blit(&hud_blitter->blit[0]);
-		while (hud_blitter->run_next_operation()) {}
+		hud->redraw();
 		
 		// Time measurement
 		stats->start_update_textures_time();
