@@ -14,12 +14,14 @@
 #include "sid.h" // resid header
 #include "analog.hpp"
 #include "host.hpp"
+#include "settings.hpp"
 
 namespace E64
 {
 
 class sound_ic {
 private:
+	settings_t *settings;
 	/*
 	 * sid variables etc...
 	 */
@@ -58,13 +60,9 @@ private:
 	uint8_t balance_registers[0x10];
 	float sample_buffer_stereo[131072];
 	
-	float record_buffer[65536];
-	uint16_t record_buffer_head;
-	uint16_t record_buffer_tail;
-	
 	uint16_t sound_starting;
 public:
-	sound_ic();
+	sound_ic(settings_t *s);
 	~sound_ic();
 	
 	SID sid[4];
@@ -76,27 +74,6 @@ public:
 	// and process all the accumulated cycles (flush into soundbuffer)
 	void run(uint32_t number_of_cycles, host_t *h);
 	void reset();
-	
-	
-	
-	void clear_record_buffer();
-	
-	inline void record_buffer_push(float sample)
-	{
-		record_buffer[record_buffer_head] = sample;
-		record_buffer_head++;
-	}
-	
-	inline bool record_buffer_pop(float *sample)
-	{
-		if (record_buffer_head == record_buffer_tail) {
-			return false;
-		} else {
-			*sample = record_buffer[record_buffer_tail];
-			record_buffer_tail++;
-			return true;
-		}
-	}
 };
 
 }

@@ -21,16 +21,18 @@ int main(int argc, char **argv)
 	std::chrono::time_point<std::chrono::steady_clock> app_start_time = std::chrono::steady_clock::now();
 	std::chrono::time_point<std::chrono::steady_clock> end_of_frame_time;
 	
+	printf("E64 version %i.%i.%i (C)2019-%i elmerucr\n",
+	       E64_MAJOR_VERSION,
+	       E64_MINOR_VERSION,
+	       E64_BUILD, E64_YEAR);
+	
 	E64::blitter_ic *vm_blitter = new E64::blitter_ic(VM_MAX_PIXELS_PER_SCANLINE, VM_MAX_SCANLINES);
 	E64::blitter_ic *hud_blitter = new E64::blitter_ic(VM_MAX_PIXELS_PER_SCANLINE, VM_MAX_SCANLINES);
-	E64::host_t *host = new E64::host_t();
 	
-	E64::settings_t *settings = new E64::settings_t(host);
-	if (settings->fullscreen_at_init) host->video_toggle_fullscreen();
-	host->set_scanline_alpha(settings->scanlines_alpha_at_init);
-	if (settings->linear_filtering_at_init) host->video_toggle_linear_filtering();
+	E64::settings_t *settings = new E64::settings_t();
+	E64::host_t *host = new E64::host_t(settings);
 	
-	E64::sound_ic *sound = new E64::sound_ic();
+	E64::sound_ic *sound = new E64::sound_ic(settings);
 	E64::core_t *core = new E64::core_t(sound);
 	E64::stats_t *stats = new E64::stats_t();
 	E64::hud_t *hud = new E64::hud_t(hud_blitter);
@@ -81,6 +83,13 @@ int main(int argc, char **argv)
 				sound->run(tick_cycles_remaining, host);
 				core->timer0_callback();
 				tick_cycles_remaining = cycles_per_tick;
+			}
+		}
+		
+		float sample;
+		if (settings->audio_recording) {
+			while (settings->audio_record_buffer_pop(&sample)) {
+				settings->write_to_wav(sample);
 			}
 		}
 		

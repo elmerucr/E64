@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include "blitter.hpp"
 #include "hud.hpp"
+#include "settings.hpp"
 
 namespace E64
 {
@@ -22,6 +23,7 @@ enum events_output_state {
 class host_t {
 private:
 	hud_t *hud{nullptr};
+	settings_t *settings{nullptr};
 	
 	/*
 	 * Audio related
@@ -58,7 +60,6 @@ private:
 	SDL_Texture *hud_texture;
 	SDL_Texture *scanlines_texture;
 	uint8_t current_window_size;
-	bool fullscreen;
 	int window_width;
 	int window_height;
 	
@@ -69,9 +70,8 @@ private:
 	void create_scanlines_texture(bool linear_filtering);
 	void create_textures();
 	
-	uint8_t video_scanlines_alpha;
-	bool linear_filtering{false};
-	bool scanlines_linear_filtering{true};
+	//bool linear_filtering{false};
+	bool scanlines_linear_filtering{true}; // should always be true
 	
 	void video_init();
 	void video_stop();
@@ -84,7 +84,7 @@ private:
 	void events_wait_until_minus_released();
 	void events_wait_until_equals_released();
 public:
-	host_t();
+	host_t(settings_t *s);
 	~host_t();
 	
 	char *sdl_preference_path;
@@ -116,12 +116,12 @@ public:
 	inline uint8_t get_bytes_per_sample() { return audio_bytes_per_sample; }
 	inline double get_bytes_per_ms() { return audio_bytes_per_ms; }
 	
-	inline uint8_t get_scanlines_alpha() { return video_scanlines_alpha; }
-	inline void set_scanline_alpha(uint8_t a) { video_scanlines_alpha = a; }
-	inline bool is_using_vm_linear_filtering() { return linear_filtering; }
+	//inline uint8_t get_scanlines_alpha() { return video_scanlines_alpha; }
+	//inline void set_scanline_alpha(uint8_t a) { video_scanlines_alpha = a; }
+	//inline bool is_using_vm_linear_filtering() { return linear_filtering; }
 	//inline bool is_using_hud_linear_filtering() { return hud_linear_filtering; }
 	inline bool is_using_scanlines_linear_filtering() { return scanlines_linear_filtering; }
-	inline bool is_fullscreen() { return fullscreen; }
+	//inline bool is_fullscreen() { return fullscreen; }
 	inline void set_hud(hud_t *h) { hud = h; }
 	
 	/*

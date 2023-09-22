@@ -5,22 +5,21 @@
  * Copyright © 2021-2023 elmerucr. All rights reserved.
  */
 
-#include "settings.hpp"
 #include <cstring>
 #include <cstdint>
 #include <cstdlib>
 #include <sys/stat.h>
+#include <SDL2/SDL.h>
 #include <unistd.h>
 #include "common.hpp"
+#include "settings.hpp"
 
-E64::settings_t::settings_t(host_t *h)
+E64::settings_t::settings_t()
 {
-	host = h;
-	
 	snprintf(home_dir, 256, "%s", getenv("HOME"));
 	printf("[Settings] User home directory: %s\n", home_dir);
 	
-	settings_dir = host->sdl_preference_path;
+	settings_dir = SDL_GetPrefPath("elmerucr", "E64");
 	printf("[Settings] Opening settings directory: %s\n", settings_dir);
 
 	/*
@@ -39,9 +38,9 @@ E64::settings_t::settings_t(host_t *h)
 	
 	lua_getglobal(L, "fullscreen");
 	if (lua_isboolean(L, -1)) {
-		fullscreen_at_init = lua_toboolean(L, -1);
+		video_fullscreen = lua_toboolean(L, -1);
 	} else {
-		fullscreen_at_init = false;
+		video_fullscreen = false;
 	}
 	
 	lua_getglobal(L, "working_dir");
@@ -54,26 +53,17 @@ E64::settings_t::settings_t(host_t *h)
 	
 	lua_getglobal(L, "linear_filtering");
 	if (lua_isboolean(L, -1)) {
-		linear_filtering_at_init = lua_toboolean(L, -1);
+		video_linear_filtering = lua_toboolean(L, -1);
 	} else {
-		linear_filtering_at_init = false;
+		video_linear_filtering = false;
 	}
-	
-//	lua_getglobal(L, "hud_linear_filtering");
-//	if (lua_isboolean(L, -1)) {
-//		hud_linear_filtering_at_init = lua_toboolean(L, -1);
-//	} else {
-//		hud_linear_filtering_at_init = false;
-//	}
 	
 	lua_getglobal(L, "scanlines_alpha");
 	if (lua_isinteger(L, -1)) {
-		scanlines_alpha_at_init = (lua_tointeger(L, -1)) & 0xff;
+		video_scanlines_alpha = (lua_tointeger(L, -1)) & 0xff;
 	} else {
-		scanlines_alpha_at_init = 64;
+		video_scanlines_alpha = 64;
 	}
-	
-	scanlines_linear_filtering_at_init = true;	// always
 	
 	lua_close(L);
 	
@@ -99,10 +89,15 @@ E64::settings_t::settings_t(host_t *h)
 		{ 0x64, 0x61, 0x74, 0x61 },	// "data"
 		{ 0x00, 0x00, 0x00, 0x00 }	// subchunk2size
 	};
+	
+	audio_clear_record_buffer();
 }
 
 E64::settings_t::~settings_t()
 {
+	if (audio_recording) {
+		audio_stop_recording();
+	}
 	write_settings();
 }
 
@@ -119,7 +114,7 @@ void E64::settings_t::write_settings()
 	} else {
 		fwrite("-- Automatically generated settings file for E64", 1, 48, temp_file);
 
-		if (host->is_fullscreen()) {
+		if (video_fullscreen) {
 			fwrite("\nfullscreen = true", 1, 18, temp_file);
 		} else {
 			fwrite("\nfullscreen = false", 1, 19, temp_file);
@@ -135,20 +130,14 @@ void E64::settings_t::write_settings()
 		
 		char buffer[64];
 		int number_of_chars;
-		number_of_chars = snprintf(buffer, 64, "\nscanlines_alpha = %u", host->get_scanlines_alpha());
+		number_of_chars = snprintf(buffer, 64, "\nscanlines_alpha = %u", video_scanlines_alpha);
 		fwrite(buffer, 1, number_of_chars, temp_file);
 		
-		if (host->is_using_vm_linear_filtering()) {
+		if (video_linear_filtering) {
 			fwrite("\nlinear_filtering = true", 1, 24, temp_file);
 		} else {
 			fwrite("\nlinear_filtering = false", 1, 25, temp_file);
 		}
-		
-//		if (host->is_using_hud_linear_filtering()) {
-//			fwrite("\nhud_linear_filtering = true", 1, 28, temp_file);
-//		} else {
-//			fwrite("\nhud_linear_filtering = false", 1, 29, temp_file);
-//		}
 		
 		fclose(temp_file);
 	}
@@ -199,4 +188,33 @@ void E64::settings_t::finish_wav()
 		
 		fclose(wav_file);
 	}
+}
+
+void E64::settings_t::audio_toggle_recording()
+{
+	if (!audio_recording) {
+		audio_start_recording();
+	} else {
+		audio_stop_recording();
+	}
+}
+
+void E64::settings_t::audio_start_recording()
+{
+	audio_recording = true;
+	audio_clear_record_buffer();
+	create_wav();
+	//hud.show_notification("start recording sound");
+}
+
+void E64::settings_t::audio_stop_recording()
+{
+	audio_recording = false;
+	finish_wav();
+	//hud.show_notification("stop recording sound");
+}
+
+void E64::settings_t::audio_clear_record_buffer()
+{
+	audio_record_buffer_head = audio_record_buffer_tail = 0;
 }

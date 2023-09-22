@@ -12,7 +12,6 @@
 #include <cstdint>
 
 #include "lua.hpp"
-#include "host.hpp"
 
 namespace E64 {
 
@@ -46,8 +45,6 @@ struct wav_header_t {
 class settings_t
 {
 private:
-	host_t *host;
-	
 	FILE *wav_file;
 
 	void write_settings();
@@ -59,18 +56,44 @@ private:
 	 */
 	lua_State *L;
 public:
-	settings_t(host_t *h);
+	settings_t();
 	~settings_t();
 
 	char home_dir[256];
 	char *settings_dir;
-	
-	bool fullscreen_at_init;
 	char working_dir[256];
-	bool linear_filtering_at_init;
-	//bool hud_linear_filtering_at_init;
-	bool scanlines_linear_filtering_at_init;
-	uint8_t scanlines_alpha_at_init;
+	
+	bool video_fullscreen;
+	bool video_linear_filtering;
+	uint8_t video_scanlines_alpha;
+	
+	float audio_record_buffer[65536];
+	uint16_t audio_record_buffer_head;
+	uint16_t audio_record_buffer_tail;
+	
+	void audio_clear_record_buffer();
+	
+	inline void audio_record_buffer_push(float sample)
+	{
+		audio_record_buffer[audio_record_buffer_head] = sample;
+		audio_record_buffer_head++;
+	}
+	
+	inline bool audio_record_buffer_pop(float *sample)
+	{
+		if (audio_record_buffer_head == audio_record_buffer_tail) {
+			return false;
+		} else {
+			*sample = audio_record_buffer[audio_record_buffer_tail];
+			audio_record_buffer_tail++;
+			return true;
+		}
+	}
+	
+	bool audio_recording{false};
+	void audio_toggle_recording();
+	void audio_start_recording();
+	void audio_stop_recording();
 	
 	bool create_wav();
 	

@@ -4,12 +4,9 @@
 #include <thread>
 #include <chrono>
 
-E64::host_t::host_t()
+E64::host_t::host_t(E64::settings_t *s)
 {
-	printf("E64 version %i.%i.%i (C)2019-%i elmerucr\n",
-	       E64_MAJOR_VERSION,
-	       E64_MINOR_VERSION,
-	       E64_BUILD, E64_YEAR);
+	settings = s;
 	
 	SDL_Init(SDL_INIT_EVERYTHING);
 	
@@ -148,10 +145,10 @@ void E64::host_t::video_init()
 	 */
 	current_window_size = 4;
 	
-	/*
-	 * Start with windowed screen
-	 */
-	fullscreen = false;
+//	/*
+//	 * Start with windowed screen
+//	 */
+//	fullscreen = false;
 	
 	/*
 	 * Create window - title will be set later on by update_title()
@@ -164,6 +161,10 @@ void E64::host_t::video_init()
 				  video_window_sizes[current_window_size].y,
 				  SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE |
 				  SDL_WINDOW_ALLOW_HIGHDPI);
+	
+	if (settings->video_fullscreen) {
+		SDL_SetWindowFullscreen(video_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+	}
     
 	SDL_GetWindowSize(video_window, &window_width, &window_height);
 	printf("[SDL] Display window dimension: %u x %u pixels\n",
@@ -213,8 +214,8 @@ void E64::host_t::video_init()
 	 */
 	vm_texture = nullptr;
 	hud_texture = nullptr;
-	create_vm_texture(linear_filtering);
-	create_hud_texture(linear_filtering);
+	create_vm_texture(settings->video_linear_filtering);
+	create_hud_texture(settings->video_linear_filtering);
 	
 	/*
 	 * Scanlines: A static texture that mimics scanlines
@@ -260,7 +261,7 @@ void E64::host_t::update_screen(E64::blitter_ic *vm_b)
 	SDL_RenderClear(renderer);
 
 	SDL_RenderCopy(renderer, vm_texture, &vm_b->screen_size, NULL);
-	SDL_SetTextureAlphaMod(scanlines_texture, video_scanlines_alpha);
+	SDL_SetTextureAlphaMod(scanlines_texture, settings->video_scanlines_alpha);
 	SDL_RenderCopy(renderer, scanlines_texture, &vm_b->scanline_screen_size, NULL);
 
 	SDL_RenderCopy(renderer, hud_texture, NULL, NULL);
@@ -366,6 +367,8 @@ enum E64::events_output_state E64::host_t::events_process_events()
 					video_increase_window_size();
 				} else if(event.key.keysym.sym == SDLK_F10) {
 					hud->toggle_stats();
+				} else if(event.key.keysym.sym == SDLK_w) {
+					settings->audio_toggle_recording();
 				}
 				break;
 			case SDL_QUIT:
@@ -423,8 +426,8 @@ void E64::host_t::events_wait_until_equals_released()
 
 void E64::host_t::video_toggle_fullscreen()
 {
-	fullscreen = !fullscreen;
-	if (fullscreen) {
+	settings->video_fullscreen = !settings->video_fullscreen;
+	if (settings->video_fullscreen) {
 		SDL_SetWindowFullscreen(video_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 	} else {
 		SDL_SetWindowFullscreen(video_window, SDL_WINDOW_RESIZABLE);
@@ -438,25 +441,25 @@ void E64::host_t::video_toggle_fullscreen()
 
 void E64::host_t::video_change_scanlines_intensity()
 {
-	if (video_scanlines_alpha < 64) {
-		video_scanlines_alpha = 64;
-	} else if (video_scanlines_alpha < 128) {
-		video_scanlines_alpha = 128;
-	} else if (video_scanlines_alpha < 192) {
-		video_scanlines_alpha = 192;
-	} else if (video_scanlines_alpha < 255) {
-		video_scanlines_alpha = 255;
+	if (settings->video_scanlines_alpha < 64) {
+		settings->video_scanlines_alpha = 64;
+	} else if (settings->video_scanlines_alpha < 128) {
+		settings->video_scanlines_alpha = 128;
+	} else if (settings->video_scanlines_alpha < 192) {
+		settings->video_scanlines_alpha = 192;
+	} else if (settings->video_scanlines_alpha < 255) {
+		settings->video_scanlines_alpha = 255;
 	} else {
-		video_scanlines_alpha = 0;
+		settings->video_scanlines_alpha = 0;
 	}
 	//hud.show_notification("                 scanlines alpha = %3u/255", scanlines_alpha);
 }
 
 void E64::host_t::video_toggle_linear_filtering()
 {
-	linear_filtering = !linear_filtering;
-	create_vm_texture(linear_filtering);
-	create_hud_texture(linear_filtering);
+	settings->video_linear_filtering = !settings->video_linear_filtering;
+	create_vm_texture(settings->video_linear_filtering);
+	create_hud_texture(settings->video_linear_filtering);
 	//hud.show_notification("                   vm linear filtering = %s", vm_linear_filtering ? "on" : "off");
 }
 

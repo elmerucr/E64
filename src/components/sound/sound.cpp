@@ -8,8 +8,10 @@
 #include "sound.hpp"
 #include "common.hpp"
 
-E64::sound_ic::sound_ic() : analog0(0), analog1(1), analog2(2), analog3(3)
+E64::sound_ic::sound_ic(E64::settings_t *s) : analog0(0), analog1(1), analog2(2), analog3(3)
 {
+	settings = s;
+	
 	/*
 	 * Remapping SID registers, rewiring necessary to have big endian
 	 * support and even addresses for word access.
@@ -102,8 +104,6 @@ E64::sound_ic::sound_ic() : analog0(0), analog1(1), analog2(2), analog3(3)
 	for (int i=0; i<0x10; i++) {
 		balance_registers[i] = 0x00;
 	}
-
-	clear_record_buffer();
 }
 
 E64::sound_ic::~sound_ic()
@@ -298,8 +298,8 @@ void E64::sound_ic::run(uint32_t number_of_cycles, E64::host_t *h)
 			sound_starting--;
 		}
 
-		record_buffer_push(sample_buffer_stereo[ 2 * i     ]);
-		record_buffer_push(sample_buffer_stereo[(2 * i) + 1]);
+		settings->audio_record_buffer_push(sample_buffer_stereo[ 2 * i     ]);
+		settings->audio_record_buffer_push(sample_buffer_stereo[(2 * i) + 1]);
 	}
 
 	h->queue_audio((void *)sample_buffer_stereo, 2 * n * h->get_bytes_per_sample());
@@ -313,9 +313,4 @@ void E64::sound_ic::reset()
 	sid[3].reset();
 	
 	sound_starting = 4000;
-}
-
-void E64::sound_ic::clear_record_buffer()
-{
-	record_buffer_head = record_buffer_tail = 0;
 }
