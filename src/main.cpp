@@ -93,8 +93,10 @@ int main(int argc, char **argv)
 			}
 		}
 		
+		stats->start_core_time();
+		
 		/*
-		 * Process events placeholder
+		 * Process events
 		 */
 		if (host->events_process_events() == E64::QUIT_EVENT) running = false;
 		
@@ -151,7 +153,7 @@ int main(int argc, char **argv)
 		 * This point marks the start of a new frame, also at this very
 		 * moment it's good to measure the soundbuffer size.
 		 */
-		stats->start_core_time();
+		stats->start_sound_time();
 		
 		stats->process_parameters();
 	}

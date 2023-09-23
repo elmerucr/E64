@@ -368,6 +368,11 @@ enum E64::events_output_state E64::host_t::events_process_events()
 				} else if(event.key.keysym.sym == SDLK_F10) {
 					hud->toggle_stats();
 				} else if(event.key.keysym.sym == SDLK_w) {
+					if (settings->audio_recording) {
+						hud->show_notification("\nStop recording sound");
+					} else {
+						hud->show_notification("\nStart recording sound");
+					}
 					settings->audio_toggle_recording();
 				}
 				break;
@@ -433,10 +438,10 @@ void E64::host_t::video_toggle_fullscreen()
 		SDL_SetWindowFullscreen(video_window, SDL_WINDOW_RESIZABLE);
 	}
 	SDL_GetWindowSize(video_window, &window_width, &window_height);
-//	hud.show_notification("Switched to %s mode with size %ix%i",
-//			      fullscreen ? "fullscreen" : "window",
-//			      window_width,
-//			      window_height);
+	hud->show_notification("\nSwitched to %s mode with size %ix%i",
+			      settings->video_fullscreen ? "fullscreen" : "window",
+			      window_width,
+			      window_height);
 }
 
 void E64::host_t::video_change_scanlines_intensity()
@@ -452,7 +457,7 @@ void E64::host_t::video_change_scanlines_intensity()
 	} else {
 		settings->video_scanlines_alpha = 0;
 	}
-	//hud.show_notification("                 scanlines alpha = %3u/255", scanlines_alpha);
+	hud->show_notification("\nScanlines alpha value = %3u", settings->video_scanlines_alpha);
 }
 
 void E64::host_t::video_toggle_linear_filtering()
@@ -460,7 +465,7 @@ void E64::host_t::video_toggle_linear_filtering()
 	settings->video_linear_filtering = !settings->video_linear_filtering;
 	create_vm_texture(settings->video_linear_filtering);
 	create_hud_texture(settings->video_linear_filtering);
-	//hud.show_notification("                   vm linear filtering = %s", vm_linear_filtering ? "on" : "off");
+	hud->show_notification("\nLinear filtering = %s", settings->video_linear_filtering ? "on" : "off");
 }
 
 void E64::host_t::video_increase_window_size()
@@ -470,7 +475,7 @@ void E64::host_t::video_increase_window_size()
 			  video_window_sizes[current_window_size].y);
 	SDL_GetWindowSize(video_window, &window_width, &window_height);
 	SDL_SetWindowPosition(video_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-	//hud.show_notification("Set host window size to %ix%i", window_width, window_height);
+	hud->show_notification("\nSet host window size to %ix%i", window_width, window_height);
 }
 
 void E64::host_t::video_decrease_window_size()
@@ -480,5 +485,5 @@ void E64::host_t::video_decrease_window_size()
 			  video_window_sizes[current_window_size].y);
 	SDL_GetWindowSize(video_window, &window_width, &window_height);
 	SDL_SetWindowPosition(video_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-	//hud.show_notification("Set host window size to %ix%i", window_width, window_height);
+	hud->show_notification("\nSet host window size to %ix%i", window_width, window_height);
 }

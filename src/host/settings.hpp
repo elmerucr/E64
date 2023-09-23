@@ -99,12 +99,6 @@ public:
 	
 	inline void write_to_wav(float sample)
 	{
-	//	// enforce little endian
-	//	uint8_t lbyte = ((uint16_t)sample) & 0xff;
-	//	uint8_t hbyte = ((uint16_t)sample) >> 8;
-	//	fwrite((void *)&lbyte, 1, 1, wav_file);
-	//	fwrite((void *)&hbyte, 1, 1, wav_file);
-		
 		fwrite((void *)&sample, 4, 1, wav_file);
 	}
 	

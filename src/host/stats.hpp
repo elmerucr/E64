@@ -17,12 +17,14 @@ namespace E64
 class stats_t
 {
 private:
+	std::chrono::time_point<std::chrono::steady_clock> start_sound;
+	std::chrono::time_point<std::chrono::steady_clock> start_sound_old;
 	std::chrono::time_point<std::chrono::steady_clock> start_core;
-	std::chrono::time_point<std::chrono::steady_clock> start_core_old;
 	std::chrono::time_point<std::chrono::steady_clock> start_update_textures;
 	std::chrono::time_point<std::chrono::steady_clock> start_idle;
 	
 	int64_t total_time;
+	int64_t total_sound_time;
 	int64_t total_core_time;
 	int64_t total_textures_time;
 	int64_t total_idle_time;
@@ -41,7 +43,9 @@ private:
 
 	double audio_queue_size_bytes;
 	
-	double vm_per_frame;
+	double sound_per_frame;
+	double smoothed_sound_per_frame;
+	double core_per_frame;
 	double smoothed_core_per_frame;
 	double textures_per_frame;
 	double smoothed_textures_per_frame;
@@ -56,13 +60,22 @@ public:
 	void reset();
     
 	uint32_t frametime;      // in microseconds
+
+	inline void start_sound_time()
+	{
+		start_sound = std::chrono::steady_clock::now();
+		total_idle_time += std::chrono::duration_cast<std::chrono::microseconds>(start_sound - start_idle).count();
+		total_time += std::chrono::duration_cast<std::chrono::microseconds>(start_sound - start_sound_old).count();
+		start_sound_old = start_sound;
+	}
 	
 	inline void start_core_time()
 	{
 		start_core = std::chrono::steady_clock::now();
-		total_idle_time += std::chrono::duration_cast<std::chrono::microseconds>(start_core - start_idle).count();
-		total_time += std::chrono::duration_cast<std::chrono::microseconds>(start_core - start_core_old).count();
-		start_core_old = start_core;
+		//total_idle_time += std::chrono::duration_cast<std::chrono::microseconds>(start_core - start_idle).count();
+		total_sound_time += std::chrono::duration_cast<std::chrono::microseconds>(start_core - start_sound).count();
+		//total_time += std::chrono::duration_cast<std::chrono::microseconds>(start_core - start_core_old).count();
+		//start_core_old = start_core;
 	}
 	
 	inline void start_update_textures_time()
