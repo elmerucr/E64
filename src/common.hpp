@@ -27,7 +27,7 @@
  * Audio related
  */
 #define	SAMPLE_RATE		48000
-#define AUDIO_BUFFER_SIZE	8000.0
+#define AUDIO_BUFFER_SIZE	6000.0
 
 /*
  * Video related

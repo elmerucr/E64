@@ -4,21 +4,20 @@
 
 ## General Description
 
-E64 is a virtual console that runs on macOS and linux. It's mainly inspired by the Commodore 64, Amiga 500 and Atari ST.
+E64 is a virtual console that runs on macOS and linux. It features are mainly inspired by the Commodore 64, Amiga 500 and Atari ST.
 
 * Its core is made up of a Lua scripting engine
-* BLITTER/VIDEO chip with a resolution of 640x400 pixels, a palette of 4096 colors (12bit) running at 60Hz, alpha blending capabilities and 16mb video ram.
+* BLITTER/VIDEO chip with a resolution of 384x240 pixels, a palette of 4096 colors (12bit) running at 60Hz, alpha blending capabilities and 16mb video ram.
 * Sound:
 	* Four SID chips (MOS 6581). Each individual SID chip runs at 985248Hz for the same pitch as the chips in the original C64 pal version. Emulation is achieved with the excellent [reSID](http://www.zimmers.net/anonftp/pub/cbm/crossplatform/emulators/resid/index.html) library by Dag Lem. Registers are remapped to enable big endian systems.
 	* Four Analog Sound Devices capable of pure sinusoidal sound next to all common other sound waves.
 	* Stereo mixing capabilities for all components.
-* Eight independent and programmable timers connected to IRQ.
 
 ## Screenshots
 
---old-- Below the startup screen with command ```m c80 cff``` that inspects a piece of SID io memory.
+Below the startup screen with stats menu triggered by ```F10```.
 
-![E64](./docs/E64_2023-01-25.png)
+![E64](./docs/E64_2023-09-23.png)
 
 ## Usage
 
@@ -26,14 +25,14 @@ E64 is a virtual console that runs on macOS and linux. It's mainly inspired by t
 
 * ```ALT```+```Q``` quits application
 * ```ALT```+```W``` start/stop wav file output to settings directory
-* ```ALT```+```R``` resets the system
 * ```ALT```+```B``` switches between nearest pixel and bilinear filtering mode
 * ```ALT```+```S``` changes intensity of embedded scanlines
 * ```ALT```+```F``` switches between fullscreen and window(debug mode)
-* ```F9``` switches between normal and debug mode
 * ```F10``` switches stats on/off
 
 ## Technical Specifications
+
+Work in progress...
 
 ### BLITTER
 
@@ -44,7 +43,10 @@ For the big endian mapping, see picture below. It is adapted from the original C
 
 ### TIMERS
 
+Work in progress...
+
 ### Memory Map
+
 * ```0x010000-0x01ffff``` blit descriptors (64kb)
 * ```0x040000-0x04ffff``` c64 characters (2x32kb)
 * ```0x050000-0x05ffff``` amiga characters (64kb)
@@ -83,7 +85,7 @@ $ ./E64
 
 * [CCS64](http://www.ccs64.com) - A Commodore 64 Emulator by Per Håkan Sundell.
 * [Commander X16](https://www.commanderx16.com) - The Commander X16 is a modern 8-bit computer currently in active development. It is the brainchild of David "the 8 Bit Guy" Murray.
-* [Commander X16 emulator](https://github.com/commanderx16/x16-emulator) - Software version of Commander X16.
+* [Commander X16 emulator](https://github.com/x16community/x16-emulator) - Software version of Commander X16.
 * [E64-Moira](https://github.com/elmerucr/E64-Moira) - Older version of E64 with an M68K core.
 * [Hatari](https://hatari.tuxfamily.org) - Hatari is an Atari ST/STE/TT/Falcon emulator.
 * [lib65ce02](https://github.com/elmerucr/lib65ce02) - CSG65CE02 emulator written in C.

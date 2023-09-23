@@ -42,6 +42,7 @@ private:
 	double smoothed_framerate;
 
 	double audio_queue_size_bytes;
+	double smoothed_audio_queue_size_bytes;
 	
 	double sound_per_frame;
 	double smoothed_sound_per_frame;
@@ -72,10 +73,7 @@ public:
 	inline void start_core_time()
 	{
 		start_core = std::chrono::steady_clock::now();
-		//total_idle_time += std::chrono::duration_cast<std::chrono::microseconds>(start_core - start_idle).count();
 		total_sound_time += std::chrono::duration_cast<std::chrono::microseconds>(start_core - start_sound).count();
-		//total_time += std::chrono::duration_cast<std::chrono::microseconds>(start_core - start_core_old).count();
-		//start_core_old = start_core;
 	}
 	
 	inline void start_update_textures_time()
