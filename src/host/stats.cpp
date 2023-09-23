@@ -90,11 +90,11 @@ void E64::stats_t::process_parameters()
 	if (status_bar_framecounter == status_bar_framecounter_interval) {
 		status_bar_framecounter = 0;
 		
-		snprintf(statistics_string, 256, "\n           sound: %5.2f ms  \n"
-						 "            core: %5.2f ms --> %6.2f%% cpu\n"
-						 "        textures: %5.2f ms  \n"
-						 "       frametime: %5.2f ms -->  %6.2f fps\n"
-						 "\n     soundbuffer: %5.2f kb",
+		snprintf(statistics_string, 256, "\n          sound: %5.2f ms  \n"
+						 "           core: %5.2f ms  --> %6.2f%% cpu\n"
+						 "       textures: %5.2f ms\n"
+						 "      frametime: %5.2f ms  --> %6.2f  fps\n"
+						 "\n    soundbuffer: %5.2f kb",
 						 smoothed_sound_per_frame/1000,
 						 smoothed_core_per_frame/1000, cpu_percentage,
 						 smoothed_textures_per_frame/1000,
