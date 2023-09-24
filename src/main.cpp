@@ -46,11 +46,17 @@ int main(int argc, char **argv)
 	
 	end_of_frame_time = std::chrono::steady_clock::now();
 	
+	vm_blitter->reset();	
 	vm_blitter->set_clear_color(BLUE_03);
 	vm_blitter->set_hor_border_size(16);
 	vm_blitter->set_hor_border_color(BLUE_01);
 	vm_blitter->set_ver_border_size(0x00);
 	vm_blitter->set_ver_border_color(BLUE_01);
+	vm_blitter->terminal_init(0, 0x1a, 0, 1, 1, 48, 26, BLUE_08, 0x0000);
+	vm_blitter->terminal_clear(0);
+	vm_blitter->terminal_printf(0, "E64 Computer System");
+	vm_blitter->blit[0].set_x_pos(0);
+	vm_blitter->blit[0].set_y_pos(16);
 	
 	//hud_blitter->set_ver_border_size(16);
 	//hud_blitter->set_ver_border_color(AMBER_04);
@@ -103,7 +109,9 @@ int main(int argc, char **argv)
 		/*
 		 * Blitting vm
 		 */
+		vm_blitter->terminal_printf(0, "E64 Virtual Console ");
 		vm_blitter->clear_framebuffer();
+		vm_blitter->add_operation_draw_blit(&vm_blitter->blit[0]);
 		vm_blitter->add_operation_draw_ver_border();
 		vm_blitter->add_operation_draw_hor_border();
 		while (vm_blitter->run_next_operation()) {}

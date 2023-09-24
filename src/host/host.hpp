@@ -20,6 +20,80 @@ enum events_output_state {
 	KEYPRESS_EVENT = 1
 };
 
+enum scancodes {
+	SCANCODE_EMPTY = 0x00,     // 0x00
+	SCANCODE_ESCAPE,
+	SCANCODE_F1,
+	SCANCODE_F2,
+	SCANCODE_F3,
+	SCANCODE_F4,
+	SCANCODE_F5,
+	SCANCODE_F6,
+	SCANCODE_F7,               // 0x08
+	SCANCODE_F8,
+	SCANCODE_GRAVE,
+	SCANCODE_1,
+	SCANCODE_2,
+	SCANCODE_3,
+	SCANCODE_4,
+	SCANCODE_5,
+	SCANCODE_6,                // 0x10
+	SCANCODE_7,
+	SCANCODE_8,
+	SCANCODE_9,
+	SCANCODE_0,
+	SCANCODE_MINUS,
+	SCANCODE_EQUALS,
+	SCANCODE_BACKSPACE,
+	SCANCODE_TAB,              // 0x18
+	SCANCODE_Q,
+	SCANCODE_W,
+	SCANCODE_E,
+	SCANCODE_R,
+	SCANCODE_T,
+	SCANCODE_Y,
+	SCANCODE_U,
+	SCANCODE_I,               // 0x20
+	SCANCODE_O,
+	SCANCODE_P,
+	SCANCODE_LEFTBRACKET,
+	SCANCODE_RIGHTBRACKET,
+	SCANCODE_RETURN,
+	SCANCODE_A,
+	SCANCODE_S,
+	SCANCODE_D,                // 0x28
+	SCANCODE_F,
+	SCANCODE_G,
+	SCANCODE_H,
+	SCANCODE_J,
+	SCANCODE_K,
+	SCANCODE_L,
+	SCANCODE_SEMICOLON,
+	SCANCODE_APOSTROPHE,       // 0x30
+	SCANCODE_BACKSLASH,
+	SCANCODE_LSHIFT,
+	SCANCODE_Z,
+	SCANCODE_X,
+	SCANCODE_C,
+	SCANCODE_V,
+	SCANCODE_B,
+	SCANCODE_N,                // 0x38
+	SCANCODE_M,
+	SCANCODE_COMMA,
+	SCANCODE_PERIOD,
+	SCANCODE_SLASH,
+	SCANCODE_RSHIFT,
+	SCANCODE_LCTRL,
+	//SCANCODE_LALT,
+	SCANCODE_SPACE,
+	//SCANCODE_RALT,
+	SCANCODE_RCTRL,              // 0x40
+	SCANCODE_LEFT,
+	SCANCODE_UP,
+	SCANCODE_DOWN,
+	SCANCODE_RIGHT
+};
+
 class host_t {
 private:
 	hud_t *hud{nullptr};
@@ -79,6 +153,9 @@ private:
 	/*
 	 * events related
 	 */
+	const uint8_t *sdl_keyboard_state;
+	uint8_t keyboard_state[128];
+	
 	void events_wait_until_f_released();
 	void events_wait_until_q_released();
 	void events_wait_until_minus_released();
@@ -127,7 +204,6 @@ public:
 	/*
 	 * Events related
 	 */
-	const uint8_t *events_sdl2_keyboard_state;
 	enum events_output_state events_process_events();
 };
 

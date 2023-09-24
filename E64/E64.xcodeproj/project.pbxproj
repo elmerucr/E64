@@ -352,7 +352,6 @@
 			isa = PBXGroup;
 			children = (
 				467F17B62AB25C7000F0BBFB /* blitter */,
-				46F9E6B42ABF904D007B5E2D /* cia */,
 				4675EB6E2AAE479700CFB786 /* core */,
 				4615DC3C2AA873E000519477 /* sound */,
 			);
@@ -437,13 +436,6 @@
 				467F17BF2AB25F2700F0BBFB /* cbm_cp437_font.cpp */,
 			);
 			name = blitter;
-			sourceTree = "<group>";
-		};
-		46F9E6B42ABF904D007B5E2D /* cia */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = cia;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
