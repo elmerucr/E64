@@ -154,7 +154,6 @@ private:
 	 * events related
 	 */
 	const uint8_t *sdl_keyboard_state;
-	uint8_t keyboard_state[128];
 	
 	void events_wait_until_f_released();
 	void events_wait_until_q_released();
@@ -205,6 +204,7 @@ public:
 	 * Events related
 	 */
 	enum events_output_state events_process_events();
+	uint8_t keyboard_state[128];
 };
 
 }

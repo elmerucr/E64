@@ -10,6 +10,7 @@
 #include "settings.hpp"
 #include "sound.hpp"
 #include "core.hpp"
+#include "keyboard.hpp"
 #include "blitter.hpp"
 #include "stats.hpp"
 #include "hud.hpp"
@@ -31,7 +32,7 @@ int main(int argc, char **argv)
 	
 	E64::settings_t *settings = new E64::settings_t();
 	E64::host_t *host = new E64::host_t(settings);
-	
+	E64::keyboard_t *keyboard = new E64::keyboard_t(host);
 	E64::sound_ic *sound = new E64::sound_ic(settings);
 	E64::core_t *core = new E64::core_t(sound);
 	E64::stats_t *stats = new E64::stats_t();
@@ -106,10 +107,15 @@ int main(int argc, char **argv)
 		 */
 		if (host->events_process_events() == E64::QUIT_EVENT) running = false;
 		
+		keyboard->process();
+		
 		/*
 		 * Blitting vm
 		 */
-		vm_blitter->terminal_printf(0, "E64 Virtual Console ");
+		vm_blitter->terminal_clear(0);
+		vm_blitter->terminal_printf(0, "E64 Computer System (C)2019-2023 elmerucr");
+		vm_blitter->terminal_printf(0, "\n\nPowered by %s, SDL 2.28 & reSID 0.16", LUA_RELEASE);
+		vm_blitter->terminal_printf(0, "\n\nReady.");
 		vm_blitter->clear_framebuffer();
 		vm_blitter->add_operation_draw_blit(&vm_blitter->blit[0]);
 		vm_blitter->add_operation_draw_ver_border();
@@ -172,6 +178,7 @@ int main(int argc, char **argv)
 	delete stats;
 	delete core;
 	delete sound;
+	delete keyboard;
 	delete settings;
 	delete host;
 	delete hud_blitter;

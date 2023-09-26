@@ -71,6 +71,7 @@
 		467F17C02AB25F2700F0BBFB /* amiga_cp437_font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 467F17BE2AB25F2700F0BBFB /* amiga_cp437_font.cpp */; };
 		467F17C12AB25F2700F0BBFB /* cbm_cp437_font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 467F17BF2AB25F2700F0BBFB /* cbm_cp437_font.cpp */; };
 		469F512B2AB3882700552EC1 /* stats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 469F512A2AB3882700552EC1 /* stats.cpp */; };
+		46ADFE3F2AC21025006B5F5C /* keyboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46ADFE3D2AC21025006B5F5C /* keyboard.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -201,6 +202,8 @@
 		467F17BF2AB25F2700F0BBFB /* cbm_cp437_font.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cbm_cp437_font.cpp; path = ../../src/components/blitter/cbm_cp437_font.cpp; sourceTree = "<group>"; };
 		469F51292AB3882700552EC1 /* stats.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = stats.hpp; path = ../../src/host/stats.hpp; sourceTree = "<group>"; };
 		469F512A2AB3882700552EC1 /* stats.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stats.cpp; path = ../../src/host/stats.cpp; sourceTree = "<group>"; };
+		46ADFE3D2AC21025006B5F5C /* keyboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = keyboard.cpp; path = ../../src/components/keyboard/keyboard.cpp; sourceTree = "<group>"; };
+		46ADFE3E2AC21025006B5F5C /* keyboard.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = keyboard.hpp; path = ../../src/components/keyboard/keyboard.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -353,6 +356,7 @@
 			children = (
 				467F17B62AB25C7000F0BBFB /* blitter */,
 				4675EB6E2AAE479700CFB786 /* core */,
+				46ADFE3C2AC20FB3006B5F5C /* keyboard */,
 				4615DC3C2AA873E000519477 /* sound */,
 			);
 			name = components;
@@ -438,6 +442,15 @@
 			name = blitter;
 			sourceTree = "<group>";
 		};
+		46ADFE3C2AC20FB3006B5F5C /* keyboard */ = {
+			isa = PBXGroup;
+			children = (
+				46ADFE3E2AC21025006B5F5C /* keyboard.hpp */,
+				46ADFE3D2AC21025006B5F5C /* keyboard.cpp */,
+			);
+			name = keyboard;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -517,6 +530,7 @@
 				4615DC292AA872B700519477 /* loadlib.c in Sources */,
 				4615DC1C2AA872B600519477 /* lcorolib.c in Sources */,
 				4615DC272AA872B700519477 /* lfunc.c in Sources */,
+				46ADFE3F2AC21025006B5F5C /* keyboard.cpp in Sources */,
 				4615DC392AA872B700519477 /* lutf8lib.c in Sources */,
 				4615DC6C2AA875A000519477 /* version.cc in Sources */,
 				4615DC2D2AA872B700519477 /* liolib.c in Sources */,
