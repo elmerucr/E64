@@ -57,10 +57,11 @@ int main(int argc, char **argv)
 	vm_blitter->terminal_clear(0);
 	vm_blitter->terminal_printf(0, "E64 Computer System");
 	vm_blitter->blit[0].set_x_pos(0);
-	vm_blitter->blit[0].set_y_pos(16);
-	
-	//hud_blitter->set_ver_border_size(16);
-	//hud_blitter->set_ver_border_color(AMBER_04);
+	vm_blitter->blit[0].set_y_pos(16);vm_blitter->terminal_clear(0);
+	vm_blitter->terminal_printf(0, "E64 Computer System (C)2019-2023 elmerucr");
+	vm_blitter->terminal_printf(0, "\n\nPowered by %s, SDL 2.28 & reSID 0.16", LUA_RELEASE);
+	vm_blitter->terminal_printf(0, "\n\nReady.");
+
 	
 	stats->reset();
 	hud_blitter->reset();
@@ -109,13 +110,14 @@ int main(int argc, char **argv)
 		
 		keyboard->process();
 		
+		uint8_t symbol;
+		while ((symbol = keyboard->pop_event())) {
+			vm_blitter->terminal_putchar(0, symbol);
+		}
+		
 		/*
 		 * Blitting vm
 		 */
-		vm_blitter->terminal_clear(0);
-		vm_blitter->terminal_printf(0, "E64 Computer System (C)2019-2023 elmerucr");
-		vm_blitter->terminal_printf(0, "\n\nPowered by %s, SDL 2.28 & reSID 0.16", LUA_RELEASE);
-		vm_blitter->terminal_printf(0, "\n\nReady.");
 		vm_blitter->clear_framebuffer();
 		vm_blitter->add_operation_draw_blit(&vm_blitter->blit[0]);
 		vm_blitter->add_operation_draw_ver_border();

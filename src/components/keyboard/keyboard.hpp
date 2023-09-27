@@ -27,9 +27,25 @@ private:
 	int32_t repeat_speed;
 	
 	uint8_t last_char;
+	
+	// implement a fifo event list, important for key presses, you don't want them in the wrong order
+	uint8_t event_list[256];
+	void push_event(uint8_t event);	// 'head' always points to the currently available location for an event
+	// if (head == tail), no events are available
+	uint8_t head;
+	uint8_t tail;
 public:
 	keyboard_t(host_t *h);
 	void process();
+	
+	void reset();
+	
+	uint8_t pop_event();
+	
+	inline bool events_waiting()
+	{
+		return (head == tail) ? false : true;
+	}
 };
 
 }
