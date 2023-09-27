@@ -369,7 +369,7 @@ enum E64::events_output_state E64::host_t::events_process_events()
 					video_increase_window_size();
 				} else if(event.key.keysym.sym == SDLK_F10) {
 					hud->toggle_stats();
-				} else if(event.key.keysym.sym == SDLK_w) {
+				} else if((event.key.keysym.sym == SDLK_w) && alt_pressed) {
 					if (settings->audio_recording) {
 						hud->show_notification("\nStop recording sound");
 					} else {

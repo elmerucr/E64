@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 	std::chrono::time_point<std::chrono::steady_clock> app_start_time = std::chrono::steady_clock::now();
 	std::chrono::time_point<std::chrono::steady_clock> end_of_frame_time;
 	
-	printf("E64 version %i.%i.%i (C)2019-%i elmerucr\n",
+	printf("E64 Computer System v%i.%i.%i (C)2019-%i elmerucr\n",
 	       E64_MAJOR_VERSION,
 	       E64_MINOR_VERSION,
 	       E64_BUILD, E64_YEAR);
