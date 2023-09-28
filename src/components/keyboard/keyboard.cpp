@@ -210,7 +210,7 @@ void E64::keyboard_t::process()
 			if (time_to_next < microseconds_remaining) {
 				microseconds_remaining -= time_to_next;
 				time_to_next = repeat_speed_ms * 1000;
-				// TODO: see old E64 here...
+				// TODO: see old E64 here... avoid two call to push_event!
 				push_event(event_to_ascii(last_char, modifier_keys_status));
 			} else {
 				time_to_next -= microseconds_remaining;
