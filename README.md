@@ -8,10 +8,9 @@ E64 is a Virtual Computer System that runs on macOS and linux. Technical specifi
 
 * The core is a Lua scripting engine
 * BLITTER/VIDEO chip with a resolution of 384x216 pixels, a palette of 4096 colors (12bit) running at 60Hz, alpha blending capabilities and 16mb video ram.
-* Sound:
-	* Four SID chips (MOS 6581). Each individual SID chip runs at 985248Hz for the same pitch as the chips in the original C64 pal version. Emulation is achieved with the excellent [reSID](http://www.zimmers.net/anonftp/pub/cbm/crossplatform/emulators/resid/index.html) library by Dag Lem. Registers are remapped to enable big endian systems.
-	* Four Analog Sound Devices capable of pure sinusoidal sound next to all common other sound waves.
-	* Stereo mixing capabilities for all components.
+* Four SID chips (MOS 6581). Each individual SID chip runs at 985248Hz for the same pitch as the chips in the original C64 pal version. Emulation is achieved with the excellent [reSID](http://www.zimmers.net/anonftp/pub/cbm/crossplatform/emulators/resid/index.html) library by Dag Lem. Registers are remapped to enable big endian systems.
+* Four Analog Sound Devices capable of pure sinusoidal sound next to all common other sound waves.
+* Stereo mixing capabilities for all components.
 
 ## Screenshots
 
@@ -23,11 +22,11 @@ Below the startup screen with stats info triggered with ```F10```.
 
 ### Keyboard Shortcuts
 
-* ```ALT```+```Q``` quits application
-* ```ALT```+```W``` start/stop wav file output to settings directory
 * ```ALT```+```B``` switches between nearest pixel and bilinear filtering mode
-* ```ALT```+```S``` changes intensity of embedded scanlines
 * ```ALT```+```F``` switches between fullscreen and window(debug mode)
+* ```ALT```+```Q``` quits application
+* ```ALT```+```S``` changes intensity of embedded scanlines (not for head up display)
+* ```ALT```+```W``` start/stop wav file output to settings directory
 * ```F10``` switches stats on/off
 
 ## Technical Specifications
@@ -47,6 +46,9 @@ Work in progress...
 
 ### Memory Map
 
+Work in progress...
+
+* ```0x000000-0x00ffff``` available memory (64kb)
 * ```0x010000-0x01ffff``` blit descriptors (64kb)
 * ```0x040000-0x04ffff``` c64 characters (2x32kb)
 * ```0x050000-0x05ffff``` amiga characters (64kb)
@@ -80,6 +82,10 @@ Finally, to run the application from the build directory:
 ````console
 $ ./E64
 ````
+
+### Windows
+
+Work in progress...
 
 ## Websites and projects of interest
 
