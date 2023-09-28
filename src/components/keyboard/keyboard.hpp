@@ -16,15 +16,16 @@ namespace E64 {
 class keyboard_t {
 private:
 	host_t *host;
-	bool generate_events{true};
+	
+	bool generate_events{false};
 	
 	bool key_down{false};
 	
 	int32_t microseconds_per_frame = 1000000 / FPS;
 	int32_t microseconds_remaining{0};
 	int32_t time_to_next{0};
-	int32_t repeat_delay;
-	int32_t repeat_speed;
+	int32_t repeat_delay_ms; // in milliseconds
+	int32_t repeat_speed_ms; // in milliseconds
 	
 	uint8_t last_char;
 	
@@ -36,16 +37,16 @@ private:
 	uint8_t tail;
 public:
 	keyboard_t(host_t *h);
-	void process();
 	
 	void reset();
+	void process();
+	
 	
 	uint8_t pop_event();
 	
-	inline bool events_waiting()
-	{
-		return (head == tail) ? false : true;
-	}
+	inline bool events_waiting() { return (head == tail) ? false : true; }
+	inline void start_events() { generate_events = true; }
+	inline void stop_events() { generate_events = false; }
 };
 
 }

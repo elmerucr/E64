@@ -68,6 +68,9 @@ int main(int argc, char **argv)
 	stats->reset();
 	hud_blitter->reset();
 	
+	keyboard->reset();
+	keyboard->start_events();
+	
 	/*
 	 * Frame loop
 	 */
@@ -114,9 +117,9 @@ int main(int argc, char **argv)
 		vm_blitter->terminal_process_cursor_state(0);
 		
 		uint8_t symbol;
-		if ((symbol = keyboard->pop_event())) {
+		if (keyboard->events_waiting()) {
 			vm_blitter->terminal_deactivate_cursor(0);
-			while (symbol) {
+			while ((symbol = keyboard->pop_event())) {
 				switch (symbol) {
 					case ASCII_CURSOR_LEFT:
 						vm_blitter->terminal_cursor_left(0);
@@ -137,7 +140,6 @@ int main(int argc, char **argv)
 						vm_blitter->terminal_putchar(0, symbol);
 						break;
 				}
-				symbol = keyboard->pop_event();
 			}
 			vm_blitter->terminal_activate_cursor(0);
 		}

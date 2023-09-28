@@ -350,22 +350,25 @@ enum E64::events_output_state E64::host_t::events_process_events()
 			case SDL_KEYDOWN:
 				return_value = KEYPRESS_EVENT;
 				if( (event.key.keysym.sym == SDLK_f) && alt_pressed ) {
-					events_wait_until_f_released();
+					events_wait_until_key_released(SDLK_f);
 					video_toggle_fullscreen();
 				} else if( (event.key.keysym.sym == SDLK_s) && alt_pressed ) {
 					video_change_scanlines_intensity();
 				} else if ((event.key.keysym.sym == SDLK_b) && alt_pressed) {
 					video_toggle_linear_filtering();
+				} else if ((event.key.keysym.sym == SDLK_r) && alt_pressed) {
+					events_wait_until_key_released(SDLK_r);
+					hud->show_notification("\nResetting system");
 				} else if( (event.key.keysym.sym == SDLK_q) && alt_pressed ) {
-					events_wait_until_q_released();
+					events_wait_until_key_released(SDLK_q);
 					return_value = QUIT_EVENT;
 				} else if ((event.key.keysym.sym == SDLK_MINUS) && alt_pressed) {
 					// decrease screen size
-					events_wait_until_minus_released();
+					events_wait_until_key_released(SDLK_MINUS);
 					video_decrease_window_size();
 				} else if ((event.key.keysym.sym == SDLK_EQUALS) && alt_pressed) {
 					// decrease screen size
-					events_wait_until_equals_released();
+					events_wait_until_key_released(SDLK_EQUALS);
 					video_increase_window_size();
 				} else if(event.key.keysym.sym == SDLK_F10) {
 					hud->toggle_stats();
@@ -457,60 +460,17 @@ enum E64::events_output_state E64::host_t::events_process_events()
 		(keyboard_state[SCANCODE_RIGHT       ] <<= 1) |= sdl_keyboard_state[SDL_SCANCODE_RIGHT       ] ? 0b1 : 0b0;
 	};
 	
-//	printf("%c%c%c%c%c%c%c%c\n",
-//	       keyboard_state[SCANCODE_GRAVE] & 0x80 ? '1' : '0',
-//	       keyboard_state[SCANCODE_GRAVE] & 0x40 ? '1' : '0',
-//	       keyboard_state[SCANCODE_GRAVE] & 0x20 ? '1' : '0',
-//	       keyboard_state[SCANCODE_GRAVE] & 0x10 ? '1' : '0',
-//	       keyboard_state[SCANCODE_GRAVE] & 0x08 ? '1' : '0',
-//	       keyboard_state[SCANCODE_GRAVE] & 0x04 ? '1' : '0',
-//	       keyboard_state[SCANCODE_GRAVE] & 0x02 ? '1' : '0',
-//	       keyboard_state[SCANCODE_GRAVE] & 0x01 ? '1' : '0');
-	
 	if (return_value == QUIT_EVENT) printf("[SDL] detected quit event\n");
 	return return_value;
 }
 
-void E64::host_t::events_wait_until_f_released()
+void E64::host_t::events_wait_until_key_released(SDL_KeyCode key)
 {
 	SDL_Event event;
 	bool wait = true;
-	while(wait) {
+	while (wait) {
 	    SDL_PollEvent(&event);
-	    if ((event.type == SDL_KEYUP) && (event.key.keysym.sym == SDLK_f)) wait = false;
-	    std::this_thread::sleep_for(std::chrono::microseconds(40000));
-	}
-} 
-
-void E64::host_t::events_wait_until_q_released()
-{
-	SDL_Event event;
-	bool wait = true;
-	while(wait) {
-	    SDL_PollEvent(&event);
-	    if ((event.type == SDL_KEYUP) && (event.key.keysym.sym == SDLK_q)) wait = false;
-	    std::this_thread::sleep_for(std::chrono::microseconds(40000));
-	}
-}
-
-void E64::host_t::events_wait_until_minus_released()
-{
-	SDL_Event event;
-	bool wait = true;
-	while(wait) {
-	    SDL_PollEvent(&event);
-	    if ((event.type == SDL_KEYUP) && (event.key.keysym.sym == SDLK_MINUS)) wait = false;
-	    std::this_thread::sleep_for(std::chrono::microseconds(40000));
-	}
-}
-
-void E64::host_t::events_wait_until_equals_released()
-{
-	SDL_Event event;
-	bool wait = true;
-	while(wait) {
-	    SDL_PollEvent(&event);
-	    if ((event.type == SDL_KEYUP) && (event.key.keysym.sym == SDLK_EQUALS)) wait = false;
+	    if ((event.type == SDL_KEYUP) && (event.key.keysym.sym == key)) wait = false;
 	    std::this_thread::sleep_for(std::chrono::microseconds(40000));
 	}
 }
@@ -523,6 +483,7 @@ void E64::host_t::video_toggle_fullscreen()
 	} else {
 		SDL_SetWindowFullscreen(video_window, SDL_WINDOW_RESIZABLE);
 	}
+	// TODO: this is buggy in Linux, after full->window wrong sizes are reported
 	SDL_GetWindowSize(video_window, &window_width, &window_height);
 	hud->show_notification("\nSwitched to %s mode with size %ix%i",
 			      settings->video_fullscreen ? "fullscreen" : "window",

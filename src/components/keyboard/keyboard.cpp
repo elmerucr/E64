@@ -165,20 +165,19 @@ E64::keyboard_t::keyboard_t(host_t *h)
 {
 	host = h;
 	
-	repeat_delay = 500000;
-	repeat_speed = 50000;
+	repeat_delay_ms = 500;
+	repeat_speed_ms = 50;
 	
 	reset();
 }
 
 void E64::keyboard_t::process()
 {
-	
-	// check modifier keys
-       uint8_t modifier_keys_status =	(host->keyboard_state[SCANCODE_LSHIFT] ? SHIFT_PRESSED : 0) |
-					(host->keyboard_state[SCANCODE_RSHIFT] ? SHIFT_PRESSED : 0) |
-					(host->keyboard_state[SCANCODE_LCTRL ] ? CTRL_PRESSED  : 0) |
-					(host->keyboard_state[SCANCODE_RCTRL ] ? CTRL_PRESSED  : 0);
+       uint8_t modifier_keys_status =
+		(host->keyboard_state[SCANCODE_LSHIFT] ? SHIFT_PRESSED : 0) |
+		(host->keyboard_state[SCANCODE_RSHIFT] ? SHIFT_PRESSED : 0) |
+		(host->keyboard_state[SCANCODE_LCTRL ] ? CTRL_PRESSED  : 0) |
+		(host->keyboard_state[SCANCODE_RCTRL ] ? CTRL_PRESSED  : 0);
 	
 	for (int i=0; i<128; i++) {
 		switch (host->keyboard_state[i] & 0b11) {
@@ -187,8 +186,8 @@ void E64::keyboard_t::process()
 				if (generate_events && scancode_not_modifier[i]) {
 					key_down = true;
 					last_char = i;
-					time_to_next = repeat_delay;
-					push_event(event_to_ascii(last_char, modifier_keys_status));
+					time_to_next = repeat_delay_ms * 1000;
+					push_event(event_to_ascii(last_char, modifier_keys_status)); // immediate
 				}
 				break;
 			case 0b10:
@@ -199,6 +198,7 @@ void E64::keyboard_t::process()
 					}
 				}
 			default:
+				// do nothing
 				break;
 		}
 	}
@@ -209,7 +209,7 @@ void E64::keyboard_t::process()
 		while (microseconds_remaining) {
 			if (time_to_next < microseconds_remaining) {
 				microseconds_remaining -= time_to_next;
-				time_to_next = repeat_speed;
+				time_to_next = repeat_speed_ms * 1000;
 				// TODO: see old E64 here...
 				push_event(event_to_ascii(last_char, modifier_keys_status));
 			} else {
@@ -223,8 +223,12 @@ void E64::keyboard_t::process()
 void E64::keyboard_t::push_event(uint8_t event)
 {
 	event_list[head] = event;
+	
 	head++;
-	if( head == tail) tail++;
+	
+	if (head == tail) {
+		tail++;
+	}
 }
 
 uint8_t E64::keyboard_t::pop_event()

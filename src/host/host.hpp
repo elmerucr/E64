@@ -164,10 +164,7 @@ private:
 	 */
 	const uint8_t *sdl_keyboard_state;
 	
-	void events_wait_until_f_released();
-	void events_wait_until_q_released();
-	void events_wait_until_minus_released();
-	void events_wait_until_equals_released();
+	void events_wait_until_key_released(SDL_KeyCode key);
 public:
 	host_t(settings_t *s);
 	~host_t();

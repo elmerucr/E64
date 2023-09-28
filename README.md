@@ -15,9 +15,9 @@ E64 is a Virtual Computer System that runs on macOS and linux. Technical specifi
 
 ## Screenshots
 
-Below the startup screen with stats menu triggered by ```F10```.
+Below the startup screen with stats info triggered with ```F10```.
 
-![E64](./docs/E64_2023-09-23.png)
+![E64](./docs/E64_2023-09-28.png)
 
 ## Usage
 
