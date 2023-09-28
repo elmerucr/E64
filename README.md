@@ -4,7 +4,7 @@
 
 ## General Description
 
-E64 is a Virtual Computer System that runs on macOS and linux. Technical specifications are heavily inspired by the Commodore 64, Amiga 500 and Atari ST. The programming model is very comparable to fantasy consoles such as TIC-80 and PICO-8.
+E64 is a Virtual Computer System that runs on macOS and linux. Technical specifications are heavily inspired by the Commodore 64, Amiga 500 and Atari ST. The Lua programming model is (will be) very comparable to fantasy consoles such as TIC-80 and PICO-8.
 
 * The core is a Lua scripting engine
 * BLITTER/VIDEO chip with a resolution of 384x216 pixels, a palette of 4096 colors (12bit) running at 60Hz, alpha blending capabilities and 16mb video ram.
@@ -33,7 +33,21 @@ Below the startup screen with stats info triggered with ```F10```.
 
 Work in progress...
 
+### Memory Map
+
+Work in progress...
+
+* ```0x010000-0x01ffff``` blit descriptors (64kb)
+* ```0x040000-0x04ffff``` c64 characters (2x32kb)
+* ```0x050000-0x05ffff``` amiga characters (64kb)
+* ```0x200000-0x3fffff``` blitter tile RAM (2mb)
+* ```0x400000-0x5fffff``` blitter foreground color RAM (2mb)
+* ```0x600000-0x7fffff``` blitter background color RAM (2mb)
+* ```0x800000-0xffffff``` blitter pixel RAM (8mb)
+
 ### BLITTER
+
+Work in progress...
 
 ### SID Chips
 
@@ -43,19 +57,6 @@ For the big endian mapping, see picture below. It is adapted from the original C
 ### TIMERS
 
 Work in progress...
-
-### Memory Map
-
-Work in progress...
-
-* ```0x000000-0x00ffff``` available memory (64kb)
-* ```0x010000-0x01ffff``` blit descriptors (64kb)
-* ```0x040000-0x04ffff``` c64 characters (2x32kb)
-* ```0x050000-0x05ffff``` amiga characters (64kb)
-* ```0x200000-0x3fffff``` blitter tile RAM (2mb)
-* ```0x400000-0x5fffff``` blitter foreground color RAM (2mb)
-* ```0x600000-0x7fffff``` blitter background color RAM (2mb)
-* ```0x800000-0xffffff``` blitter pixel RAM (8mb)
 
 ## Compiling
 
