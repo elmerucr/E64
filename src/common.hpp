@@ -14,8 +14,8 @@
  * Version information
  */
 #define E64_MAJOR_VERSION    0
-#define E64_MINOR_VERSION    14
-#define E64_BUILD            20230927
+#define E64_MINOR_VERSION    15
+#define E64_BUILD            20230928
 #define E64_YEAR             2023
 
 /*
@@ -33,7 +33,7 @@
  * Video related
  */
 #define VM_MAX_PIXELS_PER_SCANLINE	384
-#define VM_MAX_SCANLINES		240
+#define VM_MAX_SCANLINES		216
 #define FPS				60
 
 /*

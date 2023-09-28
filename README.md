@@ -7,7 +7,7 @@
 E64 is a Virtual Computer System that runs on macOS and linux. Technical specifications are heavily inspired by the Commodore 64, Amiga 500 and Atari ST. The programming model is very comparable to fantasy consoles such as TIC-80 and PICO-8.
 
 * The core is a Lua scripting engine
-* BLITTER/VIDEO chip with a resolution of 384x240 pixels, a palette of 4096 colors (12bit) running at 60Hz, alpha blending capabilities and 16mb video ram.
+* BLITTER/VIDEO chip with a resolution of 384x216 pixels, a palette of 4096 colors (12bit) running at 60Hz, alpha blending capabilities and 16mb video ram.
 * Sound:
 	* Four SID chips (MOS 6581). Each individual SID chip runs at 985248Hz for the same pitch as the chips in the original C64 pal version. Emulation is achieved with the excellent [reSID](http://www.zimmers.net/anonftp/pub/cbm/crossplatform/emulators/resid/index.html) library by Dag Lem. Registers are remapped to enable big endian systems.
 	* Four Analog Sound Devices capable of pure sinusoidal sound next to all common other sound waves.

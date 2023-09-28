@@ -49,19 +49,21 @@ int main(int argc, char **argv)
 	
 	vm_blitter->reset();	
 	vm_blitter->set_clear_color(BLUE_03);
-	vm_blitter->set_hor_border_size(16);
+	vm_blitter->set_hor_border_size(12);
 	vm_blitter->set_hor_border_color(BLUE_01);
 	vm_blitter->set_ver_border_size(0x00);
 	vm_blitter->set_ver_border_color(BLUE_01);
-	vm_blitter->terminal_init(0, 0x1a, 0, 1, 1, 48, 26, BLUE_08, 0x0000);
+	vm_blitter->terminal_init(0, 0x1a, 0, 1, 1, 48, 24, BLUE_08, 0x0000);
 	vm_blitter->terminal_clear(0);
 	vm_blitter->terminal_printf(0, "E64 Computer System");
 	vm_blitter->blit[0].set_x_pos(0);
-	vm_blitter->blit[0].set_y_pos(16);vm_blitter->terminal_clear(0);
-	vm_blitter->terminal_printf(0, "E64 Computer System (C)2019-2023 elmerucr");
-	vm_blitter->terminal_printf(0, "\n\nPowered by %s, SDL 2.28 & reSID 0.16", LUA_RELEASE);
-	vm_blitter->terminal_printf(0, "\n\nReady.");
-
+	vm_blitter->blit[0].set_y_pos(12);
+	vm_blitter->terminal_clear(0);
+	vm_blitter->terminal_printf(0, "E64 Computer System v%i.%i.%i", E64_MAJOR_VERSION, E64_MINOR_VERSION, E64_BUILD);
+	vm_blitter->terminal_printf(0, "\n\n(C)2019-%i elmerucr", E64_YEAR);
+	vm_blitter->terminal_printf(0, "\n\nReady.\n");
+	
+	vm_blitter->terminal_activate_cursor(0);
 	
 	stats->reset();
 	hud_blitter->reset();
@@ -109,10 +111,35 @@ int main(int argc, char **argv)
 		if (host->events_process_events() == E64::QUIT_EVENT) running = false;
 		
 		keyboard->process();
+		vm_blitter->terminal_process_cursor_state(0);
 		
 		uint8_t symbol;
-		while ((symbol = keyboard->pop_event())) {
-			vm_blitter->terminal_putchar(0, symbol);
+		if ((symbol = keyboard->pop_event())) {
+			vm_blitter->terminal_deactivate_cursor(0);
+			while (symbol) {
+				switch (symbol) {
+					case ASCII_CURSOR_LEFT:
+						vm_blitter->terminal_cursor_left(0);
+						break;
+					case ASCII_CURSOR_RIGHT:
+						vm_blitter->terminal_cursor_right(0);
+						break;
+					case ASCII_CURSOR_UP:
+						vm_blitter->terminal_cursor_up(0);
+						break;
+					case ASCII_CURSOR_DOWN:
+						vm_blitter->terminal_cursor_down(0);
+						break;
+					case ASCII_BACKSPACE:
+						vm_blitter->terminal_backspace(0);
+						break;
+					default:
+						vm_blitter->terminal_putchar(0, symbol);
+						break;
+				}
+				symbol = keyboard->pop_event();
+			}
+			vm_blitter->terminal_activate_cursor(0);
 		}
 		
 		/*

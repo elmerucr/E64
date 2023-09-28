@@ -13,13 +13,13 @@ E64::hud_t::hud_t(E64::blitter_ic *b)
 	blitter = b;
 	
 	// stats
-	blitter->terminal_init(0, 0x1a, 0x00, 1, 1, 47, 6, AMBER_07, (AMBER_02 & 0x0fff) | 0xb000);
+	blitter->terminal_init(0, 0x1a, 0x00, 1, 1, 47, 6, AMBER_07, (AMBER_02 & 0x0fff) | 0xc000);
 	blitter->terminal_clear(0);
 	blitter->blit[0].set_x_pos(4);
-	blitter->blit[0].set_y_pos(188);
+	blitter->blit[0].set_y_pos(164);
 	
 	// notifications
-	blitter->terminal_init(1, 0x1a, 0x00, 1, 1, 47, 6, AMBER_07, (AMBER_02 & 0x0fff) | 0xb000);
+	blitter->terminal_init(1, 0x1a, 0x00, 1, 1, 47, 6, AMBER_07, (AMBER_02 & 0x0fff) | 0xc000);
 	blitter->terminal_clear(1);
 	blitter->terminal_printf(1, "\n\n\n\n\n\n");
 	blitter->blit[1].set_x_pos(4);

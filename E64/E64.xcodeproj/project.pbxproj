@@ -64,6 +64,7 @@
 		4615DC6C2AA875A000519477 /* version.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4615DC5B2AA875A000519477 /* version.cc */; };
 		4615DC6D2AA875A000519477 /* sid.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4615DC5D2AA875A000519477 /* sid.cc */; };
 		4615DC712AA92D8C00519477 /* host.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4615DC702AA92D8C00519477 /* host.cpp */; };
+		462E1A7D2AC5D10600E683C2 /* ibm_cp437_font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 462E1A7C2AC5D10600E683C2 /* ibm_cp437_font.cpp */; };
 		466137C32AADE620005E04F9 /* settings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 466137C12AADE620005E04F9 /* settings.cpp */; };
 		4675EB712AAE47CC00CFB786 /* core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4675EB6F2AAE47CC00CFB786 /* core.cpp */; };
 		467F17BB2AB25D8D00F0BBFB /* blitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 467F17B82AB25D8D00F0BBFB /* blitter.cpp */; };
@@ -189,6 +190,7 @@
 		4615DC5D2AA875A000519477 /* sid.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sid.cc; path = "../../src/components/sound/resid-0.16/sid.cc"; sourceTree = "<group>"; };
 		4615DC6F2AA92D8C00519477 /* host.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = host.hpp; path = ../../src/host/host.hpp; sourceTree = "<group>"; };
 		4615DC702AA92D8C00519477 /* host.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = host.cpp; path = ../../src/host/host.cpp; sourceTree = "<group>"; };
+		462E1A7C2AC5D10600E683C2 /* ibm_cp437_font.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ibm_cp437_font.cpp; path = ../../src/components/blitter/ibm_cp437_font.cpp; sourceTree = "<group>"; };
 		466137C12AADE620005E04F9 /* settings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = settings.cpp; path = ../../src/host/settings.cpp; sourceTree = "<group>"; };
 		466137C22AADE620005E04F9 /* settings.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = settings.hpp; path = ../../src/host/settings.hpp; sourceTree = "<group>"; };
 		4675EB6F2AAE47CC00CFB786 /* core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core.cpp; path = ../../src/components/core/core.cpp; sourceTree = "<group>"; };
@@ -438,6 +440,7 @@
 				467F17BD2AB25F2700F0BBFB /* rom.hpp */,
 				467F17BE2AB25F2700F0BBFB /* amiga_cp437_font.cpp */,
 				467F17BF2AB25F2700F0BBFB /* cbm_cp437_font.cpp */,
+				462E1A7C2AC5D10600E683C2 /* ibm_cp437_font.cpp */,
 			);
 			name = blitter;
 			sourceTree = "<group>";
@@ -529,6 +532,7 @@
 				4615DC232AA872B700519477 /* lctype.c in Sources */,
 				4615DC292AA872B700519477 /* loadlib.c in Sources */,
 				4615DC1C2AA872B600519477 /* lcorolib.c in Sources */,
+				462E1A7D2AC5D10600E683C2 /* ibm_cp437_font.cpp in Sources */,
 				4615DC272AA872B700519477 /* lfunc.c in Sources */,
 				46ADFE3F2AC21025006B5F5C /* keyboard.cpp in Sources */,
 				4615DC392AA872B700519477 /* lutf8lib.c in Sources */,

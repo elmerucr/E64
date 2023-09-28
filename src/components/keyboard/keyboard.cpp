@@ -11,138 +11,79 @@
 
 #define SHIFT_PRESSED   0b00000001
 #define CTRL_PRESSED    0b00000010
-#define ALT_PRESSED     0b00000100
+//#define ALT_PRESSED     0b00000100
 
 inline char event_to_ascii(uint8_t scancode, uint8_t modifiers)
 {
+	using namespace E64;
+	
 	switch (scancode) {
-		case E64::SCANCODE_ESCAPE: return ASCII_ESCAPE;
-		case E64::SCANCODE_F1:     return ASCII_F1;
-		case E64::SCANCODE_F2:     return ASCII_F2;
-		case E64::SCANCODE_F3:
-	    return ASCII_F3;
-	case E64::SCANCODE_F4:
-	    return ASCII_F4;
-	case E64::SCANCODE_F5:
-	    return ASCII_F5;
-	case E64::SCANCODE_F6:
-	    return ASCII_F6;
-	case E64::SCANCODE_F7:
-	    return ASCII_F7;
-	case E64::SCANCODE_F8:
-	    return ASCII_F8;
-	case E64::SCANCODE_GRAVE:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_TILDE : ASCII_GRAVE;
-	case E64::SCANCODE_1:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_EXCL_MARK : ASCII_1;
-	case E64::SCANCODE_2:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_AT : ASCII_2;
-	case E64::SCANCODE_3:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_NUMBER : ASCII_3;
-	case E64::SCANCODE_4:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_DOLLAR : ASCII_4;
-	case E64::SCANCODE_5:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_PERCENT : ASCII_5;
-	case E64::SCANCODE_6:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_CARET : ASCII_6;
-	case E64::SCANCODE_7:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_AMPERSAND : ASCII_7;
-	case E64::SCANCODE_8:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_ASTERISK : ASCII_8;
-	case E64::SCANCODE_9:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_OPEN_PAR : ((modifiers & CTRL_PRESSED) ? ASCII_REVERSE_ON : ASCII_9);
-	case E64::SCANCODE_0:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_CLOSE_PAR : ((modifiers & CTRL_PRESSED) ? ASCII_REVERSE_OFF : ASCII_0);
-	case E64::SCANCODE_MINUS:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_UNDERSCORE : ASCII_HYPHEN;
-	case E64::SCANCODE_EQUALS:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_PLUS : ASCII_EQUALS;
-	case E64::SCANCODE_BACKSPACE:
-	    return ASCII_BACKSPACE;
-	case E64::SCANCODE_TAB:
-	    return ASCII_HOR_TAB;
-	case E64::SCANCODE_Q:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_Q : ASCII_q;
-	case E64::SCANCODE_W:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_W : ASCII_w;
-	case E64::SCANCODE_E:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_E : ASCII_e;
-	case E64::SCANCODE_R:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_R : ASCII_r;
-	case E64::SCANCODE_T:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_T : ASCII_t;
-	case E64::SCANCODE_Y:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_Y : ASCII_y;
-	case E64::SCANCODE_U:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_U : ASCII_u;
-	case E64::SCANCODE_I:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_I : ASCII_i;
-	case E64::SCANCODE_O:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_O : ASCII_o;
-	case E64::SCANCODE_P:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_P : ASCII_p;
-	case E64::SCANCODE_LEFTBRACKET:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_OPEN_BRACE : ASCII_OPEN_BRACK;
-	case E64::SCANCODE_RIGHTBRACKET:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_CLOSE_BRACE : ASCII_CLOSE_BRACK;
-	case E64::SCANCODE_RETURN:
-	    return ASCII_LF;
-	case E64::SCANCODE_A:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_A : ASCII_a;
-	case E64::SCANCODE_S:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_S : ASCII_s;
-	case E64::SCANCODE_D:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_D : ASCII_d;
-	case E64::SCANCODE_F:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_F : ASCII_f;
-	case E64::SCANCODE_G:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_G : ASCII_g;
-	case E64::SCANCODE_H:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_H : ASCII_h;
-	case E64::SCANCODE_J:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_J : ASCII_j;
-	case E64::SCANCODE_K:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_K : ASCII_k;
-	case E64::SCANCODE_L:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_L : ASCII_l;
-	case E64::SCANCODE_SEMICOLON:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_COLON : ASCII_SEMI_COLON;
-	case E64::SCANCODE_APOSTROPHE:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_DOUBLE_QUOTES : ASCII_SINGLE_QUOTE;
-	case E64::SCANCODE_BACKSLASH:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_VERT_BAR : ASCII_BACKSLASH;
-	case E64::SCANCODE_Z:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_Z : ASCII_z;
-	case E64::SCANCODE_X:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_X : ASCII_x;
-	case E64::SCANCODE_C:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_C : ASCII_c;
-	case E64::SCANCODE_V:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_V : ASCII_v;
-	case E64::SCANCODE_B:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_B : ASCII_b;
-	case E64::SCANCODE_N:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_N : ASCII_n;
-	case E64::SCANCODE_M:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_M : ASCII_m;
-	case E64::SCANCODE_COMMA:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_LESS : ASCII_COMMA;
-	case E64::SCANCODE_PERIOD:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_GREATER : ASCII_PERIOD;
-	case E64::SCANCODE_SLASH:
-	    return (modifiers & SHIFT_PRESSED) ? ASCII_QUESTION_M : ASCII_SLASH;
-	case E64::SCANCODE_SPACE:
-	    return ASCII_SPACE;
-	case E64::SCANCODE_LEFT:
-	    return ASCII_CURSOR_LEFT;
-	case E64::SCANCODE_UP:
-	    return ASCII_CURSOR_UP;
-	case E64::SCANCODE_DOWN:
-	    return ASCII_CURSOR_DOWN;
-	case E64::SCANCODE_RIGHT:
-	    return ASCII_CURSOR_RIGHT;
-    }
-    return 0;
+		case SCANCODE_ESCAPE: return ASCII_ESCAPE;
+		case SCANCODE_F1:     return ASCII_F1;
+		case SCANCODE_F2:     return ASCII_F2;
+		case SCANCODE_F3:     return ASCII_F3;
+		case SCANCODE_F4:     return ASCII_F4;
+		case SCANCODE_F5:     return ASCII_F5;
+		case SCANCODE_F6:     return ASCII_F6;
+		case SCANCODE_F7:     return ASCII_F7;
+		case SCANCODE_F8:     return ASCII_F8;
+		case SCANCODE_GRAVE:  return (modifiers & SHIFT_PRESSED) ? ASCII_TILDE : ASCII_GRAVE;
+		case SCANCODE_1:      return (modifiers & SHIFT_PRESSED) ? ASCII_EXCL_MARK : ASCII_1;
+		case SCANCODE_2:      return (modifiers & SHIFT_PRESSED) ? ASCII_AT : ASCII_2;
+		case SCANCODE_3:      return (modifiers & SHIFT_PRESSED) ? ASCII_NUMBER : ASCII_3;
+		case SCANCODE_4:      return (modifiers & SHIFT_PRESSED) ? ASCII_DOLLAR : ASCII_4;
+		case SCANCODE_5:      return (modifiers & SHIFT_PRESSED) ? ASCII_PERCENT : ASCII_5;
+		case SCANCODE_6:      return (modifiers & SHIFT_PRESSED) ? ASCII_CARET : ASCII_6;
+		case SCANCODE_7:      return (modifiers & SHIFT_PRESSED) ? ASCII_AMPERSAND : ASCII_7;
+		case SCANCODE_8:      return (modifiers & SHIFT_PRESSED) ? ASCII_ASTERISK : ASCII_8;
+		case SCANCODE_9:      return (modifiers & SHIFT_PRESSED) ? ASCII_OPEN_PAR : ((modifiers & CTRL_PRESSED) ? ASCII_REVERSE_ON : ASCII_9);
+		case SCANCODE_0:      return (modifiers & SHIFT_PRESSED) ? ASCII_CLOSE_PAR : ((modifiers & CTRL_PRESSED) ? ASCII_REVERSE_OFF : ASCII_0);
+		case SCANCODE_MINUS:  return (modifiers & SHIFT_PRESSED) ? ASCII_UNDERSCORE : ASCII_HYPHEN;
+		case SCANCODE_EQUALS: return (modifiers & SHIFT_PRESSED) ? ASCII_PLUS : ASCII_EQUALS;
+		case SCANCODE_BACKSPACE: return ASCII_BACKSPACE;
+		case SCANCODE_TAB:    return ASCII_HOR_TAB;
+		case SCANCODE_Q:      return (modifiers & SHIFT_PRESSED) ? ASCII_Q : ASCII_q;
+		case SCANCODE_W:      return (modifiers & SHIFT_PRESSED) ? ASCII_W : ASCII_w;
+		case SCANCODE_E:      return (modifiers & SHIFT_PRESSED) ? ASCII_E : ASCII_e;
+		case SCANCODE_R:      return (modifiers & SHIFT_PRESSED) ? ASCII_R : ASCII_r;
+		case SCANCODE_T:      return (modifiers & SHIFT_PRESSED) ? ASCII_T : ASCII_t;
+		case SCANCODE_Y:      return (modifiers & SHIFT_PRESSED) ? ASCII_Y : ASCII_y;
+		case SCANCODE_U:      return (modifiers & SHIFT_PRESSED) ? ASCII_U : ASCII_u;
+		case SCANCODE_I:      return (modifiers & SHIFT_PRESSED) ? ASCII_I : ASCII_i;
+		case SCANCODE_O:      return (modifiers & SHIFT_PRESSED) ? ASCII_O : ASCII_o;
+		case SCANCODE_P:      return (modifiers & SHIFT_PRESSED) ? ASCII_P : ASCII_p;
+		case SCANCODE_LEFTBRACKET: return (modifiers & SHIFT_PRESSED) ? ASCII_OPEN_BRACE : ASCII_OPEN_BRACK;
+		case SCANCODE_RIGHTBRACKET: return (modifiers & SHIFT_PRESSED) ? ASCII_CLOSE_BRACE : ASCII_CLOSE_BRACK;
+		case SCANCODE_RETURN: return ASCII_LF;
+		case SCANCODE_A:      return (modifiers & SHIFT_PRESSED) ? ASCII_A : ASCII_a;
+		case SCANCODE_S:      return (modifiers & SHIFT_PRESSED) ? ASCII_S : ASCII_s;
+		case SCANCODE_D:      return (modifiers & SHIFT_PRESSED) ? ASCII_D : ASCII_d;
+		case SCANCODE_F:      return (modifiers & SHIFT_PRESSED) ? ASCII_F : ASCII_f;
+		case SCANCODE_G:      return (modifiers & SHIFT_PRESSED) ? ASCII_G : ASCII_g;
+		case SCANCODE_H:      return (modifiers & SHIFT_PRESSED) ? ASCII_H : ASCII_h;
+		case SCANCODE_J:      return (modifiers & SHIFT_PRESSED) ? ASCII_J : ASCII_j;
+		case SCANCODE_K:      return (modifiers & SHIFT_PRESSED) ? ASCII_K : ASCII_k;
+		case SCANCODE_L:      return (modifiers & SHIFT_PRESSED) ? ASCII_L : ASCII_l;
+		case SCANCODE_SEMICOLON: return (modifiers & SHIFT_PRESSED) ? ASCII_COLON : ASCII_SEMI_COLON;
+		case SCANCODE_APOSTROPHE: return (modifiers & SHIFT_PRESSED) ? ASCII_DOUBLE_QUOTES : ASCII_SINGLE_QUOTE;
+		case SCANCODE_BACKSLASH: return (modifiers & SHIFT_PRESSED) ? ASCII_VERT_BAR : ASCII_BACKSLASH;
+		case SCANCODE_Z:      return (modifiers & SHIFT_PRESSED) ? ASCII_Z : ASCII_z;
+		case SCANCODE_X:      return (modifiers & SHIFT_PRESSED) ? ASCII_X : ASCII_x;
+		case SCANCODE_C:      return (modifiers & SHIFT_PRESSED) ? ASCII_C : ASCII_c;
+		case SCANCODE_V:      return (modifiers & SHIFT_PRESSED) ? ASCII_V : ASCII_v;
+		case SCANCODE_B:      return (modifiers & SHIFT_PRESSED) ? ASCII_B : ASCII_b;
+		case SCANCODE_N:      return (modifiers & SHIFT_PRESSED) ? ASCII_N : ASCII_n;
+		case SCANCODE_M:      return (modifiers & SHIFT_PRESSED) ? ASCII_M : ASCII_m;
+		case SCANCODE_COMMA:  return (modifiers & SHIFT_PRESSED) ? ASCII_LESS : ASCII_COMMA;
+		case SCANCODE_PERIOD: return (modifiers & SHIFT_PRESSED) ? ASCII_GREATER : ASCII_PERIOD;
+		case SCANCODE_SLASH:  return (modifiers & SHIFT_PRESSED) ? ASCII_QUESTION_M : ASCII_SLASH;
+		case SCANCODE_SPACE:  return ASCII_SPACE;
+		case SCANCODE_LEFT:   return ASCII_CURSOR_LEFT;
+		case SCANCODE_UP:     return ASCII_CURSOR_UP;
+		case SCANCODE_DOWN:   return ASCII_CURSOR_DOWN;
+		case SCANCODE_RIGHT:  return ASCII_CURSOR_RIGHT;
+	}
+	return ASCII_NULL;
 }
 
 bool scancode_not_modifier[] =
