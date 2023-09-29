@@ -205,6 +205,7 @@ public:
 	 * Pointers to unpacked fonts
 	 */
 	uint16_t *cbm_font;
+	uint16_t *ibm_font;
 	uint16_t *amiga_font;
 
 	/*

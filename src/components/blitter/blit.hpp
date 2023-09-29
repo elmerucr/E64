@@ -87,7 +87,7 @@ public:
 	 * | | | | | | +---- Background (0 = off, 1 = on)
 	 * | | | | | +------ Multicolor (0 = off = single color, 1 = on)
 	 * | | | | +-------- Color per tile (0 = off, 1 = on)
-	 * +-+-+-+---------- Font no (0 = off, 1 = cbm, 2 = amiga,...)
+	 * +-+-+-+---------- Font no (0 = off, 1 = cbm, 2 = ibm, 3 = amiga, ...)
 	 *
 	 * bits 0 and 4-6: Reserved
 	 */

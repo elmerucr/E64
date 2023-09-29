@@ -22,6 +22,8 @@ public:
 	core_t(sound_ic *s);
 	~core_t();
 	
+	void reset();
+	
 	void timer0_callback();
 };
 

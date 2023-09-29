@@ -63,6 +63,10 @@ int main(int argc, char **argv)
 	vm_blitter->terminal_printf(0, "\n\n(C)2019-%i elmerucr", E64_YEAR);
 	vm_blitter->terminal_printf(0, "\n\nReady.\n");
 	
+	for(int i=0; i<256; i++) {
+		vm_blitter->terminal_putsymbol(0, i);
+	}
+	
 	vm_blitter->terminal_activate_cursor(0);
 	
 	stats->reset();

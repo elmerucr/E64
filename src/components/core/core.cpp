@@ -208,6 +208,11 @@ E64::core_t::~core_t()
 	lua_close(L);
 }
 
+void E64::core_t::reset()
+{
+	//
+}
+
 void E64::core_t::timer0_callback()
 {
 	lua_getglobal(L, "timer0_callback");
