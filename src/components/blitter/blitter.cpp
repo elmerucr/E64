@@ -173,6 +173,7 @@ E64::blitter_ic::blitter_ic(uint16_t _pps, uint16_t _sl)
 			dest++;
 			byte = byte << 1;
 		}
+		
 	}
 	
 	dest = ibm_8x16_font;
@@ -183,6 +184,13 @@ E64::blitter_ic::blitter_ic(uint16_t _pps, uint16_t _sl)
 			*dest = (byte & 0b10000000) ? C64_GREY : 0x0000;
 			dest++;
 			byte = byte << 1;
+		}
+		for (int i=0; i<(128*128); i++) {
+			if (ibm_8x16_font[i]) {
+				ibm_8x16_font[i+(128*128)] = 0x0000;
+			} else {
+				ibm_8x16_font[i+(128*128)] = C64_GREY;
+			}
 		}
 	}
 	
