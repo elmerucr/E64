@@ -73,6 +73,7 @@
 		467F17C12AB25F2700F0BBFB /* cbm_cp437_font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 467F17BF2AB25F2700F0BBFB /* cbm_cp437_font.cpp */; };
 		469F512B2AB3882700552EC1 /* stats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 469F512A2AB3882700552EC1 /* stats.cpp */; };
 		46ADFE3F2AC21025006B5F5C /* keyboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46ADFE3D2AC21025006B5F5C /* keyboard.cpp */; };
+		46F3C0EF2AC8414700C9D0BD /* ibm_vga_8x16.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46F3C0EE2AC8414700C9D0BD /* ibm_vga_8x16.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -206,6 +207,7 @@
 		469F512A2AB3882700552EC1 /* stats.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stats.cpp; path = ../../src/host/stats.cpp; sourceTree = "<group>"; };
 		46ADFE3D2AC21025006B5F5C /* keyboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = keyboard.cpp; path = ../../src/components/keyboard/keyboard.cpp; sourceTree = "<group>"; };
 		46ADFE3E2AC21025006B5F5C /* keyboard.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = keyboard.hpp; path = ../../src/components/keyboard/keyboard.hpp; sourceTree = "<group>"; };
+		46F3C0EE2AC8414700C9D0BD /* ibm_vga_8x16.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ibm_vga_8x16.cpp; path = ../../src/components/blitter/ibm_vga_8x16.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -438,9 +440,10 @@
 				467F17B82AB25D8D00F0BBFB /* blitter.cpp */,
 				467F17BA2AB25D8D00F0BBFB /* blitter_terminal.cpp */,
 				467F17BD2AB25F2700F0BBFB /* rom.hpp */,
-				467F17BE2AB25F2700F0BBFB /* amiga_cp437_font.cpp */,
 				467F17BF2AB25F2700F0BBFB /* cbm_cp437_font.cpp */,
+				467F17BE2AB25F2700F0BBFB /* amiga_cp437_font.cpp */,
 				462E1A7C2AC5D10600E683C2 /* ibm_cp437_font.cpp */,
+				46F3C0EE2AC8414700C9D0BD /* ibm_vga_8x16.cpp */,
 			);
 			name = blitter;
 			sourceTree = "<group>";
@@ -564,6 +567,7 @@
 				4615DC652AA875A000519477 /* pot.cc in Sources */,
 				4615DC1D2AA872B600519477 /* lauxlib.c in Sources */,
 				4615DC302AA872B700519477 /* lbaselib.c in Sources */,
+				46F3C0EF2AC8414700C9D0BD /* ibm_vga_8x16.cpp in Sources */,
 				4615DC2A2AA872B700519477 /* ldebug.c in Sources */,
 				466137C32AADE620005E04F9 /* settings.cpp in Sources */,
 				467F17BC2AB25D8D00F0BBFB /* blitter_terminal.cpp in Sources */,

@@ -8,8 +8,10 @@
 #ifndef CORE_HPP
 #define CORE_HPP
 
+#include "common.hpp"
 #include "lua.hpp"
 #include "sound.hpp"
+#include "blitter.hpp"
 
 namespace E64 {
 
@@ -21,6 +23,8 @@ private:
 public:
 	core_t(sound_ic *s);
 	~core_t();
+	
+	blitter_ic *blitter;
 	
 	void reset();
 	

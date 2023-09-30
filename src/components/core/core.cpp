@@ -79,7 +79,7 @@ static int l_mixer_sid1_right_set_volume(lua_State *L)
 	return 0;
 }
 
-char lua_code[] = R"Lua(  
+const char lua_code[] = R"Lua(
 
 -- spy vs spy i track 1
 local track1 = {
@@ -163,6 +163,9 @@ end
 
 E64::core_t::core_t(E64::sound_ic *s)
 {
+	/*
+	 * Start Lua
+	 */
 	L = luaL_newstate();
 	
 	if (!L) {
@@ -174,7 +177,7 @@ E64::core_t::core_t(E64::sound_ic *s)
 	
 	luaL_openlibs(L);
 	
-	sound = s;
+	sound = s;	// assign sound before pushing c functions
 	
 	lua_pushcfunction(L, l_poke_sound);
 	lua_setglobal(L, "poke_sound");
@@ -200,10 +203,45 @@ E64::core_t::core_t(E64::sound_ic *s)
 	lua_setglobal(L, "mixer_sid1_right_set_volume");
 	
 	luaL_dostring(L, lua_code);
+	
+	/*
+	 * Start Blitter
+	 */
+	blitter = new blitter_ic(VM_MAX_PIXELS_PER_SCANLINE, VM_MAX_SCANLINES);
+	
+	blitter->reset();
+	blitter->set_clear_color(BLUE_03);
+	blitter->set_hor_border_size(12);
+	blitter->set_hor_border_color(BLUE_01);
+	blitter->set_ver_border_size(0x00);
+	blitter->set_ver_border_color(BLUE_01);
+	blitter->terminal_init(0, 0x3a, 0, 1, 2, 48, 24, BLUE_08, 0x0000);
+	blitter->terminal_clear(0);
+	blitter->terminal_printf(0, "E64 Computer System");
+	blitter->blit[0].set_x_pos(0);
+	blitter->blit[0].set_y_pos(12);
+	blitter->terminal_clear(0);
+	blitter->terminal_printf(0, "E64 Computer System v%i.%i.%i", E64_MAJOR_VERSION, E64_MINOR_VERSION, E64_BUILD);
+	blitter->terminal_printf(0, "\n\n(C)2019-%i elmerucr", E64_YEAR);
+	blitter->terminal_printf(0, "\n\nReady.\n");
+	
+	for(int i=0; i<256; i++) {
+		blitter->terminal_putsymbol(0, i);
+	}
+	
+	blitter->terminal_activate_cursor(0);
 }
 
 E64::core_t::~core_t()
 {
+	/*
+	 * Clean up blitter
+	 */
+	delete blitter;
+	
+	/*
+	 * Clean up Lua
+	 */
 	printf("[core] Closing Lua\n");
 	lua_close(L);
 }

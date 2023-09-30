@@ -205,8 +205,9 @@ public:
 	 * Pointers to unpacked fonts
 	 */
 	uint16_t *cbm_font;
-	uint16_t *ibm_font;
 	uint16_t *amiga_font;
+	uint16_t *ibm_8x8_font;
+	uint16_t *ibm_8x16_font;
 
 	/*
 	 * This method is called to notify blitter that screen was

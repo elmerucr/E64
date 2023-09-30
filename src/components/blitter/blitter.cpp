@@ -135,8 +135,9 @@ E64::blitter_ic::blitter_ic(uint16_t _pps, uint16_t _sl)
 	 * fonts as bitmaps
 	 */
 	cbm_font = new uint16_t[256 * 64];
-	ibm_font = new uint16_t[256 * 64];
 	amiga_font = new uint16_t[256 * 128];
+	ibm_8x8_font = new uint16_t[256 * 64];
+	ibm_8x16_font = new uint16_t[256 * 128];
 
 	/*
 	 * Convert the character roms to 16bit argb4444 format
@@ -152,7 +153,18 @@ E64::blitter_ic::blitter_ic(uint16_t _pps, uint16_t _sl)
 		}
 	}
 	
-	dest = ibm_font;
+	dest = amiga_font;
+	for (int i=0; i<AMIGA_CP437_FONT_ELEMENTS; i++) {
+		uint8_t byte = amiga_cp437_font[i];
+		uint8_t count = 8;
+		while (count--) {
+			*dest = (byte & 0b10000000) ? C64_GREY : 0x0000;
+			dest++;
+			byte = byte << 1;
+		}
+	}
+	
+	dest = ibm_8x8_font;
 	for (int i=0; i<IBM_CP437_FONT_ELEMENTS; i++) {
 		uint8_t byte = ibm_cp437_font[i];
 		uint8_t count = 8;
@@ -163,10 +175,9 @@ E64::blitter_ic::blitter_ic(uint16_t _pps, uint16_t _sl)
 		}
 	}
 	
-	dest = amiga_font;
-	uint8_t byte;
-	for (int i=0; i<AMIGA_CP437_FONT_ELEMENTS; i++) {
-		byte = amiga_cp437_font[i];
+	dest = ibm_8x16_font;
+	for (int i=0; i<IBM_VGA_8X16_FONT_ELEMENTS; i++) {
+		uint8_t byte = ibm_vga_8x16_font[i];
 		uint8_t count = 8;
 		while (count--) {
 			*dest = (byte & 0b10000000) ? C64_GREY : 0x0000;
@@ -180,8 +191,9 @@ E64::blitter_ic::blitter_ic(uint16_t _pps, uint16_t _sl)
 
 E64::blitter_ic::~blitter_ic()
 {
+	delete [] ibm_8x16_font;
+	delete [] ibm_8x8_font;
 	delete [] amiga_font;
-	delete [] ibm_font;
 	delete [] cbm_font;
 	delete [] blit;
 	delete [] pixel_ram;
@@ -331,14 +343,17 @@ uint32_t E64::blitter_ic::draw_blit(blit_t *blit)
 			 * Pick the right pixel from memory
 			 */
 			switch (blit->font_no) {
-				case 0x01:
+				case 0x00:
 					source_color = cbm_font[((tile_index * blit->tile_width_pixels * blit->tile_height_pixels) | pixel_in_tile) & 0x3fff];
 					break;
+				case 0x01:
+					source_color = amiga_font[((tile_index * blit->tile_width_pixels * blit->tile_height_pixels) | pixel_in_tile) & 0x7fff];
+					break;
 				case 0x02:
-					source_color = ibm_font[((tile_index * blit->tile_width_pixels * blit->tile_height_pixels) | pixel_in_tile) & 0x3fff];
+					source_color = ibm_8x8_font[((tile_index * blit->tile_width_pixels * blit->tile_height_pixels) | pixel_in_tile) & 0x3fff];
 					break;
 				case 0x03:
-					source_color = amiga_font[((tile_index * blit->tile_width_pixels * blit->tile_height_pixels) | pixel_in_tile) & 0x7fff];
+					source_color = ibm_8x16_font[((tile_index * blit->tile_width_pixels * blit->tile_height_pixels) | pixel_in_tile) & 0x7fff];
 					break;
 				default:
 					source_color = pixel_ram[((blit->number << 14) + ((tile_index * blit->tile_width_pixels * blit->tile_height_pixels) + pixel_in_tile)) & PIXEL_RAM_ELEMENTS_MASK];

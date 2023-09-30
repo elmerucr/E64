@@ -11,7 +11,6 @@
 #include "sound.hpp"
 #include "core.hpp"
 #include "keyboard.hpp"
-#include "blitter.hpp"
 #include "stats.hpp"
 #include "hud.hpp"
 #include <chrono>
@@ -26,17 +25,14 @@ int main(int argc, char **argv)
 	       E64_MAJOR_VERSION,
 	       E64_MINOR_VERSION,
 	       E64_BUILD, E64_YEAR);
-	
-	E64::blitter_ic *vm_blitter = new E64::blitter_ic(VM_MAX_PIXELS_PER_SCANLINE, VM_MAX_SCANLINES);
-	E64::blitter_ic *hud_blitter = new E64::blitter_ic(VM_MAX_PIXELS_PER_SCANLINE, VM_MAX_SCANLINES);
-	
+
 	E64::settings_t *settings = new E64::settings_t();
 	E64::host_t *host = new E64::host_t(settings);
 	E64::keyboard_t *keyboard = new E64::keyboard_t(host);
 	E64::sound_ic *sound = new E64::sound_ic(settings);
 	E64::core_t *core = new E64::core_t(sound);
 	E64::stats_t *stats = new E64::stats_t();
-	E64::hud_t *hud = new E64::hud_t(hud_blitter);
+	E64::hud_t *hud = new E64::hud_t();
 	host->set_hud(hud);
 	
 	bool running = true;
@@ -47,30 +43,7 @@ int main(int argc, char **argv)
 	
 	end_of_frame_time = std::chrono::steady_clock::now();
 	
-	vm_blitter->reset();	
-	vm_blitter->set_clear_color(BLUE_03);
-	vm_blitter->set_hor_border_size(12);
-	vm_blitter->set_hor_border_color(BLUE_01);
-	vm_blitter->set_ver_border_size(0x00);
-	vm_blitter->set_ver_border_color(BLUE_01);
-	vm_blitter->terminal_init(0, 0x1a, 0, 1, 1, 48, 24, BLUE_08, 0x0000);
-	vm_blitter->terminal_clear(0);
-	vm_blitter->terminal_printf(0, "E64 Computer System");
-	vm_blitter->blit[0].set_x_pos(0);
-	vm_blitter->blit[0].set_y_pos(12);
-	vm_blitter->terminal_clear(0);
-	vm_blitter->terminal_printf(0, "E64 Computer System v%i.%i.%i", E64_MAJOR_VERSION, E64_MINOR_VERSION, E64_BUILD);
-	vm_blitter->terminal_printf(0, "\n\n(C)2019-%i elmerucr", E64_YEAR);
-	vm_blitter->terminal_printf(0, "\n\nReady.\n");
-	
-	for(int i=0; i<256; i++) {
-		vm_blitter->terminal_putsymbol(0, i);
-	}
-	
-	vm_blitter->terminal_activate_cursor(0);
-	
 	stats->reset();
-	hud_blitter->reset();
 	
 	keyboard->reset();
 	keyboard->start_events();
@@ -118,44 +91,45 @@ int main(int argc, char **argv)
 		if (host->events_process_events() == E64::QUIT_EVENT) running = false;
 		
 		keyboard->process();
-		vm_blitter->terminal_process_cursor_state(0);
+		
+		core->blitter->terminal_process_cursor_state(0);
 		
 		uint8_t symbol;
 		if (keyboard->events_waiting()) {
-			vm_blitter->terminal_deactivate_cursor(0);
+			core->blitter->terminal_deactivate_cursor(0);
 			while ((symbol = keyboard->pop_event())) {
 				switch (symbol) {
 					case ASCII_CURSOR_LEFT:
-						vm_blitter->terminal_cursor_left(0);
+						core->blitter->terminal_cursor_left(0);
 						break;
 					case ASCII_CURSOR_RIGHT:
-						vm_blitter->terminal_cursor_right(0);
+						core->blitter->terminal_cursor_right(0);
 						break;
 					case ASCII_CURSOR_UP:
-						vm_blitter->terminal_cursor_up(0);
+						core->blitter->terminal_cursor_up(0);
 						break;
 					case ASCII_CURSOR_DOWN:
-						vm_blitter->terminal_cursor_down(0);
+						core->blitter->terminal_cursor_down(0);
 						break;
 					case ASCII_BACKSPACE:
-						vm_blitter->terminal_backspace(0);
+						core->blitter->terminal_backspace(0);
 						break;
 					default:
-						vm_blitter->terminal_putchar(0, symbol);
+						core->blitter->terminal_putchar(0, symbol);
 						break;
 				}
 			}
-			vm_blitter->terminal_activate_cursor(0);
+			core->blitter->terminal_activate_cursor(0);
 		}
 		
 		/*
 		 * Blitting vm
 		 */
-		vm_blitter->clear_framebuffer();
-		vm_blitter->add_operation_draw_blit(&vm_blitter->blit[0]);
-		vm_blitter->add_operation_draw_ver_border();
-		vm_blitter->add_operation_draw_hor_border();
-		while (vm_blitter->run_next_operation()) {}
+		core->blitter->clear_framebuffer();
+		core->blitter->add_operation_draw_blit(&core->blitter->blit[0]);
+		core->blitter->add_operation_draw_ver_border();
+		core->blitter->add_operation_draw_hor_border();
+		while (core->blitter->run_next_operation()) {}
 		
 		/*
 		 * Blitting hud
@@ -166,7 +140,7 @@ int main(int argc, char **argv)
 		// Time measurement
 		stats->start_update_textures_time();
 		
-		host->update_textures(vm_blitter, hud_blitter);
+		host->update_textures(core->blitter, hud->blitter);
 		
 		// Time measurement
 		stats->start_idle_time();
@@ -194,7 +168,7 @@ int main(int argc, char **argv)
 			}
 		}
 		
-		host->update_screen(vm_blitter);
+		host->update_screen(core->blitter);
 		
 		/*
 		 * time measurement, starting core time
@@ -216,8 +190,6 @@ int main(int argc, char **argv)
 	delete keyboard;
 	delete settings;
 	delete host;
-	delete hud_blitter;
-	delete vm_blitter;
 	
 	return 0;
 }
