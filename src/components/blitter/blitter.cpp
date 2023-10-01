@@ -132,6 +132,13 @@ E64::blitter_ic::blitter_ic(uint16_t _pps, uint16_t _sl)
 	}
 
 	/*
+	 * Create inverse chars
+	 */
+	for (int i=0; i<2048; i++) {
+		ibm_vga_8x16_font[i + 2048] = 255 - ibm_vga_8x16_font[i];
+	}
+	
+	/*
 	 * fonts as bitmaps
 	 */
 	cbm_font = new uint16_t[256 * 64];
@@ -142,10 +149,13 @@ E64::blitter_ic::blitter_ic(uint16_t _pps, uint16_t _sl)
 	/*
 	 * Convert the character roms to 16bit argb4444 format
 	 */
-	uint16_t *dest = cbm_font;
+	uint16_t *dest;
+	uint8_t byte, count;
+	
+	dest = cbm_font;
 	for (int i=0; i<CBM_CP437_FONT_ELEMENTS; i++) {
-		uint8_t byte = cbm_cp437_font[i];
-		uint8_t count = 8;
+		byte = cbm_cp437_font[i];
+		count = 8;
 		while (count--) {
 			*dest = (byte & 0b10000000) ? C64_GREY : 0x0000;
 			dest++;
@@ -155,8 +165,8 @@ E64::blitter_ic::blitter_ic(uint16_t _pps, uint16_t _sl)
 	
 	dest = amiga_font;
 	for (int i=0; i<AMIGA_CP437_FONT_ELEMENTS; i++) {
-		uint8_t byte = amiga_cp437_font[i];
-		uint8_t count = 8;
+		byte = amiga_cp437_font[i];
+		count = 8;
 		while (count--) {
 			*dest = (byte & 0b10000000) ? C64_GREY : 0x0000;
 			dest++;
@@ -166,31 +176,23 @@ E64::blitter_ic::blitter_ic(uint16_t _pps, uint16_t _sl)
 	
 	dest = ibm_8x8_font;
 	for (int i=0; i<IBM_CP437_FONT_ELEMENTS; i++) {
-		uint8_t byte = ibm_cp437_font[i];
-		uint8_t count = 8;
+		byte = ibm_cp437_font[i];
+		count = 8;
 		while (count--) {
 			*dest = (byte & 0b10000000) ? C64_GREY : 0x0000;
 			dest++;
 			byte = byte << 1;
 		}
-		
 	}
 	
 	dest = ibm_8x16_font;
 	for (int i=0; i<IBM_VGA_8X16_FONT_ELEMENTS; i++) {
-		uint8_t byte = ibm_vga_8x16_font[i];
-		uint8_t count = 8;
+		byte = ibm_vga_8x16_font[i];
+		count = 8;
 		while (count--) {
 			*dest = (byte & 0b10000000) ? C64_GREY : 0x0000;
 			dest++;
 			byte = byte << 1;
-		}
-		for (int i=0; i<(128*128); i++) {
-			if (ibm_8x16_font[i]) {
-				ibm_8x16_font[i+(128*128)] = 0x0000;
-			} else {
-				ibm_8x16_font[i+(128*128)] = C64_GREY;
-			}
 		}
 	}
 	
