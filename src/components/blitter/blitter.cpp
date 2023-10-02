@@ -6,7 +6,7 @@
  */
 
 #include "blitter.hpp"
-#include "rom.hpp"
+#include "fonts.hpp"
 #include "common.hpp"
 
 /*

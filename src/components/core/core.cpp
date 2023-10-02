@@ -166,7 +166,7 @@ E64::core_t::core_t(E64::sound_ic *s)
 	/*
 	 * Start Lua
 	 */
-	L = luaL_newstate();
+	if (!L) L = luaL_newstate();
 	
 	if (!L) {
 		printf("[core] error, couldn't start Lua\n");
@@ -216,8 +216,6 @@ E64::core_t::core_t(E64::sound_ic *s)
 	blitter->set_ver_border_size(0x00);
 	blitter->set_ver_border_color(BLUE_01);
 	blitter->terminal_init(0, 0x0a, 0, 1, 1, 48, 24, BLUE_08, 0x0000);
-	blitter->terminal_clear(0);
-	blitter->terminal_printf(0, "E64 Computer System");
 	blitter->blit[0].set_x_pos(0);
 	blitter->blit[0].set_y_pos(12);
 	blitter->terminal_clear(0);

@@ -17,7 +17,7 @@ namespace E64 {
 
 class core_t {
 private:
-	lua_State *L;
+	lua_State *L{nullptr};
 	
 	bool timer0_active{false};
 public:

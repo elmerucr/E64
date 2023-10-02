@@ -96,11 +96,11 @@
 #ifndef BLITTER_HPP
 #define BLITTER_HPP
 
-#define	GENERAL_RAM_ELEMENTS			0x200000	// each 1 byte,  2mb, starts @ $000000 to $1fffff
-#define TILE_RAM_ELEMENTS			0x200000	// each 1 byte,  2mb, starts @ $200000 to $3fffff, steps of $2000
-#define TILE_FOREGROUND_COLOR_RAM_ELEMENTS	0x100000	// each 2 bytes, 2mb, starts @ $400000 to $5fffff, steps of $2000
-#define TILE_BACKGROUND_COLOR_RAM_ELEMENTS	0x100000	// each 2 bytes, 2mb, starts @ $600000 to $7fffff, steps of $2000
-#define PIXEL_RAM_ELEMENTS			0x400000	// each 2 bytes, 8mb, starts @ $800000 to $ffffff, steps of $8000
+#define	GENERAL_RAM_ELEMENTS			0x200000	// each 1 byte,   2mb, starts @ $000000 to $1fffff
+#define TILE_RAM_ELEMENTS			0x200000	// each 1 byte,   2mb, starts @ $200000 to $3fffff, steps of $2000
+#define TILE_FOREGROUND_COLOR_RAM_ELEMENTS	0x100000	// each 2 bytes,  2mb, starts @ $400000 to $5fffff, steps of $2000
+#define TILE_BACKGROUND_COLOR_RAM_ELEMENTS	0x100000	// each 2 bytes,  2mb, starts @ $600000 to $7fffff, steps of $2000
+#define PIXEL_RAM_ELEMENTS			0x400000	// each 2 bytes,  8mb, starts @ $800000 to $ffffff, steps of $8000
 
 #define	GENERAL_RAM_ELEMENTS_MASK		(GENERAL_RAM_ELEMENTS-1)
 #define TILE_RAM_ELEMENTS_MASK			(TILE_RAM_ELEMENTS-1)
