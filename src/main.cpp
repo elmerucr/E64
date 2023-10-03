@@ -168,7 +168,7 @@ int main(int argc, char **argv)
 			}
 		}
 		
-		host->update_screen(core->blitter);
+		host->update_screen(core->blitter, hud->blitter);
 		
 		/*
 		 * time measurement, starting core time

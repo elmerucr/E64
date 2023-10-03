@@ -221,11 +221,11 @@ E64::core_t::core_t(E64::sound_ic *s)
 	blitter->terminal_clear(0);
 	blitter->terminal_printf(0, "E64 Computer System v%i.%i.%i", E64_MAJOR_VERSION, E64_MINOR_VERSION, E64_BUILD);
 	blitter->terminal_printf(0, "\n\n(C)2019-%i elmerucr", E64_YEAR);
-	blitter->terminal_printf(0, "\n\nReady.\n");
+	blitter->terminal_printf(0, "\n\n>");
 	
-	for(int i=0; i<256; i++) {
-		blitter->terminal_putsymbol(0, i);
-	}
+//	for(int i=0; i<256; i++) {
+//		blitter->terminal_putsymbol(0, i);
+//	}
 	
 	blitter->terminal_activate_cursor(0);
 }

@@ -32,8 +32,8 @@ private:
 	uint16_t rows;
 	uint16_t tiles;
 	
-	uint16_t tile_width;		// Value [1, 80] (each unit is 8 pixels)
-	uint16_t tile_height;		// Value [1, 50] (each unit is 8 pixels)
+	uint16_t tile_width;		// Value [1, 128] (each unit is 8 pixels)
+	uint16_t tile_height;		// Value [1, 64] (each unit is 8 pixels)
 	
 	uint16_t tile_width_pixels;
 	uint16_t tile_height_pixels;
@@ -117,10 +117,15 @@ public:
 	 */
 	uint8_t flags_1;
 	
+	/*
+	 * Max tile size is 16 x 32 (units of 8px)
+	 * Totally 16 * 32 * 8 * 8 * 2 = 65536 bytes = 64kb
+	 * 64kb is max pix mem per blit (to be implemented 20231003) 32->64
+	 */
 	inline void set_tile_width(uint8_t tw)
 	{
 		if (tw == 0) tw = 1;
-		if (tw > 80) tw = 80;
+		if (tw > 16) tw = 16;
 		
 		tile_width = tw;
 		
@@ -130,7 +135,7 @@ public:
 	inline void set_tile_height(uint8_t th)
 	{
 		if (th == 0) th = 1;
-		if (th > 50) th = 50;
+		if (th > 32) th = 32;
 		
 		tile_height = th;
 		
@@ -140,7 +145,7 @@ public:
 	inline void set_columns(uint8_t c)
 	{
 		if (c == 0) c = 1;
-		if (c > 80) c = 80;
+		if (c > 128) c = 128;
 		
 		columns = c;
 		
@@ -150,7 +155,7 @@ public:
 	inline void set_rows(uint8_t r)
 	{
 		if (r == 0) r = 1;
-		if (r > 50) r = 50;
+		if (r > 64) r = 64;
 		
 		rows = r;
 		
@@ -165,8 +170,9 @@ public:
 		tile_width_pixels_on_screen = tile_width_pixels << double_width;
 		tile_height_pixels_on_screen = tile_height_pixels << double_height;
 		
-		if ((tile_width * columns) > 80) columns = 80 / tile_width;
-		if ((tile_height * rows) > 50) rows = 50 / tile_height;
+		// TODO: change to 128 x 64???
+		if ((tile_width * columns) > 128) columns = 128 / tile_width;
+		if ((tile_height * rows) > 64) rows = 64 / tile_height;
 		
 		width = tile_width_pixels * columns;
 		height = tile_height_pixels * rows;

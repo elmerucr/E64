@@ -74,8 +74,10 @@ E64::blitter_ic::blitter_ic(uint16_t _pps, uint16_t _sl)
 	scanlines = _sl;
 	total_pixels = pixels_per_scanline * scanlines;
 	
-	current_blitter_width = pixels_per_scanline / 8;
-	current_blitter_height = scanlines / 8;
+	current_blitter_width = VM_DEFAULT_WIDTH;
+	current_blitter_height = VM_DEFAULT_HEIGHT;
+//	current_blitter_width = 80;
+//	current_blitter_height = 45;
 	
 	screen_size.x = 0;
 	screen_size.y = 0;

@@ -257,7 +257,7 @@ void E64::host_t::update_textures(E64::blitter_ic *vm_b, E64::blitter_ic *hud_b)
 	SDL_UpdateTexture(hud_texture, NULL, hud_b->fb, VM_MAX_PIXELS_PER_SCANLINE * sizeof(uint16_t));
 }
 
-void E64::host_t::update_screen(E64::blitter_ic *vm_b)
+void E64::host_t::update_screen(E64::blitter_ic *vm_b, E64::blitter_ic *hud_b)
 {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
@@ -266,7 +266,7 @@ void E64::host_t::update_screen(E64::blitter_ic *vm_b)
 	SDL_SetTextureAlphaMod(scanlines_texture, settings->video_scanlines_alpha);
 	SDL_RenderCopy(renderer, scanlines_texture, &vm_b->scanline_screen_size, NULL);
 
-	SDL_RenderCopy(renderer, hud_texture, NULL, NULL);
+	SDL_RenderCopy(renderer, hud_texture, &hud_b->screen_size, NULL);
 
 	SDL_RenderPresent(renderer);
 }

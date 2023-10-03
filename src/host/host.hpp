@@ -181,7 +181,7 @@ public:
 	 * Video related
 	 */
 	void update_textures(E64::blitter_ic *vm_b, E64::blitter_ic *hud_b);
-	void update_screen(blitter_ic *b);
+	void update_screen(E64::blitter_ic *vm_b, E64::blitter_ic *hud_b);
 	void update_title();
 	void video_increase_window_size();
 	void video_decrease_window_size();
