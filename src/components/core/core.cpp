@@ -161,7 +161,7 @@ end
 
 )Lua";
 
-E64::core_t::core_t(E64::sound_ic *s)
+E64::core_t::core_t(E64::host_t *h, E64::keyboard_t *k, E64::sound_ic *s)
 {
 	/*
 	 * Start Lua
@@ -177,6 +177,8 @@ E64::core_t::core_t(E64::sound_ic *s)
 	
 	luaL_openlibs(L);
 	
+	host = h;
+	keyboard = k;
 	sound = s;	// assign sound before pushing c functions
 	
 	lua_pushcfunction(L, l_poke_sound);
@@ -253,4 +255,45 @@ void E64::core_t::timer0_callback()
 {
 	lua_getglobal(L, "timer0_callback");
 	lua_pcall(L, 0, 0, 0);
+}
+
+void E64::core_t::process_keypresses()
+{
+	uint8_t symbol;
+	while ((symbol = keyboard->pop_event())) {
+		switch (symbol) {
+			case ASCII_CURSOR_LEFT:
+				blitter->terminal_cursor_left(0);
+				break;
+			case ASCII_CURSOR_RIGHT:
+				blitter->terminal_cursor_right(0);
+				break;
+			case ASCII_CURSOR_UP:
+				blitter->terminal_cursor_up(0);
+				break;
+			case ASCII_CURSOR_DOWN:
+				blitter->terminal_cursor_down(0);
+				break;
+			case ASCII_BACKSPACE:
+				blitter->terminal_backspace(0);
+				break;
+			case ASCII_LF:
+				process_command();
+				//break;
+			default:
+				blitter->terminal_putchar(0, symbol);
+				break;
+		}
+	}
+}
+
+// temp hack??
+void E64::core_t::process_command()
+{
+	uint16_t old_pos = blitter->blit[0].cursor_position;
+	uint16_t pos = old_pos - (blitter->blit[0].cursor_position) % (blitter->blit[0].get_columns());
+	while (pos < old_pos) {
+		putchar(blitter->terminal_get_tile(0, pos));
+		pos++;
+	}
 }

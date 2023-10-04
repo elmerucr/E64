@@ -30,10 +30,11 @@ int main(int argc, char **argv)
 	E64::host_t *host = new E64::host_t(settings);
 	E64::keyboard_t *keyboard = new E64::keyboard_t(host);
 	E64::sound_ic *sound = new E64::sound_ic(settings);
-	E64::core_t *core = new E64::core_t(sound);
 	E64::stats_t *stats = new E64::stats_t();
 	E64::hud_t *hud = new E64::hud_t();
 	host->set_hud(hud);
+	
+	E64::core_t *core = new E64::core_t(host, keyboard, sound);
 	
 	bool running = true;
 	
@@ -55,7 +56,7 @@ int main(int argc, char **argv)
 		/*
 		 * Audio: Measure audio_buffer and determine cycles to run
 		 */
-		double frame_cycles_remaining = host->get_queued_audio_size_bytes(); // contains buffer in bytes
+		double frame_cycles_remaining = host->get_queued_audio_size_bytes(); // first contains buffer in bytes
 		stats->set_queued_audio_bytes(frame_cycles_remaining); // store in stats
 		frame_cycles_remaining = SID_CLOCK_SPEED * (AUDIO_BUFFER_SIZE - frame_cycles_remaining) / (host->get_bytes_per_ms() * 1000); // adjust to needed buffer size + change to cycles
 		frame_cycles_remaining += SID_CLOCK_SPEED / FPS;
@@ -76,13 +77,6 @@ int main(int argc, char **argv)
 			}
 		}
 		
-		float sample;
-		if (settings->audio_recording) {
-			while (settings->audio_record_buffer_pop(&sample)) {
-				settings->write_to_wav(sample);
-			}
-		}
-		
 		stats->start_core_time();
 		
 		/*
@@ -94,31 +88,9 @@ int main(int argc, char **argv)
 		
 		core->blitter->terminal_process_cursor_state(0);
 		
-		uint8_t symbol;
 		if (keyboard->events_waiting()) {
 			core->blitter->terminal_deactivate_cursor(0);
-			while ((symbol = keyboard->pop_event())) {
-				switch (symbol) {
-					case ASCII_CURSOR_LEFT:
-						core->blitter->terminal_cursor_left(0);
-						break;
-					case ASCII_CURSOR_RIGHT:
-						core->blitter->terminal_cursor_right(0);
-						break;
-					case ASCII_CURSOR_UP:
-						core->blitter->terminal_cursor_up(0);
-						break;
-					case ASCII_CURSOR_DOWN:
-						core->blitter->terminal_cursor_down(0);
-						break;
-					case ASCII_BACKSPACE:
-						core->blitter->terminal_backspace(0);
-						break;
-					default:
-						core->blitter->terminal_putchar(0, symbol);
-						break;
-				}
-			}
+			core->process_keypresses();
 			core->blitter->terminal_activate_cursor(0);
 		}
 		
@@ -171,7 +143,7 @@ int main(int argc, char **argv)
 		host->update_screen(core->blitter, hud->blitter);
 		
 		/*
-		 * time measurement, starting core time
+		 * time measurement, starting sound time
 		 *
 		 * This point marks the start of a new frame, also at this very
 		 * moment it's good to measure the soundbuffer size.

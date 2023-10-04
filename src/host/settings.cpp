@@ -90,7 +90,7 @@ E64::settings_t::settings_t()
 		{ 0x00, 0x00, 0x00, 0x00 }	// subchunk2size
 	};
 	
-	audio_clear_record_buffer();
+	//audio_clear_record_buffer();
 }
 
 E64::settings_t::~settings_t()
@@ -202,19 +202,11 @@ void E64::settings_t::audio_toggle_recording()
 void E64::settings_t::audio_start_recording()
 {
 	audio_recording = true;
-	audio_clear_record_buffer();
 	create_wav();
-	//hud.show_notification("start recording sound");
 }
 
 void E64::settings_t::audio_stop_recording()
 {
 	audio_recording = false;
 	finish_wav();
-	//hud.show_notification("stop recording sound");
-}
-
-void E64::settings_t::audio_clear_record_buffer()
-{
-	audio_record_buffer_head = audio_record_buffer_tail = 0;
 }

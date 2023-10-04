@@ -96,13 +96,13 @@
 #ifndef BLITTER_HPP
 #define BLITTER_HPP
 
-#define	GENERAL_RAM_ELEMENTS			0x200000	// each 1 byte,   2mb, starts @ $000000 to $1fffff
-#define TILE_RAM_ELEMENTS			0x200000	// each 1 byte,   2mb, starts @ $200000 to $3fffff, steps of $2000
-#define TILE_FOREGROUND_COLOR_RAM_ELEMENTS	0x100000	// each 2 bytes,  2mb, starts @ $400000 to $5fffff, steps of $2000
-#define TILE_BACKGROUND_COLOR_RAM_ELEMENTS	0x100000	// each 2 bytes,  2mb, starts @ $600000 to $7fffff, steps of $2000
-#define PIXEL_RAM_ELEMENTS			0x400000	// each 2 bytes,  8mb, starts @ $800000 to $ffffff, steps of $8000
+#define	GENERAL_RAM_ELEMENTS			0x600000	// 1 byte,   6mb, starts @ $0000000 to $05fffff
+#define TILE_RAM_ELEMENTS			0x200000	// 1 byte,   2mb, starts @ $0600000 to $07fffff, steps of $ 2000
+#define TILE_FOREGROUND_COLOR_RAM_ELEMENTS	0x200000	// 2 bytes,  4mb, starts @ $0800000 to $0bfffff, steps of $ 4000
+#define TILE_BACKGROUND_COLOR_RAM_ELEMENTS	0x200000	// 2 bytes,  4mb, starts @ $0c00000 to $0ffffff, steps of $ 4000
+#define PIXEL_RAM_ELEMENTS			0x800000	// 2 bytes, 16mb, starts @ $1000000 to $1ffffff, steps of $10000
 
-#define	GENERAL_RAM_ELEMENTS_MASK		(GENERAL_RAM_ELEMENTS-1)
+#define	GENERAL_RAM_ELEMENTS_MASK		0x7fffff
 #define TILE_RAM_ELEMENTS_MASK			(TILE_RAM_ELEMENTS-1)
 #define TILE_FOREGROUND_COLOR_RAM_ELEMENTS_MASK	(TILE_FOREGROUND_COLOR_RAM_ELEMENTS-1)
 #define TILE_BACKGROUND_COLOR_RAM_ELEMENTS_MASK	(TILE_BACKGROUND_COLOR_RAM_ELEMENTS-1)
@@ -241,37 +241,39 @@ public:
 
 	inline uint8_t video_memory_read_8(uint32_t address)
 	{
-		switch ((address & 0x00e00000) >> 21) {
+		// 21 bitshifts to the right: 2mb steps
+		switch ((address & 0x01ffffff) >> 21) {
 			case 0b000:
+			case 0b001:
+			case 0b010:
 				/*
-				 * General ram
+				 * General ram, 6mb
 				 */
 				return general_ram[address & GENERAL_RAM_ELEMENTS_MASK];
-			case 0b001:
-				return tile_ram[address & TILE_RAM_ELEMENTS_MASK];
-			case 0b010:
-				if (address & 0b1) {
-					return tile_foreground_color_ram[(address & 0x1fffff) >> 1] & 0x00ff;
-				} else {
-					return (tile_foreground_color_ram[(address & 0x1fffff) >> 1] & 0xff00) >> 8;
-				}
 			case 0b011:
-				if (address & 0b1) {
-					return tile_background_color_ram[(address & 0x1fffff) >> 1] & 0x00ff;
-				} else {
-					return (tile_background_color_ram[(address & 0x1fffff) >> 1] & 0xff00) >> 8;
-				}
+				return tile_ram[address & TILE_RAM_ELEMENTS_MASK];
 			case 0b100:
 			case 0b101:
+				if (address & 0b1) {
+					return tile_foreground_color_ram[(address & 0x3fffff) >> 1] & 0x00ff;
+				} else {
+					return (tile_foreground_color_ram[(address & 0x3fffff) >> 1] & 0xff00) >> 8;
+				}
 			case 0b110:
 			case 0b111:
+				if (address & 0b1) {
+					return tile_background_color_ram[(address & 0x3fffff) >> 1] & 0x00ff;
+				} else {
+					return (tile_background_color_ram[(address & 0x3fffff) >> 1] & 0xff00) >> 8;
+				}
+			default:
 				/*
 				 * Pixel ram
 				 */
 				if (address & 0b1) {
-					return pixel_ram[(address & 0x7fffff) >> 1] & 0x00ff;
+					return pixel_ram[(address & 0xffffff) >> 1] & 0x00ff;
 				} else {
-					return (pixel_ram[(address & 0x7fffff) >> 1] & 0xff00) >> 8;
+					return (pixel_ram[(address & 0xffffff) >> 1] & 0xff00) >> 8;
 				}
 		}
 		return 0;
@@ -279,35 +281,36 @@ public:
 
 	inline void video_memory_write_8(uint32_t address, uint8_t value)
 	{
-		switch ((address & 0x00e00000) >> 21) {
+		switch ((address & 0x01ffffff) >> 21) {
 			case 0b000:
-				general_ram[address & 0x1fffff] = value;
-				break;
 			case 0b001:
-				tile_ram[address & 0x1fffff] = value;
-				break;
 			case 0b010:
-				if (address & 0b1) {
-					tile_foreground_color_ram[(address & 0x1fffff) >> 1] = (tile_foreground_color_ram[(address & 0x1fffff) >> 1] & 0xff00) | value;
-				} else {
-					tile_foreground_color_ram[(address & 0x1fffff) >> 1] = (tile_foreground_color_ram[(address & 0x1fffff) >> 1] & 0x00ff) | (value << 8);
-				}
+				general_ram[address & GENERAL_RAM_ELEMENTS_MASK] = value;
 				break;
 			case 0b011:
-				if (address & 0b1) {
-					tile_background_color_ram[(address & 0x1fffff) >> 1] = (tile_background_color_ram[(address & 0x1fffff) >> 1] & 0xff00) | value;
-				} else {
-					tile_background_color_ram[(address & 0x1fffff) >> 1] = (tile_background_color_ram[(address & 0x1fffff) >> 1] & 0x00ff) | (value << 8);
-				}
+				tile_ram[address & TILE_RAM_ELEMENTS_MASK] = value;
 				break;
 			case 0b100:
 			case 0b101:
+				if (address & 0b1) {
+					tile_foreground_color_ram[(address & 0x3fffff) >> 1] = (tile_foreground_color_ram[(address & 0x3fffff) >> 1] & 0xff00) | value;
+				} else {
+					tile_foreground_color_ram[(address & 0x3fffff) >> 1] = (tile_foreground_color_ram[(address & 0x3fffff) >> 1] & 0x00ff) | (value << 8);
+				}
+				break;
 			case 0b110:
 			case 0b111:
 				if (address & 0b1) {
-					pixel_ram[(address & 0x7fffff) >> 1] = (pixel_ram[(address & 0x7fffff) >> 1] & 0xff00) | value;
+					tile_background_color_ram[(address & 0x3fffff) >> 1] = (tile_background_color_ram[(address & 0x3fffff) >> 1] & 0xff00) | value;
 				} else {
-					pixel_ram[(address & 0x7fffff) >> 1] = (pixel_ram[(address & 0x7fffff) >> 1] & 0x00ff) | (value << 8);
+					tile_background_color_ram[(address & 0x3fffff) >> 1] = (tile_background_color_ram[(address & 0x3fffff) >> 1] & 0x00ff) | (value << 8);
+				}
+				break;
+			default:
+				if (address & 0b1) {
+					pixel_ram[(address & 0xffffff) >> 1] = (pixel_ram[(address & 0xffffff) >> 1] & 0xff00) | value;
+				} else {
+					pixel_ram[(address & 0xffffff) >> 1] = (pixel_ram[(address & 0xffffff) >> 1] & 0x00ff) | (value << 8);
 				}
 				break;
 

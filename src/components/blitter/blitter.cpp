@@ -91,18 +91,18 @@ E64::blitter_ic::blitter_ic(uint16_t _pps, uint16_t _sl)
 	
 	fb = new uint16_t[total_pixels];
 
-	general_ram =               new uint8_t [GENERAL_RAM_ELEMENTS];			//   2mb
+	general_ram =               new uint8_t [GENERAL_RAM_ELEMENTS];			//   6mb
 	tile_ram  =                 new uint8_t [TILE_RAM_ELEMENTS];			//   2mb
-	tile_foreground_color_ram = new uint16_t[TILE_FOREGROUND_COLOR_RAM_ELEMENTS];	//   2mb
-	tile_background_color_ram = new uint16_t[TILE_BACKGROUND_COLOR_RAM_ELEMENTS];	//   2mb
-	pixel_ram =                 new uint16_t[PIXEL_RAM_ELEMENTS];			//   8mb +
+	tile_foreground_color_ram = new uint16_t[TILE_FOREGROUND_COLOR_RAM_ELEMENTS];	//   4mb
+	tile_background_color_ram = new uint16_t[TILE_BACKGROUND_COLOR_RAM_ELEMENTS];	//   4mb
+	pixel_ram =                 new uint16_t[PIXEL_RAM_ELEMENTS];			//  16mb +
 											// ============
-											//  16mb total
+											//  32mb total
 
 	/*
 	 * Fill blit memory alternating 64 bytes 0x00 and 64 bytes 0xff
 	 */
-	for (int i=0; i < (0x100 * 0x10000); i++) {
+	for (int i=0; i < (2 * 0x100 * 0x10000); i++) {
 		video_memory_write_8(i, i & 0b1000000 ? 0xff : 0x00);
 	}
 
@@ -368,7 +368,7 @@ uint32_t E64::blitter_ic::draw_blit(blit_t *blit)
 					source_color = ibm_8x16_font[((tile_index * blit->tile_width_pixels * blit->tile_height_pixels) | pixel_in_tile) & 0x7fff];
 					break;
 				default:
-					source_color = pixel_ram[((blit->number << 14) + ((tile_index * blit->tile_width_pixels * blit->tile_height_pixels) + pixel_in_tile)) & PIXEL_RAM_ELEMENTS_MASK];
+					source_color = pixel_ram[((blit->number << 15) + ((tile_index * blit->tile_width_pixels * blit->tile_height_pixels) + pixel_in_tile)) & PIXEL_RAM_ELEMENTS_MASK];
 					break;
 			}
 

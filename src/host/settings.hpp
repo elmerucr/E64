@@ -67,27 +67,9 @@ public:
 	bool video_linear_filtering;
 	uint8_t video_scanlines_alpha;
 	
-	float audio_record_buffer[65536];
-	uint16_t audio_record_buffer_head;
-	uint16_t audio_record_buffer_tail;
-	
-	void audio_clear_record_buffer();
-	
-	inline void audio_record_buffer_push(float sample)
+	inline void audio_record_push_sample(float sample)
 	{
-		audio_record_buffer[audio_record_buffer_head] = sample;
-		audio_record_buffer_head++;
-	}
-	
-	inline bool audio_record_buffer_pop(float *sample)
-	{
-		if (audio_record_buffer_head == audio_record_buffer_tail) {
-			return false;
-		} else {
-			*sample = audio_record_buffer[audio_record_buffer_tail];
-			audio_record_buffer_tail++;
-			return true;
-		}
+		if (audio_recording) fwrite((void *)&sample, 4, 1, wav_file);
 	}
 	
 	bool audio_recording{false};
@@ -96,11 +78,6 @@ public:
 	void audio_stop_recording();
 	
 	bool create_wav();
-	
-	inline void write_to_wav(float sample)
-	{
-		fwrite((void *)&sample, 4, 1, wav_file);
-	}
 	
 	void finish_wav();
 };

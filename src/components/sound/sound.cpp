@@ -298,8 +298,8 @@ void E64::sound_ic::run(uint32_t number_of_cycles, E64::host_t *h)
 			sound_starting--;
 		}
 
-		settings->audio_record_buffer_push(sample_buffer_stereo[ 2 * i     ]);
-		settings->audio_record_buffer_push(sample_buffer_stereo[(2 * i) + 1]);
+		settings->audio_record_push_sample(sample_buffer_stereo[ 2 * i     ]);
+		settings->audio_record_push_sample(sample_buffer_stereo[(2 * i) + 1]);
 	}
 
 	h->queue_audio((void *)sample_buffer_stereo, 2 * n * h->get_bytes_per_sample());
