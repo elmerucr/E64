@@ -1,4 +1,5 @@
-// The original xxx characters are copyright xxxxxxxxxxx.
+// See:
+// https://int10h.org/oldschool-pc-fonts/fontlist/font?ibm_bios
 //
 // 2023-09-29 elmerucr
 //

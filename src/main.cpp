@@ -38,16 +38,17 @@ int main(int argc, char **argv)
 	
 	bool running = true;
 	
-	// place this in a future class
-	uint32_t cycles_per_tick = SID_CLOCK_SPEED / 50;
+	// TODO: place this elsewhere
+	uint32_t cycles_per_tick = SID_CLOCK_SPEED / 50.125;
 	uint32_t tick_cycles_remaining = 0;
+	//
 	
 	end_of_frame_time = std::chrono::steady_clock::now();
 	
 	stats->reset();
 	
 	keyboard->reset();
-	keyboard->start_events();
+	keyboard->enable_events();
 	
 	/*
 	 * Frame loop
@@ -77,34 +78,25 @@ int main(int argc, char **argv)
 			}
 		}
 		
+		// Time measurement
 		stats->start_core_time();
 		
 		/*
 		 * Process events
 		 */
-		if (host->events_process_events() == E64::QUIT_EVENT) running = false;
+		if (host->events_process_events() == E64::QUIT_EVENT) {
+			running = false;
+		}
 		
 		keyboard->process();
 		
-		core->blitter->terminal_process_cursor_state(0);
-		
-		if (keyboard->events_waiting()) {
-			core->blitter->terminal_deactivate_cursor(0);
-			core->process_keypresses();
-			core->blitter->terminal_activate_cursor(0);
-		}
-		
 		/*
-		 * Blitting vm
+		 * Do core
 		 */
-		core->blitter->clear_framebuffer();
-		core->blitter->add_operation_draw_blit(&core->blitter->blit[0]);
-		core->blitter->add_operation_draw_ver_border();
-		core->blitter->add_operation_draw_hor_border();
-		while (core->blitter->run_next_operation()) {}
+		core->do_frame();
 		
 		/*
-		 * Blitting hud
+		 * Hud
 		 */
 		hud->print_stats(stats->summary());
 		hud->redraw();

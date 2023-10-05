@@ -8,6 +8,7 @@
 #include "core.hpp"
 #include "sound.hpp"
 #include <cstdint>
+#include <iostream>
 
 E64::sound_ic *sound;
 
@@ -209,7 +210,7 @@ E64::core_t::core_t(E64::host_t *h, E64::keyboard_t *k, E64::sound_ic *s)
 	/*
 	 * Start Blitter
 	 */
-	blitter = new blitter_ic(VM_MAX_PIXELS_PER_SCANLINE, VM_MAX_SCANLINES);
+	blitter = new blitter_ic(MAX_PIXELS_PER_SCANLINE, MAX_SCANLINES);
 	
 	blitter->reset();
 	blitter->set_clear_color(BLUE_03);
@@ -222,12 +223,8 @@ E64::core_t::core_t(E64::host_t *h, E64::keyboard_t *k, E64::sound_ic *s)
 	blitter->blit[0].set_y_pos(12);
 	blitter->terminal_clear(0);
 	blitter->terminal_printf(0, "E64 Computer System v%i.%i.%i", E64_MAJOR_VERSION, E64_MINOR_VERSION, E64_BUILD);
-	blitter->terminal_printf(0, "\n\n(C)2019-%i elmerucr", E64_YEAR);
-	blitter->terminal_printf(0, "\n\n>");
-	
-//	for(int i=0; i<256; i++) {
-//		blitter->terminal_putsymbol(0, i);
-//	}
+	blitter->terminal_printf(0, "\n\n(C)2019-%i elmerucr\n", E64_YEAR);
+	prompt();
 	
 	blitter->terminal_activate_cursor(0);
 }
@@ -248,7 +245,7 @@ E64::core_t::~core_t()
 
 void E64::core_t::reset()
 {
-	//
+	command.erase();
 }
 
 void E64::core_t::timer0_callback()
@@ -257,31 +254,75 @@ void E64::core_t::timer0_callback()
 	lua_pcall(L, 0, 0, 0);
 }
 
+void E64::core_t::do_frame()
+{
+	switch (current_state) {
+		case CONSOLE:
+			blitter->terminal_process_cursor_state(0);
+			if (keyboard->events_waiting()) {
+				blitter->terminal_deactivate_cursor(0);
+				process_keypresses();
+				blitter->terminal_activate_cursor(0);
+			}
+			blitter->clear_framebuffer();
+			blitter->add_operation_draw_blit(&blitter->blit[0]);
+			blitter->add_operation_draw_ver_border();
+			blitter->add_operation_draw_hor_border();
+			while (blitter->run_next_operation()) {}
+			break;
+		case RUN:
+			break;
+	}
+}
+
+void E64::core_t::prompt()
+{
+	blitter->terminal_printf(0, "\n>");
+	command_length = 0;
+	command_cursor_pos = 0;
+	command_start_pos = blitter->blit[0].cursor_position;
+}
+
 void E64::core_t::process_keypresses()
 {
 	uint8_t symbol;
 	while ((symbol = keyboard->pop_event())) {
 		switch (symbol) {
 			case ASCII_CURSOR_LEFT:
-				blitter->terminal_cursor_left(0);
+				if (command_cursor_pos > 0) {
+					blitter->terminal_cursor_left(0);
+					command_cursor_pos--;
+				}
 				break;
 			case ASCII_CURSOR_RIGHT:
-				blitter->terminal_cursor_right(0);
+				if (command_cursor_pos < command_length) {
+					blitter->terminal_cursor_right(0);
+					command_cursor_pos++;
+				}
 				break;
 			case ASCII_CURSOR_UP:
-				blitter->terminal_cursor_up(0);
+				//blitter->terminal_cursor_up(0);
 				break;
 			case ASCII_CURSOR_DOWN:
-				blitter->terminal_cursor_down(0);
+				//blitter->terminal_cursor_down(0);
 				break;
 			case ASCII_BACKSPACE:
 				blitter->terminal_backspace(0);
 				break;
 			case ASCII_LF:
 				process_command();
-				//break;
+				prompt();
+				break;
 			default:
-				blitter->terminal_putchar(0, symbol);
+				command.insert(command_cursor_pos, 1, symbol);
+				command_cursor_pos++;
+				//command += symbol;
+				blitter->blit[0].cursor_position = command_start_pos;
+				blitter->terminal_printf(0, command.c_str());
+				blitter->blit[0].cursor_position = command_start_pos + command_cursor_pos;
+				
+//				blitter->terminal_putchar(0, symbol);
+				command_length++;
 				break;
 		}
 	}
@@ -290,10 +331,13 @@ void E64::core_t::process_keypresses()
 // temp hack??
 void E64::core_t::process_command()
 {
-	uint16_t old_pos = blitter->blit[0].cursor_position;
-	uint16_t pos = old_pos - (blitter->blit[0].cursor_position) % (blitter->blit[0].get_columns());
-	while (pos < old_pos) {
-		putchar(blitter->terminal_get_tile(0, pos));
-		pos++;
-	}
+	std::cout << command << std::endl;
+	command.erase();
+	//blitter->terminal_putchar(0, ASCII_LF);
+//	uint16_t old_pos = blitter->blit[0].cursor_position;
+//	uint16_t pos = old_pos - (blitter->blit[0].cursor_position) % (blitter->blit[0].get_columns());
+//	while (pos < old_pos) {
+//		putchar(blitter->terminal_get_tile(0, pos));
+//		pos++;
+//	}
 }

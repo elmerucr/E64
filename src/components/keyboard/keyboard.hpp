@@ -41,12 +41,11 @@ public:
 	void reset();
 	void process();
 	
-	
 	uint8_t pop_event();
 	
 	inline bool events_waiting() { return (head == tail) ? false : true; }
-	inline void start_events() { generate_events = true; }
-	inline void stop_events() { generate_events = false; }
+	inline void enable_events() { generate_events = true; }
+	inline void disable_events() { generate_events = false; }
 };
 
 }

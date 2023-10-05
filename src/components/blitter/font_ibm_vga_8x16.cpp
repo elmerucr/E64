@@ -1,4 +1,5 @@
-// The original xxxxxxx characters are copyright xxxxxxxxxxxx
+// See:
+// https://int10h.org/oldschool-pc-fonts/fontlist/font?ibm_vga_8x16
 //
 // 2023-10-02 elmerucr
 //

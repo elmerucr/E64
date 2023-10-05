@@ -10,7 +10,7 @@
 
 E64::hud_t::hud_t()
 {
-	blitter = new blitter_ic(VM_MAX_PIXELS_PER_SCANLINE, VM_MAX_SCANLINES);
+	blitter = new blitter_ic(MAX_PIXELS_PER_SCANLINE, MAX_SCANLINES);
 	
 	blitter->reset();
 	

@@ -222,7 +222,7 @@ void E64::host_t::video_init()
 	/*
 	 * Scanlines: A static texture that mimics scanlines
 	 */
-	scanline_buffer = new uint16_t[4 * VM_MAX_PIXELS_PER_SCANLINE * VM_MAX_SCANLINES];
+	scanline_buffer = new uint16_t[4 * MAX_PIXELS_PER_SCANLINE * MAX_SCANLINES];
 	scanlines_texture = nullptr;
 	create_scanlines_texture(scanlines_linear_filtering);
 
@@ -253,8 +253,8 @@ void E64::host_t::update_title()
 
 void E64::host_t::update_textures(E64::blitter_ic *vm_b, E64::blitter_ic *hud_b)
 {
-	SDL_UpdateTexture(vm_texture, NULL, vm_b->fb, VM_MAX_PIXELS_PER_SCANLINE * sizeof(uint16_t));
-	SDL_UpdateTexture(hud_texture, NULL, hud_b->fb, VM_MAX_PIXELS_PER_SCANLINE * sizeof(uint16_t));
+	SDL_UpdateTexture(vm_texture, NULL, vm_b->fb, MAX_PIXELS_PER_SCANLINE * sizeof(uint16_t));
+	SDL_UpdateTexture(hud_texture, NULL, hud_b->fb, MAX_PIXELS_PER_SCANLINE * sizeof(uint16_t));
 }
 
 void E64::host_t::update_screen(E64::blitter_ic *vm_b, E64::blitter_ic *hud_b)
@@ -283,7 +283,7 @@ void E64::host_t::create_vm_texture(bool linear_filtering)
 	
 	vm_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB4444,
 				    SDL_TEXTUREACCESS_STREAMING,
-				    VM_MAX_PIXELS_PER_SCANLINE, VM_MAX_SCANLINES);
+				    MAX_PIXELS_PER_SCANLINE, MAX_SCANLINES);
 	SDL_SetTextureBlendMode(vm_texture, SDL_BLENDMODE_NONE);
 }
 
@@ -299,7 +299,7 @@ void E64::host_t::create_hud_texture(bool linear_filtering)
 
 	hud_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB4444,
 				    SDL_TEXTUREACCESS_STREAMING,
-				    VM_MAX_PIXELS_PER_SCANLINE, VM_MAX_SCANLINES);
+				    MAX_PIXELS_PER_SCANLINE, MAX_SCANLINES);
 	SDL_SetTextureBlendMode(hud_texture, SDL_BLENDMODE_BLEND);
 }
 
@@ -315,11 +315,11 @@ void E64::host_t::create_scanlines_texture(bool linear_filtering)
 	
 	scanlines_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB4444,
 				    SDL_TEXTUREACCESS_STATIC,
-				    VM_MAX_PIXELS_PER_SCANLINE, 4 * VM_MAX_SCANLINES);
+				    MAX_PIXELS_PER_SCANLINE, 4 * MAX_SCANLINES);
 	SDL_SetTextureBlendMode(scanlines_texture, SDL_BLENDMODE_BLEND);
 	
-	for (int i=0; i<4*VM_MAX_SCANLINES; i++) {
-		for (int j=0; j < VM_MAX_PIXELS_PER_SCANLINE; j++) {
+	for (int i=0; i < 4*MAX_SCANLINES; i++) {
+		for (int j=0; j < MAX_PIXELS_PER_SCANLINE; j++) {
 			uint16_t color;
 			switch (i & 0b11) {
 				case 0b00: color = 0xf000; break;
@@ -328,11 +328,11 @@ void E64::host_t::create_scanlines_texture(bool linear_filtering)
 				case 0b11: color = 0xf000; break;
 				default:   color = 0x0000;
 			};
-			scanline_buffer[(i * VM_MAX_PIXELS_PER_SCANLINE) + j] = color;
+			scanline_buffer[(i * MAX_PIXELS_PER_SCANLINE) + j] = color;
 		}
 	}
 	SDL_UpdateTexture(scanlines_texture, NULL, scanline_buffer,
-		VM_MAX_PIXELS_PER_SCANLINE * sizeof(uint16_t));
+		MAX_PIXELS_PER_SCANLINE * sizeof(uint16_t));
 }
 
 enum E64::events_output_state E64::host_t::events_process_events()
