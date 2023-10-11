@@ -386,6 +386,12 @@ public:
 	char *terminal_enter_command(uint8_t no);
 	enum E64::terminal_output_type terminal_check_output(uint8_t no, bool top_down, uint32_t *address);
 	
+	inline bool terminal_bottom_row_added(uint8_t no) {
+		bool result = blit[no].bottom_row_added;
+		if (result) blit[no].bottom_row_added = false;
+		return result;
+	}
+	
 	inline void set_current_blitter_width(uint8_t w) {
 		if (w < (pixels_per_scanline / 8)) {
 			current_blitter_width = w;

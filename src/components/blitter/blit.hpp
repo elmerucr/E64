@@ -71,6 +71,11 @@ private:
 	bool ver_flip;		// bit 5
 	bool xy_flip;		// bit 6
 	
+	/*
+	 * Terminal related flag
+	 */
+	bool bottom_row_added{false};
+	
 	friend class blitter_ic;
 public:
 	/*

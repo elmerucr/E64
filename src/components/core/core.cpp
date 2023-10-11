@@ -301,27 +301,44 @@ void E64::core_t::process_keypresses()
 				}
 				break;
 			case ASCII_CURSOR_UP:
+				// TODO: Walk through list of former commands
 				//blitter->terminal_cursor_up(0);
 				break;
 			case ASCII_CURSOR_DOWN:
+				// TODO: Walk through list of former commands
 				//blitter->terminal_cursor_down(0);
 				break;
 			case ASCII_BACKSPACE:
-				blitter->terminal_backspace(0);
+				if (command_cursor_pos > 0) {
+					command.erase(command_cursor_pos - 1, 1);
+					command_length--;
+					command_cursor_pos--;
+					blitter->blit[0].cursor_position = command_start_pos;
+					blitter->terminal_printf(0, command.c_str());
+					blitter->terminal_putchar(0, ' ');
+					blitter->blit[0].cursor_position = command_start_pos + command_cursor_pos;
+				}
 				break;
 			case ASCII_LF:
+				// TODO: This looks messy...
+				blitter->blit[0].cursor_position = command_start_pos + command_length;
 				process_command();
 				prompt();
 				break;
 			default:
+				// TODO: Cleanup, this code looks really messy
+				// Can't this be done inside terminal?
+				// Point is that different "apps" need different handling...
+				blitter->terminal_bottom_row_added(0); // resets flag
 				command.insert(command_cursor_pos, 1, symbol);
 				command_cursor_pos++;
-				//command += symbol;
 				blitter->blit[0].cursor_position = command_start_pos;
 				blitter->terminal_printf(0, command.c_str());
 				blitter->blit[0].cursor_position = command_start_pos + command_cursor_pos;
-				
-//				blitter->terminal_putchar(0, symbol);
+				if (blitter->terminal_bottom_row_added(0)) {
+					blitter->blit[0].cursor_position -= blitter->blit[0].get_columns();
+					command_start_pos -= blitter->blit[0].get_columns();
+				}
 				command_length++;
 				break;
 		}
@@ -333,11 +350,4 @@ void E64::core_t::process_command()
 {
 	std::cout << command << std::endl;
 	command.erase();
-	//blitter->terminal_putchar(0, ASCII_LF);
-//	uint16_t old_pos = blitter->blit[0].cursor_position;
-//	uint16_t pos = old_pos - (blitter->blit[0].cursor_position) % (blitter->blit[0].get_columns());
-//	while (pos < old_pos) {
-//		putchar(blitter->terminal_get_tile(0, pos));
-//		pos++;
-//	}
 }
