@@ -227,6 +227,8 @@ E64::core_t::core_t(E64::host_t *h, E64::keyboard_t *k, E64::sound_ic *s)
 	prompt();
 	
 	blitter->terminal_activate_cursor(0);
+	
+	command_history.clear();
 }
 
 E64::core_t::~core_t()
@@ -302,11 +304,24 @@ void E64::core_t::process_keypresses()
 				break;
 			case ASCII_CURSOR_UP:
 				// TODO: Walk through list of former commands
-				//blitter->terminal_cursor_up(0);
+				// bugs!!!
+				blitter->blit[0].cursor_position = command_start_pos + command_length;
+				command_cursor_pos = command_length;
+				while (command_cursor_pos > 0) {
+					command.erase(command_cursor_pos - 1, 1);
+					command_length--;
+					command_cursor_pos--;
+					blitter->blit[0].cursor_position = command_start_pos;
+					blitter->terminal_printf(0, command.c_str());
+					blitter->terminal_putchar(0, ' ');
+					blitter->blit[0].cursor_position = command_start_pos + command_cursor_pos;
+				}
+				displayed_command ? displayed_command-- : 0;
+				blitter->terminal_printf(0, command_history[displayed_command].c_str());
+				command_length = command_cursor_pos = command_history[displayed_command].length();
 				break;
 			case ASCII_CURSOR_DOWN:
 				// TODO: Walk through list of former commands
-				//blitter->terminal_cursor_down(0);
 				break;
 			case ASCII_BACKSPACE:
 				if (command_cursor_pos > 0) {
@@ -322,6 +337,8 @@ void E64::core_t::process_keypresses()
 			case ASCII_LF:
 				// TODO: This looks messy...
 				blitter->blit[0].cursor_position = command_start_pos + command_length;
+				command_history.push_back(command);
+				displayed_command = command_history.size();
 				process_command();
 				prompt();
 				break;
@@ -348,6 +365,9 @@ void E64::core_t::process_keypresses()
 // temp hack??
 void E64::core_t::process_command()
 {
-	std::cout << command << std::endl;
+	//std::cout << command << std::endl;
+	for (int i=0; i < command_history.size(); i++) {
+		std::cout << command_history[i] << std::endl;
+	}
 	command.erase();
 }

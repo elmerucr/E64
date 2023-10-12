@@ -15,6 +15,7 @@
 #include "blitter.hpp"
 #include "keyboard.hpp"
 #include <string>
+#include <vector>
 
 namespace E64 {
 
@@ -32,7 +33,9 @@ private:
 	host_t *host;
 	keyboard_t *keyboard;
 	
+	std::vector<std::string> command_history;
 	std::string command;
+	uint16_t displayed_command{0};
 	uint16_t command_length;
 	uint16_t command_start_pos;
 	uint16_t command_cursor_pos;

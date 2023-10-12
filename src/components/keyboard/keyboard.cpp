@@ -174,10 +174,10 @@ E64::keyboard_t::keyboard_t(host_t *h)
 void E64::keyboard_t::process()
 {
        uint8_t modifier_keys_status =
-		(host->keyboard_state[SCANCODE_LSHIFT] ? SHIFT_PRESSED : 0) |
-		(host->keyboard_state[SCANCODE_RSHIFT] ? SHIFT_PRESSED : 0) |
-		(host->keyboard_state[SCANCODE_LCTRL ] ? CTRL_PRESSED  : 0) |
-		(host->keyboard_state[SCANCODE_RCTRL ] ? CTRL_PRESSED  : 0);
+		((host->keyboard_state[SCANCODE_LSHIFT] & 0b1) ? SHIFT_PRESSED : 0) |
+		((host->keyboard_state[SCANCODE_RSHIFT] & 0b1) ? SHIFT_PRESSED : 0) |
+		((host->keyboard_state[SCANCODE_LCTRL ] & 0b1) ? CTRL_PRESSED  : 0) |
+		((host->keyboard_state[SCANCODE_RCTRL ] & 0b1) ? CTRL_PRESSED  : 0) ;
 	
 	for (int i=0; i<128; i++) {
 		switch (host->keyboard_state[i] & 0b11) {
