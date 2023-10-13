@@ -21,9 +21,9 @@ E64::hud_t::hud_t()
 	blitter->blit[0].set_y_pos(164);
 	
 	// notifications item
-	blitter->terminal_init(1, 0x0a, 0x00, 1, 1, 47, 6, AMBER_07, (AMBER_02 & 0x0fff) | 0xc000);
-	blitter->terminal_clear(1);
-	blitter->terminal_printf(1, "\n\n\n\n\n\n");
+//	blitter->terminal_init(1, 0x0a, 0x00, 1, 1, 47, 6, AMBER_07, (AMBER_02 & 0x0fff) | 0xc000);
+//	blitter->terminal_clear(1);
+	//blitter->terminal_printf(1, "\n\n\n\n\n\n");
 	blitter->blit[1].set_x_pos(4);
 	blitter->blit[1].set_y_pos(4);
 	
@@ -57,17 +57,20 @@ void E64::hud_t::show_notification(const char *format, ...)
 {
 	notify_frame_counter = notify_frames;
 	
-	for (size_t i=0; i < blitter->blit[1].get_tiles(); i++) {
-		blitter->terminal_set_tile_fg_color(1, i, AMBER_03);
-	}
-	
 	char buffer[1024];
 	va_list args;
 	va_start(args, format);
-	vsnprintf(buffer, 1024, format, args);
+	int n = vsnprintf(buffer, 1024, format, args);
 	va_end(args);
+	
+	blitter->terminal_init(1, 0x0a, 0x00, 1, 1, 47, (n / 47) + 1, AMBER_07, (AMBER_02 & 0x0fff) | 0xc000);
+	blitter->terminal_clear(1);
 
 	if (blitter) {
+		if (n < 47) {
+			for (int i=0; i < (47 - n)/2; i++)
+				blitter->terminal_putchar(1, ' ');
+		}
 		blitter->terminal_printf(1, "%s", buffer);
 	}
 }

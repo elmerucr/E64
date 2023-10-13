@@ -229,6 +229,7 @@ E64::core_t::core_t(E64::host_t *h, E64::keyboard_t *k, E64::sound_ic *s)
 	blitter->terminal_activate_cursor(0);
 	
 	command_history.clear();
+	command_history.push_back("");
 }
 
 E64::core_t::~core_t()
@@ -281,7 +282,7 @@ void E64::core_t::prompt()
 {
 	blitter->terminal_printf(0, "\n>");
 	command_cursor_pos = 0;
-	command_start_pos = blitter->blit[0].cursor_position;
+	//command_start_pos = blitter->blit[0].cursor_position;
 }
 
 void E64::core_t::process_keypresses()
@@ -303,20 +304,21 @@ void E64::core_t::process_keypresses()
 				break;
 			case ASCII_CURSOR_UP:
 				// TODO: Walk through list of former commands
-				// bugs!!!
-				blitter->blit[0].cursor_position = command_start_pos + command.size();
-				command_cursor_pos = command.size();
-				while (command_cursor_pos > 0) {
-					command.erase(command_cursor_pos - 1, 1);
-					command_cursor_pos--;
-					blitter->blit[0].cursor_position = command_start_pos;
-					blitter->terminal_printf(0, command.c_str());
-					blitter->terminal_putchar(0, ' ');
-					blitter->blit[0].cursor_position = command_start_pos + command_cursor_pos;
+				if (command_history.size()) {
+//					blitter->blit[0].cursor_position = command_start_pos + command.size();
+//					command_cursor_pos = command.size();
+//					while (command_cursor_pos > 0) {
+//						command.erase(command_cursor_pos - 1, 1);
+//						command_cursor_pos--;
+//						blitter->blit[0].cursor_position = command_start_pos;
+//						blitter->terminal_printf(0, command.c_str());
+//						blitter->terminal_putchar(0, ' ');
+//						blitter->blit[0].cursor_position = command_start_pos + command_cursor_pos;
+//					}
+//					displayed_command ? displayed_command-- : 0;
+//					blitter->terminal_printf(0, command_history[displayed_command].c_str());
+//					command_cursor_pos = command_history[displayed_command].length();
 				}
-				displayed_command ? displayed_command-- : 0;
-				blitter->terminal_printf(0, command_history[displayed_command].c_str());
-				command_cursor_pos = command_history[displayed_command].length();
 				break;
 			case ASCII_CURSOR_DOWN:
 				// TODO: Walk through list of former commands
@@ -325,10 +327,11 @@ void E64::core_t::process_keypresses()
 				if (command_cursor_pos > 0) {
 					command.erase(command_cursor_pos - 1, 1);
 					command_cursor_pos--;
-					blitter->blit[0].cursor_position = command_start_pos;
-					blitter->terminal_printf(0, command.c_str());
+					blitter->terminal_cursor_left(0);
+					blitter->terminal_printf(0, command.substr(command_cursor_pos, command.size() - command_cursor_pos).c_str());
 					blitter->terminal_putchar(0, ' ');
-					blitter->blit[0].cursor_position = command_start_pos + command_cursor_pos;
+					for (size_t i=command.size(); i >= command_cursor_pos; i--)
+						blitter->terminal_cursor_left(0);
 				}
 				break;
 			case ASCII_LF:
@@ -383,7 +386,7 @@ std::string& trim(std::string &str)
 
 void E64::core_t::process_command()
 {
-	rtrim(command);
+	trim(command);
 	if (command.size()) blitter->terminal_printf(0, "\ncommand: %s<END>", command.c_str());
 //	for (int i=0; i < command_history.size(); i++) {
 //		std::cout << command_history[i] << std::endl;

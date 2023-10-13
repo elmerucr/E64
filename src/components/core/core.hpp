@@ -36,7 +36,7 @@ private:
 	std::vector<std::string> command_history;
 	std::string command;
 	uint16_t displayed_command{0};
-	uint16_t command_start_pos;
+	//uint16_t command_start_pos;
 	uint16_t command_cursor_pos;
 	
 	bool timer0_active{false};

@@ -485,7 +485,7 @@ void E64::host_t::video_toggle_fullscreen()
 	}
 	// TODO: this is buggy in Linux, after full->window wrong sizes are reported
 	SDL_GetWindowSize(video_window, &window_width, &window_height);
-	hud->show_notification("\nSwitched to %s mode with size %ix%i",
+	hud->show_notification("Switched to %s mode with size %ix%i",
 			      settings->video_fullscreen ? "fullscreen" : "window",
 			      window_width,
 			      window_height);
@@ -504,7 +504,7 @@ void E64::host_t::video_change_scanlines_intensity()
 	} else {
 		settings->video_scanlines_alpha = 0;
 	}
-	hud->show_notification("\nScanlines alpha value = %3u", settings->video_scanlines_alpha);
+	hud->show_notification("Scanlines alpha value = %3u", settings->video_scanlines_alpha);
 }
 
 void E64::host_t::video_toggle_linear_filtering()
@@ -512,7 +512,7 @@ void E64::host_t::video_toggle_linear_filtering()
 	settings->video_linear_filtering = !settings->video_linear_filtering;
 	create_vm_texture(settings->video_linear_filtering);
 	create_hud_texture(settings->video_linear_filtering);
-	hud->show_notification("\nLinear filtering = %s", settings->video_linear_filtering ? "on" : "off");
+	hud->show_notification("Linear filtering = %s", settings->video_linear_filtering ? "on" : "off");
 }
 
 void E64::host_t::video_increase_window_size()
@@ -522,7 +522,7 @@ void E64::host_t::video_increase_window_size()
 			  video_window_sizes[current_window_size].y);
 	SDL_GetWindowSize(video_window, &window_width, &window_height);
 	SDL_SetWindowPosition(video_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-	hud->show_notification("\nSet host window size to %ix%i", window_width, window_height);
+	hud->show_notification("Set host window size to %ix%i", window_width, window_height);
 }
 
 void E64::host_t::video_decrease_window_size()
@@ -532,5 +532,5 @@ void E64::host_t::video_decrease_window_size()
 			  video_window_sizes[current_window_size].y);
 	SDL_GetWindowSize(video_window, &window_width, &window_height);
 	SDL_SetWindowPosition(video_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-	hud->show_notification("\nSet host window size to %ix%i", window_width, window_height);
+	hud->show_notification("Set host window size to %ix%i", window_width, window_height);
 }
