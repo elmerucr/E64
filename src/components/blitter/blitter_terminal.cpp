@@ -337,7 +337,7 @@ void E64::blitter_ic::terminal_add_bottom_row(uint8_t no)
 		terminal_set_tile_bg_color(no, i, blit[no].background_color);
 	}
 	
-	blit[no].bottom_row_added = true;
+	//blit[no].bottom_row_added = true;
 }
 
 enum E64::terminal_output_type E64::blitter_ic::terminal_check_output(uint8_t no, bool top_down, uint32_t *address)

@@ -280,7 +280,6 @@ void E64::core_t::do_frame()
 void E64::core_t::prompt()
 {
 	blitter->terminal_printf(0, "\n>");
-	command_length = 0;
 	command_cursor_pos = 0;
 	command_start_pos = blitter->blit[0].cursor_position;
 }
@@ -297,7 +296,7 @@ void E64::core_t::process_keypresses()
 				}
 				break;
 			case ASCII_CURSOR_RIGHT:
-				if (command_cursor_pos < command_length) {
+				if (command_cursor_pos < command.size()) {
 					blitter->terminal_cursor_right(0);
 					command_cursor_pos++;
 				}
@@ -305,11 +304,10 @@ void E64::core_t::process_keypresses()
 			case ASCII_CURSOR_UP:
 				// TODO: Walk through list of former commands
 				// bugs!!!
-				blitter->blit[0].cursor_position = command_start_pos + command_length;
-				command_cursor_pos = command_length;
+				blitter->blit[0].cursor_position = command_start_pos + command.size();
+				command_cursor_pos = command.size();
 				while (command_cursor_pos > 0) {
 					command.erase(command_cursor_pos - 1, 1);
-					command_length--;
 					command_cursor_pos--;
 					blitter->blit[0].cursor_position = command_start_pos;
 					blitter->terminal_printf(0, command.c_str());
@@ -318,7 +316,7 @@ void E64::core_t::process_keypresses()
 				}
 				displayed_command ? displayed_command-- : 0;
 				blitter->terminal_printf(0, command_history[displayed_command].c_str());
-				command_length = command_cursor_pos = command_history[displayed_command].length();
+				command_cursor_pos = command_history[displayed_command].length();
 				break;
 			case ASCII_CURSOR_DOWN:
 				// TODO: Walk through list of former commands
@@ -326,7 +324,6 @@ void E64::core_t::process_keypresses()
 			case ASCII_BACKSPACE:
 				if (command_cursor_pos > 0) {
 					command.erase(command_cursor_pos - 1, 1);
-					command_length--;
 					command_cursor_pos--;
 					blitter->blit[0].cursor_position = command_start_pos;
 					blitter->terminal_printf(0, command.c_str());
@@ -335,39 +332,61 @@ void E64::core_t::process_keypresses()
 				}
 				break;
 			case ASCII_LF:
-				// TODO: This looks messy...
-				blitter->blit[0].cursor_position = command_start_pos + command_length;
+				while (command_cursor_pos < command.size()) {
+					blitter->terminal_cursor_right(0);
+					command_cursor_pos++;
+				}
 				command_history.push_back(command);
 				displayed_command = command_history.size();
 				process_command();
 				prompt();
 				break;
 			default:
-				// TODO: Cleanup, this code looks really messy
-				// Can't this be done inside terminal?
-				// Point is that different "apps" need different handling...
-				blitter->terminal_bottom_row_added(0); // resets flag
 				command.insert(command_cursor_pos, 1, symbol);
 				command_cursor_pos++;
-				blitter->blit[0].cursor_position = command_start_pos;
+				uint16_t to_start = command_cursor_pos - 1;
+				while (to_start--)
+					blitter->terminal_backspace(0);
 				blitter->terminal_printf(0, command.c_str());
-				blitter->blit[0].cursor_position = command_start_pos + command_cursor_pos;
-				if (blitter->terminal_bottom_row_added(0)) {
-					blitter->blit[0].cursor_position -= blitter->blit[0].get_columns();
-					command_start_pos -= blitter->blit[0].get_columns();
-				}
-				command_length++;
+				for (int i=0; i < (command.size() - command_cursor_pos); i++)
+					blitter->terminal_cursor_left(0);
 				break;
 		}
 	}
 }
 
-// temp hack??
+/*
+ * See: https://www.techiedelight.com/remove-leading-and-trailing-spaces-from-a-string-in-cpp/
+ */
+std::string& ltrim(std::string &str)
+{
+	auto it = std::find_if(str.begin(), str.end(), [](char &c) {
+		return !std::iswspace(c);
+	});
+	str.erase(str.begin(), it);
+	return str;
+}
+
+std::string& rtrim(std::string &str)
+{
+	auto it = std::find_if(str.rbegin(), str.rend(), [](char &c) {
+		return !std::iswspace(c);
+	});
+	str.erase(it.base(), str.end());
+	return str;
+}
+
+std::string& trim(std::string &str)
+{
+	return ltrim(rtrim(str));
+}
+
 void E64::core_t::process_command()
 {
-	//std::cout << command << std::endl;
-	for (int i=0; i < command_history.size(); i++) {
-		std::cout << command_history[i] << std::endl;
-	}
+	rtrim(command);
+	if (command.size()) blitter->terminal_printf(0, "\ncommand: %s<END>", command.c_str());
+//	for (int i=0; i < command_history.size(); i++) {
+//		std::cout << command_history[i] << std::endl;
+//	}
 	command.erase();
 }
