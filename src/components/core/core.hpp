@@ -44,7 +44,7 @@ private:
 	
 	std::vector<std::string> command_history;
 	std::vector<_command> commands;
-	std::string command;
+	std::string current_command;
 	uint16_t displayed_command{0};
 	//uint16_t command_start_pos;
 	uint16_t command_cursor_pos;

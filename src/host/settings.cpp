@@ -46,10 +46,17 @@ E64::settings_t::settings_t()
 	lua_getglobal(L, "working_dir");
 	if (lua_isstring(L, -1)) {
 		strcpy(working_dir, lua_tolstring(L, -1, nullptr));
-		printf("[Settings] Working dir set to: %s\n", working_dir);
 	} else {
-		working_dir[0] = '\0';
+		strcpy(working_dir, home_dir);
+		//working_dir[0] = '\0';
 	}
+	if (!(dir = opendir(working_dir))) {
+		strcpy(working_dir, home_dir);
+	} else {
+		closedir(dir);
+		//closedir(working_dir);
+	}
+	printf("[Settings] Working dir set to: %s\n", working_dir);
 	
 	lua_getglobal(L, "linear_filtering");
 	if (lua_isboolean(L, -1)) {

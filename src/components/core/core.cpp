@@ -213,11 +213,14 @@ E64::core_t::core_t(E64::host_t *h, E64::keyboard_t *k, E64::sound_ic *s)
 	blitter = new blitter_ic(MAX_PIXELS_PER_SCANLINE, MAX_SCANLINES);
 	
 	blitter->reset();
+	
 	blitter->set_clear_color(BLUE_03);
+	
 	blitter->set_hor_border_size(12);
 	blitter->set_hor_border_color(BLUE_01);
 	blitter->set_ver_border_size(0x00);
 	blitter->set_ver_border_color(BLUE_01);
+	
 	blitter->terminal_init(0, 0x0a, 0, 1, 1, 48, 24, BLUE_08, 0x0000);
 	blitter->blit[0].set_x_pos(0);
 	blitter->blit[0].set_y_pos(12);
@@ -230,6 +233,8 @@ E64::core_t::core_t(E64::host_t *h, E64::keyboard_t *k, E64::sound_ic *s)
 	
 	command_history.clear();
 	command_history.push_back("");
+	
+	blitter->terminal_init(1, 0x0a, 0, 1, 1, 48, 24, C64_LIGHTBLUE, C64_BLUE);
 }
 
 E64::core_t::~core_t()
@@ -248,7 +253,7 @@ E64::core_t::~core_t()
 
 void E64::core_t::reset()
 {
-	command.erase();
+	current_command.erase();
 }
 
 void E64::core_t::timer0_callback()
@@ -296,7 +301,7 @@ void E64::core_t::process_keypresses()
 				}
 				break;
 			case ASCII_CURSOR_RIGHT:
-				if (command_cursor_pos < command.size()) {
+				if (command_cursor_pos < current_command.size()) {
 					blitter->terminal_cursor_right(0);
 					command_cursor_pos++;
 				}
@@ -324,34 +329,36 @@ void E64::core_t::process_keypresses()
 				break;
 			case ASCII_BACKSPACE:
 				if (command_cursor_pos > 0) {
-					command.erase(command_cursor_pos - 1, 1);
+					current_command.erase(command_cursor_pos - 1, 1);
 					command_cursor_pos--;
 					blitter->terminal_cursor_left(0);
-					blitter->terminal_printf(0, command.substr(command_cursor_pos, command.size() - command_cursor_pos).c_str());
+					blitter->terminal_printf(0, current_command.substr(command_cursor_pos, current_command.size() - command_cursor_pos).c_str());
 					blitter->terminal_putchar(0, ' ');
-					for (size_t i=command.size(); i >= command_cursor_pos; i--)
+					for (size_t i=current_command.size(); i >= command_cursor_pos; i--)
 						blitter->terminal_cursor_left(0);
 				}
 				break;
 			case ASCII_LF:
-				while (command_cursor_pos < command.size()) {
+				while (command_cursor_pos < current_command.size()) {
 					blitter->terminal_cursor_right(0);
 					command_cursor_pos++;
 				}
-				command_history.push_back(command);
+				command_history.push_back(current_command);
 				displayed_command = command_history.size();
 				process_command();
 				prompt();
 				break;
 			default:
-				command.insert(command_cursor_pos, 1, symbol);
-				command_cursor_pos++;
-				uint16_t to_start = command_cursor_pos - 1;
-				while (to_start--)
-					blitter->terminal_backspace(0);
-				blitter->terminal_printf(0, command.c_str());
-				for (int i=0; i < (command.size() - command_cursor_pos); i++)
-					blitter->terminal_cursor_left(0);
+				if (current_command.size() < 256) {
+					current_command.insert(command_cursor_pos, 1, symbol);
+					command_cursor_pos++;
+					uint16_t to_start = command_cursor_pos - 1;
+					while (to_start--)
+						blitter->terminal_backspace(0);
+					blitter->terminal_printf(0, current_command.c_str());
+					for (int i=0; i < (current_command.size() - command_cursor_pos); i++)
+						blitter->terminal_cursor_left(0);
+				}
 				break;
 		}
 	}
@@ -385,10 +392,21 @@ std::string& trim(std::string &str)
 
 void E64::core_t::process_command()
 {
-	trim(command);
-	if (command.size()) blitter->terminal_printf(0, "\ncommand: %s<END>", command.c_str());
-//	for (int i=0; i < command_history.size(); i++) {
-//		std::cout << command_history[i] << std::endl;
-//	}
-	command.erase();
+	trim(current_command);
+	
+	std::string delimiter = " ";
+	
+	std::string token = current_command.substr(0, current_command.find(delimiter)); // token is "scott"
+	
+	if (token.compare("clear") == 0) {
+		blitter->terminal_clear(0);
+	} else if (token.compare("ls") == 0) {
+		host->read_working_dir();
+	} else if (token.compare("ver") == 0) {
+		blitter->terminal_printf(0, "\nE64 Computer System v%i.%i.%i", E64_MAJOR_VERSION, E64_MINOR_VERSION, E64_BUILD);
+	} else {
+		if (token.size()) blitter->terminal_printf(0, "\ncommand <%s>", token.c_str());
+	}
+	
+	current_command.erase();
 }

@@ -41,7 +41,7 @@ inline char event_to_ascii(uint8_t scancode, uint8_t modifiers)
 		case SCANCODE_MINUS:  return (modifiers & SHIFT_PRESSED) ? ASCII_UNDERSCORE : ASCII_HYPHEN;
 		case SCANCODE_EQUALS: return (modifiers & SHIFT_PRESSED) ? ASCII_PLUS : ASCII_EQUALS;
 		case SCANCODE_BACKSPACE: return ASCII_BACKSPACE;
-		case SCANCODE_TAB:    return ASCII_HOR_TAB;
+		case SCANCODE_TAB:    return ASCII_SPACE;	// TODO: temp hack to make things work
 		case SCANCODE_Q:      return (modifiers & SHIFT_PRESSED) ? ASCII_Q : ASCII_q;
 		case SCANCODE_W:      return (modifiers & SHIFT_PRESSED) ? ASCII_W : ASCII_w;
 		case SCANCODE_E:      return (modifiers & SHIFT_PRESSED) ? ASCII_E : ASCII_e;

@@ -10,6 +10,7 @@
 
 #include <cstdio>
 #include <cstdint>
+#include <dirent.h>
 
 #include "lua.hpp"
 
@@ -62,6 +63,8 @@ public:
 	char home_dir[256];
 	char *settings_dir;
 	char working_dir[256];
+	
+	DIR *dir;
 	
 	bool video_fullscreen;
 	bool video_linear_filtering;
