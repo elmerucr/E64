@@ -33,7 +33,17 @@ private:
 	host_t *host;
 	keyboard_t *keyboard;
 	
+	struct _command {
+		std::string command;
+		uint16_t cursor_pos{0};
+	public:
+		_command() {
+			
+		};
+	};
+	
 	std::vector<std::string> command_history;
+	std::vector<_command> commands;
 	std::string command;
 	uint16_t displayed_command{0};
 	//uint16_t command_start_pos;

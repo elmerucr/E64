@@ -282,7 +282,6 @@ void E64::core_t::prompt()
 {
 	blitter->terminal_printf(0, "\n>");
 	command_cursor_pos = 0;
-	//command_start_pos = blitter->blit[0].cursor_position;
 }
 
 void E64::core_t::process_keypresses()
