@@ -217,3 +217,18 @@ void E64::settings_t::audio_stop_recording()
 	audio_recording = false;
 	finish_wav();
 }
+
+void E64::settings_t::read_working_dir(const char *t)
+{
+	dir = opendir(working_dir);
+	
+	printf("%s\n", working_dir);
+
+	struct dirent *direntry;
+	
+	while ((direntry = readdir(dir)) != NULL) {
+		    printf ("%s\n", direntry->d_name);
+	}
+	
+	closedir(dir);
+}

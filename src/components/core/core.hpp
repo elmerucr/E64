@@ -9,6 +9,7 @@
 #define CORE_HPP
 
 #include "common.hpp"
+#include "settings.hpp"
 #include "lua.hpp"
 #include "host.hpp"
 #include "sound.hpp"
@@ -30,6 +31,7 @@ private:
 	
 	state current_state{CONSOLE};
 	
+	settings_t *settings;
 	host_t *host;
 	keyboard_t *keyboard;
 	
@@ -46,12 +48,11 @@ private:
 	std::vector<_command> commands;
 	std::string current_command;
 	uint16_t displayed_command{0};
-	//uint16_t command_start_pos;
 	uint16_t command_cursor_pos;
 	
 	bool timer0_active{false};
 public:
-	core_t(host_t *h, keyboard_t *k, sound_ic *s);
+	core_t(settings_t *_s, host_t *h, keyboard_t *k, sound_ic *s);
 	~core_t();
 	
 	blitter_ic *blitter;

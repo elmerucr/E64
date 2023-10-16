@@ -5,7 +5,6 @@
 #include "blitter.hpp"
 #include "hud.hpp"
 #include "settings.hpp"
-#include <dirent.h>
 
 namespace E64
 {
@@ -212,12 +211,6 @@ public:
 	 */
 	enum events_output_state events_process_events();
 	uint8_t keyboard_state[128];
-	
-	/*
-	 * file system
-	 */
-	DIR *dir;
-	void read_working_dir();
 };
 
 }

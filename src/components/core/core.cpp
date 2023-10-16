@@ -162,7 +162,7 @@ end
 
 )Lua";
 
-E64::core_t::core_t(E64::host_t *h, E64::keyboard_t *k, E64::sound_ic *s)
+E64::core_t::core_t(E64::settings_t *_s, E64::host_t *h, E64::keyboard_t *k, E64::sound_ic *s)
 {
 	/*
 	 * Start Lua
@@ -178,6 +178,7 @@ E64::core_t::core_t(E64::host_t *h, E64::keyboard_t *k, E64::sound_ic *s)
 	
 	luaL_openlibs(L);
 	
+	settings = _s;
 	host = h;
 	keyboard = k;
 	sound = s;	// assign sound before pushing c functions
@@ -225,8 +226,7 @@ E64::core_t::core_t(E64::host_t *h, E64::keyboard_t *k, E64::sound_ic *s)
 	blitter->blit[0].set_x_pos(0);
 	blitter->blit[0].set_y_pos(12);
 	blitter->terminal_clear(0);
-	blitter->terminal_printf(0, "E64 Computer System v%i.%i.%i", E64_MAJOR_VERSION, E64_MINOR_VERSION, E64_BUILD);
-	blitter->terminal_printf(0, "\n\n(C)2019-%i elmerucr\n", E64_YEAR);
+	blitter->terminal_printf(0, "E64 Computer System (C)2019-%i elmerucr\n", E64_YEAR);
 	prompt();
 	
 	blitter->terminal_activate_cursor(0);
@@ -334,7 +334,7 @@ void E64::core_t::process_keypresses()
 					blitter->terminal_cursor_left(0);
 					blitter->terminal_printf(0, current_command.substr(command_cursor_pos, current_command.size() - command_cursor_pos).c_str());
 					blitter->terminal_putchar(0, ' ');
-					for (size_t i=current_command.size(); i >= command_cursor_pos; i--)
+					for (size_t i=current_command.size() - command_cursor_pos + 1; i > 0; i--)
 						blitter->terminal_cursor_left(0);
 				}
 				break;
@@ -396,14 +396,23 @@ void E64::core_t::process_command()
 	
 	std::string delimiter = " ";
 	
-	std::string token = current_command.substr(0, current_command.find(delimiter)); // token is "scott"
+	std::string token = current_command.substr(0, current_command.find(delimiter));
 	
 	if (token.compare("clear") == 0) {
 		blitter->terminal_clear(0);
 	} else if (token.compare("ls") == 0) {
-		host->read_working_dir();
+		// TODO: do something with this
+		char *nothing;
+		settings->read_working_dir(nothing);
+	} else if (token.compare("mon") == 0) {
+		blitter->terminal_printf(0, "\nmonitor");
+	} else if (token.compare("pwd") == 0) {
+		blitter->terminal_printf(0, "\n%s", settings->working_dir);
+	} else if (token.compare("run") == 0) {
+		// TODO: mode switch
+		blitter->terminal_printf(0, "\nrun");
 	} else if (token.compare("ver") == 0) {
-		blitter->terminal_printf(0, "\nE64 Computer System v%i.%i.%i", E64_MAJOR_VERSION, E64_MINOR_VERSION, E64_BUILD);
+		blitter->terminal_printf(0, "\nVersion %i.%i.%i", E64_MAJOR_VERSION, E64_MINOR_VERSION, E64_BUILD);
 	} else {
 		if (token.size()) blitter->terminal_printf(0, "\ncommand <%s>", token.c_str());
 	}

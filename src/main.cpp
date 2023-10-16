@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 	E64::hud_t *hud = new E64::hud_t();
 	host->set_hud(hud);
 	
-	E64::core_t *core = new E64::core_t(host, keyboard, sound);
+	E64::core_t *core = new E64::core_t(settings, host, keyboard, sound);
 	
 	bool running = true;
 	

@@ -83,6 +83,11 @@ public:
 	bool create_wav();
 	
 	void finish_wav();
+	
+	/*
+	 * file system
+	 */
+	void read_working_dir(const char *t);
 };
 
 }

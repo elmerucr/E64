@@ -534,18 +534,3 @@ void E64::host_t::video_decrease_window_size()
 	SDL_SetWindowPosition(video_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 	hud->show_notification("Set host window size to %ix%i", window_width, window_height);
 }
-
-void E64::host_t::read_working_dir()
-{
-	dir = opendir(settings->working_dir);
-	
-	printf("%s\n", settings->working_dir);
-
-	struct dirent *direntry;
-	
-	while ((direntry = readdir(dir)) != NULL) {
-		    printf ("%s\n", direntry->d_name);
-	}
-	
-	closedir(dir);
-}
