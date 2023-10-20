@@ -87,7 +87,7 @@ public:
 	/*
 	 * file system
 	 */
-	void read_working_dir(const char *t);
+	void read_working_dir(char *t);
 };
 
 }

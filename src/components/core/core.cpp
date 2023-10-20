@@ -160,6 +160,10 @@ function timer0_callback()
     ticks = ticks - 1
 end
 
+function frame()
+    -- empty for now
+end
+
 )Lua";
 
 E64::core_t::core_t(E64::settings_t *_s, E64::host_t *h, E64::keyboard_t *k, E64::sound_ic *s)
@@ -215,13 +219,6 @@ E64::core_t::core_t(E64::settings_t *_s, E64::host_t *h, E64::keyboard_t *k, E64
 	
 	blitter->reset();
 	
-	blitter->set_clear_color(BLUE_03);
-	
-	blitter->set_hor_border_size(12);
-	blitter->set_hor_border_color(BLUE_01);
-	blitter->set_ver_border_size(0x00);
-	blitter->set_ver_border_color(BLUE_01);
-	
 	blitter->terminal_init(0, 0x0a, 0, 1, 1, 48, 24, BLUE_08, 0x0000);
 	blitter->blit[0].set_x_pos(0);
 	blitter->blit[0].set_y_pos(12);
@@ -272,13 +269,24 @@ void E64::core_t::do_frame()
 				process_keypresses();
 				blitter->terminal_activate_cursor(0);
 			}
+			blitter->set_clear_color(BLUE_03);
 			blitter->clear_framebuffer();
+			
 			blitter->add_operation_draw_blit(&blitter->blit[0]);
+			
+			blitter->set_ver_border_size(0x00);
+			blitter->set_ver_border_color(BLUE_01);
 			blitter->add_operation_draw_ver_border();
+			
+			blitter->set_hor_border_size(0x0c);
+			blitter->set_hor_border_color(BLUE_01);
 			blitter->add_operation_draw_hor_border();
+			
 			while (blitter->run_next_operation()) {}
 			break;
 		case RUN:
+			lua_getglobal(L, "frame");
+			lua_pcall(L, 0, 0, 0);
 			break;
 	}
 }
@@ -348,6 +356,12 @@ void E64::core_t::process_keypresses()
 				process_command();
 				prompt();
 				break;
+			case ASCII_REVERSE_ON:
+				blitter->blit[0].reverse = true;
+				break;
+			case ASCII_REVERSE_OFF:
+				blitter->blit[0].reverse = false;
+				break;
 			default:
 				if (current_command.size() < 256) {
 					current_command.insert(command_cursor_pos, 1, symbol);
@@ -398,12 +412,22 @@ void E64::core_t::process_command()
 	
 	std::string token = current_command.substr(0, current_command.find(delimiter));
 	
-	if (token.compare("clear") == 0) {
+	
+	if (token.compare("cd") == 0) {
+		// cd
+		current_command = current_command.erase(0, token.length());
+		trim(current_command);
+		token = current_command.substr(0, current_command.find(delimiter));
+		blitter->terminal_printf(0, "\ncd %s<<end>>", token.c_str());
+	} else if (token.compare("clear") == 0) {
 		blitter->terminal_clear(0);
 	} else if (token.compare("ls") == 0) {
-		// TODO: do something with this
-		char *nothing;
-		settings->read_working_dir(nothing);
+		blitter->blit[0].reverse = true;
+		blitter->terminal_printf(0, "\n%s", settings->working_dir);
+		blitter->blit[0].reverse = false;
+		char buffer[2048];
+		settings->read_working_dir(buffer);
+		blitter->terminal_printf(0, buffer);
 	} else if (token.compare("mon") == 0) {
 		blitter->terminal_printf(0, "\nmonitor");
 	} else if (token.compare("pwd") == 0) {
@@ -411,6 +435,7 @@ void E64::core_t::process_command()
 	} else if (token.compare("run") == 0) {
 		// TODO: mode switch
 		blitter->terminal_printf(0, "\nrun");
+		current_state = RUN;
 	} else if (token.compare("ver") == 0) {
 		blitter->terminal_printf(0, "\nVersion %i.%i.%i", E64_MAJOR_VERSION, E64_MINOR_VERSION, E64_BUILD);
 	} else {

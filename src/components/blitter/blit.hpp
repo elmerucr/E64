@@ -235,6 +235,7 @@ public:
 	uint16_t cursor_original_background_color;
 	bool     cursor_blinking;
 	bool     cursor_big_move;
+	bool     reverse;
 	char     command_buffer[COMMAND_BUFFER_SIZE];
 
 	inline int     terminal_lines_remaining()    { return rows - (cursor_position / columns) - 1; }

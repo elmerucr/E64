@@ -89,6 +89,7 @@ void E64::blitter_ic::terminal_clear(uint8_t number)
 	}
 
 	blit[number].cursor_position = 0;
+	blit[number].reverse = false;
 
 	blit[number].cursor_interval = 20; 	// 0.33s (if timer @ 60Hz)
 	blit[number].cursor_countdown = 0;
@@ -99,7 +100,8 @@ void E64::blitter_ic::terminal_clear(uint8_t number)
 
 void E64::blitter_ic::terminal_putsymbol_at_cursor(uint8_t number, char symbol)
 {
-	terminal_set_tile(number, blit[number].cursor_position, symbol);
+	uint8_t inv = blit[number].reverse ? 0b10000000 : 0b00000000;
+	terminal_set_tile(number, blit[number].cursor_position, symbol ^ inv);
 	terminal_set_tile_fg_color(number, blit[number].cursor_position, blit[number].foreground_color);
 	terminal_set_tile_bg_color(number, blit[number].cursor_position, blit[number].background_color);
 }
