@@ -236,10 +236,14 @@ E64::core_t::core_t(E64::settings_t *_s, E64::host_t *h, E64::keyboard_t *k, E64
 	console_command_history.clear();
 	console_command_history.push_back("");
 	
-	monitor = &blitter->blit[1];
-	blitter->terminal_init(monitor->number, 0x0a, 0, 1, 1, 48, 27, C64_LIGHTBLUE, C64_BLUE);
-	monitor->set_x_pos(0);
-	monitor->set_y_pos(0);
+	monitor = &blitter->blit[241];
+	blitter->terminal_init(monitor->number, 0x0a, 0, 1, 1, 44, 23, C64_LIGHTBLUE, C64_BLUE);
+	monitor->set_x_pos(16);
+	monitor->set_y_pos(16);
+	blitter->terminal_clear(monitor->number);
+	blitter->terminal_printf(monitor->number, "Monitor");
+	monitor_prompt();
+	blitter->terminal_activate_cursor(monitor->number);
 }
 
 E64::core_t::~core_t()
@@ -293,6 +297,26 @@ void E64::core_t::do_frame()
 			while (blitter->run_next_operation()) {}
 			break;
 		case MON:
+			blitter->terminal_process_cursor_state(monitor->number);
+			if (keyboard->events_waiting()) {
+				blitter->terminal_deactivate_cursor(monitor->number);
+				monitor_process_keypresses();
+				blitter->terminal_activate_cursor(monitor->number);
+			}
+			blitter->set_clear_color(C64_BLUE);
+			blitter->clear_framebuffer();
+			
+			blitter->add_operation_draw_blit(monitor);
+			
+			blitter->set_ver_border_size(0x10);
+			blitter->set_ver_border_color(C64_LIGHTBLUE);
+			blitter->add_operation_draw_ver_border();
+			
+			blitter->set_hor_border_size(0x10);
+			blitter->set_hor_border_color(C64_LIGHTBLUE);
+			blitter->add_operation_draw_hor_border();
+			
+			while (blitter->run_next_operation()) {}
 			break;
 		case RUN:
 			lua_getglobal(L, "frame");
@@ -422,7 +446,6 @@ void E64::core_t::console_process_command()
 	
 	std::string token = console_current_command.substr(0, console_current_command.find(delimiter));
 	
-	
 	if (token.compare("cd") == 0) {
 		// cd
 		console_current_command = console_current_command.erase(0, token.length());
@@ -430,7 +453,7 @@ void E64::core_t::console_process_command()
 		token = console_current_command.substr(0, console_current_command.find(delimiter));
 		blitter->terminal_printf(console->number, "\ncd %s<<end>>", token.c_str());
 	} else if (token.compare("clear") == 0) {
-		blitter->terminal_clear(0);
+		blitter->terminal_clear(console->number);
 	} else if (token.compare("ls") == 0) {
 		console->reverse = true;
 		blitter->terminal_printf(console->number, "\n%s", settings->working_dir);
@@ -440,6 +463,7 @@ void E64::core_t::console_process_command()
 		blitter->terminal_printf(console->number, buffer);
 	} else if (token.compare("mon") == 0) {
 		blitter->terminal_printf(console->number, "\nmonitor");
+		current_state = MON;
 	} else if (token.compare("pwd") == 0) {
 		blitter->terminal_printf(console->number, "\n%s", settings->working_dir);
 	} else if (token.compare("run") == 0) {
@@ -453,4 +477,37 @@ void E64::core_t::console_process_command()
 	}
 	
 	console_current_command.erase();
+}
+
+void E64::core_t::monitor_process_keypresses()
+{
+	uint8_t symbol;
+	while ((symbol = keyboard->pop_event())) {
+		switch (symbol) {
+			case ASCII_CURSOR_LEFT:
+				blitter->terminal_cursor_left(monitor->number);
+				break;
+			case ASCII_CURSOR_RIGHT:
+				blitter->terminal_cursor_right(monitor->number);
+				break;
+			case ASCII_CURSOR_UP:
+				blitter->terminal_cursor_up(monitor->number);
+				break;
+			case ASCII_CURSOR_DOWN:
+				blitter->terminal_cursor_down(monitor->number);
+				break;
+			case ASCII_BACKSPACE:
+				blitter->terminal_backspace(monitor->number);
+				break;
+			case ASCII_LF:
+			default:
+				blitter->terminal_putchar(monitor->number, symbol);
+				break;
+		}
+	}
+}
+
+void E64::core_t::monitor_prompt()
+{
+	blitter->terminal_printf(monitor->number, "\n.");
 }

@@ -56,6 +56,9 @@ public:
 	void console_process_keypresses();
 	void console_process_command();
 	
+	void monitor_prompt();
+	void monitor_process_keypresses();
+	
 	void timer0_callback();
 };
 

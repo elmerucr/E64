@@ -226,10 +226,12 @@ void E64::settings_t::read_working_dir(char *t)
 	struct dirent *direntry;
 	
 	while ((direntry = readdir(dir)) != NULL) {
-		//printf ("%s\n", direntry->d_name);
-		t += snprintf(t, 2048, "\n%s", direntry->d_name);
-		if (direntry->d_type == DT_DIR) {
-			t += snprintf(t, 2048, "/");
+		// omit 'hidden' files and dirs
+		if (direntry->d_name[0] != '.') {
+			t += snprintf(t, 2048, "\n%s", direntry->d_name);
+			if (direntry->d_type == DT_DIR) {
+				t += snprintf(t, 2048, "/");
+			}
 		}
 	}
 	

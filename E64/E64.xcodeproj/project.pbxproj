@@ -435,9 +435,9 @@
 		467F17B62AB25C7000F0BBFB /* blitter */ = {
 			isa = PBXGroup;
 			children = (
-				467F17B92AB25D8D00F0BBFB /* blit.hpp */,
 				467F17B72AB25D8C00F0BBFB /* blitter.hpp */,
 				467F17B82AB25D8D00F0BBFB /* blitter.cpp */,
+				467F17B92AB25D8D00F0BBFB /* blit.hpp */,
 				467F17BA2AB25D8D00F0BBFB /* blitter_terminal.cpp */,
 				467F17BD2AB25F2700F0BBFB /* fonts.hpp */,
 				467F17BF2AB25F2700F0BBFB /* font_cbm_8x8.cpp */,
