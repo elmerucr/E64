@@ -22,6 +22,7 @@ namespace E64 {
 
 typedef enum {
 	CONSOLE,
+	MON,
 	RUN
 } state;
 
@@ -35,20 +36,10 @@ private:
 	host_t *host;
 	keyboard_t *keyboard;
 	
-	struct _command {
-		std::string command;
-		uint16_t cursor_pos{0};
-	public:
-		_command() {
-			
-		};
-	};
-	
-	std::vector<std::string> command_history;
-	std::vector<_command> commands;
-	std::string current_command;
-	uint16_t displayed_command{0};
-	uint16_t command_cursor_pos;
+	std::vector<std::string> console_command_history;
+	std::string console_current_command;
+	uint16_t console_displayed_command{0};
+	uint16_t console_command_cursor_pos;
 	
 	bool timer0_active{false};
 public:
@@ -56,12 +47,15 @@ public:
 	~core_t();
 	
 	blitter_ic *blitter;
+	blit_t *console;
+	blit_t *monitor;
 	
 	void reset();
 	void do_frame();
-	void prompt();
-	void process_keypresses();
-	void process_command();
+	void console_prompt();
+	void console_process_keypresses();
+	void console_process_command();
+	
 	void timer0_callback();
 };
 

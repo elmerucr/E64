@@ -82,6 +82,8 @@ static int l_mixer_sid1_right_set_volume(lua_State *L)
 
 const char lua_code[] = R"Lua(
 
+local teller = 0
+
 -- spy vs spy i track 1
 local track1 = {
     0x04e2, 0x09c4, 0x0ea2, 0x1389, 0x04e2, 0x09c4, 0x0000, 0x0000,
@@ -161,7 +163,9 @@ function timer0_callback()
 end
 
 function frame()
-    -- empty for now
+    -- fill up with something
+    print(teller)
+    teller = teller + 1
 end
 
 )Lua";
@@ -219,19 +223,23 @@ E64::core_t::core_t(E64::settings_t *_s, E64::host_t *h, E64::keyboard_t *k, E64
 	
 	blitter->reset();
 	
-	blitter->terminal_init(0, 0x0a, 0, 1, 1, 48, 24, BLUE_08, 0x0000);
-	blitter->blit[0].set_x_pos(0);
-	blitter->blit[0].set_y_pos(12);
-	blitter->terminal_clear(0);
-	blitter->terminal_printf(0, "E64 Computer System (C)2019-%i elmerucr\n", E64_YEAR);
-	prompt();
+	console = &blitter->blit[240];
+	blitter->terminal_init(console->number, 0x0a, 0, 1, 1, 48, 24, BLUE_08, 0x0000);
+	console->set_x_pos(0);
+	console->set_y_pos(12);
+	blitter->terminal_clear(console->number);
+	blitter->terminal_printf(console->number, "E64 Computer System (C)2019-%i elmerucr\n", E64_YEAR);
+	console_prompt();
 	
-	blitter->terminal_activate_cursor(0);
+	blitter->terminal_activate_cursor(console->number);
 	
-	command_history.clear();
-	command_history.push_back("");
+	console_command_history.clear();
+	console_command_history.push_back("");
 	
-	blitter->terminal_init(1, 0x0a, 0, 1, 1, 48, 24, C64_LIGHTBLUE, C64_BLUE);
+	monitor = &blitter->blit[1];
+	blitter->terminal_init(monitor->number, 0x0a, 0, 1, 1, 48, 27, C64_LIGHTBLUE, C64_BLUE);
+	monitor->set_x_pos(0);
+	monitor->set_y_pos(0);
 }
 
 E64::core_t::~core_t()
@@ -250,7 +258,7 @@ E64::core_t::~core_t()
 
 void E64::core_t::reset()
 {
-	current_command.erase();
+	console_current_command.erase();
 }
 
 void E64::core_t::timer0_callback()
@@ -263,16 +271,16 @@ void E64::core_t::do_frame()
 {
 	switch (current_state) {
 		case CONSOLE:
-			blitter->terminal_process_cursor_state(0);
+			blitter->terminal_process_cursor_state(console->number);
 			if (keyboard->events_waiting()) {
-				blitter->terminal_deactivate_cursor(0);
-				process_keypresses();
-				blitter->terminal_activate_cursor(0);
+				blitter->terminal_deactivate_cursor(console->number);
+				console_process_keypresses();
+				blitter->terminal_activate_cursor(console->number);
 			}
 			blitter->set_clear_color(BLUE_03);
 			blitter->clear_framebuffer();
 			
-			blitter->add_operation_draw_blit(&blitter->blit[0]);
+			blitter->add_operation_draw_blit(console);
 			
 			blitter->set_ver_border_size(0x00);
 			blitter->set_ver_border_color(BLUE_01);
@@ -284,6 +292,8 @@ void E64::core_t::do_frame()
 			
 			while (blitter->run_next_operation()) {}
 			break;
+		case MON:
+			break;
 		case RUN:
 			lua_getglobal(L, "frame");
 			lua_pcall(L, 0, 0, 0);
@@ -291,32 +301,32 @@ void E64::core_t::do_frame()
 	}
 }
 
-void E64::core_t::prompt()
+void E64::core_t::console_prompt()
 {
-	blitter->terminal_printf(0, "\n>");
-	command_cursor_pos = 0;
+	blitter->terminal_printf(console->number, "\n>");
+	console_command_cursor_pos = 0;
 }
 
-void E64::core_t::process_keypresses()
+void E64::core_t::console_process_keypresses()
 {
 	uint8_t symbol;
 	while ((symbol = keyboard->pop_event())) {
 		switch (symbol) {
 			case ASCII_CURSOR_LEFT:
-				if (command_cursor_pos > 0) {
-					blitter->terminal_cursor_left(0);
-					command_cursor_pos--;
+				if (console_command_cursor_pos > 0) {
+					blitter->terminal_cursor_left(console->number);
+					console_command_cursor_pos--;
 				}
 				break;
 			case ASCII_CURSOR_RIGHT:
-				if (command_cursor_pos < current_command.size()) {
-					blitter->terminal_cursor_right(0);
-					command_cursor_pos++;
+				if (console_command_cursor_pos < console_current_command.size()) {
+					blitter->terminal_cursor_right(console->number);
+					console_command_cursor_pos++;
 				}
 				break;
 			case ASCII_CURSOR_UP:
 				// TODO: Walk through list of former commands
-				if (command_history.size()) {
+				if (console_command_history.size()) {
 //					blitter->blit[0].cursor_position = command_start_pos + command.size();
 //					command_cursor_pos = command.size();
 //					while (command_cursor_pos > 0) {
@@ -336,42 +346,42 @@ void E64::core_t::process_keypresses()
 				// TODO: Walk through list of former commands
 				break;
 			case ASCII_BACKSPACE:
-				if (command_cursor_pos > 0) {
-					current_command.erase(command_cursor_pos - 1, 1);
-					command_cursor_pos--;
-					blitter->terminal_cursor_left(0);
-					blitter->terminal_printf(0, current_command.substr(command_cursor_pos, current_command.size() - command_cursor_pos).c_str());
-					blitter->terminal_putchar(0, ' ');
-					for (size_t i=current_command.size() - command_cursor_pos + 1; i > 0; i--)
-						blitter->terminal_cursor_left(0);
+				if (console_command_cursor_pos > 0) {
+					console_current_command.erase(console_command_cursor_pos - 1, 1);
+					console_command_cursor_pos--;
+					blitter->terminal_cursor_left(console->number);
+					blitter->terminal_printf(console->number, console_current_command.substr(console_command_cursor_pos, console_current_command.size() - console_command_cursor_pos).c_str());
+					blitter->terminal_putchar(console->number, ' ');
+					for (size_t i=console_current_command.size() - console_command_cursor_pos + 1; i > 0; i--)
+						blitter->terminal_cursor_left(console->number);
 				}
 				break;
 			case ASCII_LF:
-				while (command_cursor_pos < current_command.size()) {
-					blitter->terminal_cursor_right(0);
-					command_cursor_pos++;
+				while (console_command_cursor_pos < console_current_command.size()) {
+					blitter->terminal_cursor_right(console->number);
+					console_command_cursor_pos++;
 				}
-				command_history.push_back(current_command);
-				displayed_command = command_history.size();
-				process_command();
-				prompt();
+				console_command_history.push_back(console_current_command);
+				console_displayed_command = console_command_history.size();
+				console_process_command();
+				console_prompt();
 				break;
 			case ASCII_REVERSE_ON:
-				blitter->blit[0].reverse = true;
+				console->reverse = true;
 				break;
 			case ASCII_REVERSE_OFF:
-				blitter->blit[0].reverse = false;
+				console->reverse = false;
 				break;
 			default:
-				if (current_command.size() < 256) {
-					current_command.insert(command_cursor_pos, 1, symbol);
-					command_cursor_pos++;
-					uint16_t to_start = command_cursor_pos - 1;
+				if (console_current_command.size() < 256) {
+					console_current_command.insert(console_command_cursor_pos, 1, symbol);
+					console_command_cursor_pos++;
+					uint16_t to_start = console_command_cursor_pos - 1;
 					while (to_start--)
-						blitter->terminal_backspace(0);
-					blitter->terminal_printf(0, current_command.c_str());
-					for (int i=0; i < (current_command.size() - command_cursor_pos); i++)
-						blitter->terminal_cursor_left(0);
+						blitter->terminal_backspace(console->number);
+					blitter->terminal_printf(console->number, console_current_command.c_str());
+					for (int i=0; i < (console_current_command.size() - console_command_cursor_pos); i++)
+						blitter->terminal_cursor_left(console->number);
 				}
 				break;
 		}
@@ -404,43 +414,43 @@ std::string& trim(std::string &str)
 	return ltrim(rtrim(str));
 }
 
-void E64::core_t::process_command()
+void E64::core_t::console_process_command()
 {
-	trim(current_command);
+	trim(console_current_command);
 	
 	std::string delimiter = " ";
 	
-	std::string token = current_command.substr(0, current_command.find(delimiter));
+	std::string token = console_current_command.substr(0, console_current_command.find(delimiter));
 	
 	
 	if (token.compare("cd") == 0) {
 		// cd
-		current_command = current_command.erase(0, token.length());
-		trim(current_command);
-		token = current_command.substr(0, current_command.find(delimiter));
-		blitter->terminal_printf(0, "\ncd %s<<end>>", token.c_str());
+		console_current_command = console_current_command.erase(0, token.length());
+		trim(console_current_command);
+		token = console_current_command.substr(0, console_current_command.find(delimiter));
+		blitter->terminal_printf(console->number, "\ncd %s<<end>>", token.c_str());
 	} else if (token.compare("clear") == 0) {
 		blitter->terminal_clear(0);
 	} else if (token.compare("ls") == 0) {
-		blitter->blit[0].reverse = true;
-		blitter->terminal_printf(0, "\n%s", settings->working_dir);
-		blitter->blit[0].reverse = false;
+		console->reverse = true;
+		blitter->terminal_printf(console->number, "\n%s", settings->working_dir);
+		console->reverse = false;
 		char buffer[2048];
 		settings->read_working_dir(buffer);
-		blitter->terminal_printf(0, buffer);
+		blitter->terminal_printf(console->number, buffer);
 	} else if (token.compare("mon") == 0) {
-		blitter->terminal_printf(0, "\nmonitor");
+		blitter->terminal_printf(console->number, "\nmonitor");
 	} else if (token.compare("pwd") == 0) {
-		blitter->terminal_printf(0, "\n%s", settings->working_dir);
+		blitter->terminal_printf(console->number, "\n%s", settings->working_dir);
 	} else if (token.compare("run") == 0) {
 		// TODO: mode switch
-		blitter->terminal_printf(0, "\nrun");
+		blitter->terminal_printf(console->number, "\nrun");
 		current_state = RUN;
 	} else if (token.compare("ver") == 0) {
-		blitter->terminal_printf(0, "\nVersion %i.%i.%i", E64_MAJOR_VERSION, E64_MINOR_VERSION, E64_BUILD);
+		blitter->terminal_printf(console->number, "\nVersion %i.%i.%i", E64_MAJOR_VERSION, E64_MINOR_VERSION, E64_BUILD);
 	} else {
-		if (token.size()) blitter->terminal_printf(0, "\ncommand <%s>", token.c_str());
+		if (token.size()) blitter->terminal_printf(console->number, "\ncommand <%s>", token.c_str());
 	}
 	
-	current_command.erase();
+	console_current_command.erase();
 }
