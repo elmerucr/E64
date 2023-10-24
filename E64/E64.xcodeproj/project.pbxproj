@@ -65,6 +65,7 @@
 		4615DC6D2AA875A000519477 /* sid.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4615DC5D2AA875A000519477 /* sid.cc */; };
 		4615DC712AA92D8C00519477 /* host.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4615DC702AA92D8C00519477 /* host.cpp */; };
 		462E1A7D2AC5D10600E683C2 /* font_ibm_cp437_8x8.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 462E1A7C2AC5D10600E683C2 /* font_ibm_cp437_8x8.cpp */; };
+		465360D02AE82DB8008A76F4 /* timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 465360CE2AE82DB8008A76F4 /* timer.cpp */; };
 		466137C32AADE620005E04F9 /* settings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 466137C12AADE620005E04F9 /* settings.cpp */; };
 		4675EB712AAE47CC00CFB786 /* core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4675EB6F2AAE47CC00CFB786 /* core.cpp */; };
 		467F17BB2AB25D8D00F0BBFB /* blitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 467F17B82AB25D8D00F0BBFB /* blitter.cpp */; };
@@ -192,6 +193,8 @@
 		4615DC6F2AA92D8C00519477 /* host.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = host.hpp; path = ../../src/host/host.hpp; sourceTree = "<group>"; };
 		4615DC702AA92D8C00519477 /* host.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = host.cpp; path = ../../src/host/host.cpp; sourceTree = "<group>"; };
 		462E1A7C2AC5D10600E683C2 /* font_ibm_cp437_8x8.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = font_ibm_cp437_8x8.cpp; path = ../../src/components/blitter/font_ibm_cp437_8x8.cpp; sourceTree = "<group>"; };
+		465360CE2AE82DB8008A76F4 /* timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = timer.cpp; path = ../../src/components/timer/timer.cpp; sourceTree = "<group>"; };
+		465360CF2AE82DB8008A76F4 /* timer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = timer.hpp; path = ../../src/components/timer/timer.hpp; sourceTree = "<group>"; };
 		466137C12AADE620005E04F9 /* settings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = settings.cpp; path = ../../src/host/settings.cpp; sourceTree = "<group>"; };
 		466137C22AADE620005E04F9 /* settings.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = settings.hpp; path = ../../src/host/settings.hpp; sourceTree = "<group>"; };
 		4675EB6F2AAE47CC00CFB786 /* core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core.cpp; path = ../../src/components/core/core.cpp; sourceTree = "<group>"; };
@@ -362,6 +365,7 @@
 				4675EB6E2AAE479700CFB786 /* core */,
 				46ADFE3C2AC20FB3006B5F5C /* keyboard */,
 				4615DC3C2AA873E000519477 /* sound */,
+				465360CD2AE82D5E008A76F4 /* timer */,
 			);
 			name = components;
 			sourceTree = "<group>";
@@ -421,6 +425,15 @@
 				469F512A2AB3882700552EC1 /* stats.cpp */,
 			);
 			name = host;
+			sourceTree = "<group>";
+		};
+		465360CD2AE82D5E008A76F4 /* timer */ = {
+			isa = PBXGroup;
+			children = (
+				465360CF2AE82DB8008A76F4 /* timer.hpp */,
+				465360CE2AE82DB8008A76F4 /* timer.cpp */,
+			);
+			name = timer;
 			sourceTree = "<group>";
 		};
 		4675EB6E2AAE479700CFB786 /* core */ = {
@@ -555,6 +568,7 @@
 				4615DBD82AA86FD100519477 /* main.cpp in Sources */,
 				4615DC342AA872B700519477 /* ltablib.c in Sources */,
 				4615DC332AA872B700519477 /* ltable.c in Sources */,
+				465360D02AE82DB8008A76F4 /* timer.cpp in Sources */,
 				4615DC612AA875A000519477 /* wave8580_P_T.cc in Sources */,
 				4615DC262AA872B700519477 /* lstring.c in Sources */,
 				4615DC692AA875A000519477 /* wave8580__ST.cc in Sources */,

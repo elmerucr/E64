@@ -432,6 +432,7 @@ uint8_t E64::rca::byte()
 	 * Clean up the left and right side of the ca, make sure
 	 * things are clean before processing
 	 */
+	// TODO: Can't we do this by ANDing with 0b011111..111000??? Probably nicer...
 	stat = (((stat<<1)>>3)<<2);
 
 	/*

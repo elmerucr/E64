@@ -30,8 +30,6 @@ class core_t {
 private:
 	lua_State *L{nullptr};
 	
-	state current_state{CONSOLE};
-	
 	settings_t *settings;
 	host_t *host;
 	keyboard_t *keyboard;
@@ -46,12 +44,17 @@ public:
 	core_t(settings_t *_s, host_t *h, keyboard_t *k, sound_ic *s);
 	~core_t();
 	
+	state current_state{CONSOLE};
+	
 	blitter_ic *blitter;
 	blit_t *console;
 	blit_t *monitor;
 	
 	void reset();
+	
+	//void do_sound_and_timers(uint32_t cycles);
 	void do_frame();
+	
 	void console_prompt();
 	void console_process_keypresses();
 	void console_process_command();
@@ -60,6 +63,13 @@ public:
 	void monitor_process_keypresses();
 	
 	void timer0_callback();
+	void timer1_callback();
+	void timer2_callback();
+	void timer3_callback();
+	void timer4_callback();
+	void timer5_callback();
+	void timer6_callback();
+	void timer7_callback();
 };
 
 }

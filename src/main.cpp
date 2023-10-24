@@ -16,6 +16,8 @@
 #include <chrono>
 #include <thread>
 
+#include "timer.hpp"
+
 int main(int argc, char **argv)
 {
 	std::chrono::time_point<std::chrono::steady_clock> app_start_time = std::chrono::steady_clock::now();
@@ -39,8 +41,12 @@ int main(int argc, char **argv)
 	bool running = true;
 	
 	// TODO: place this elsewhere
-	uint32_t cycles_per_tick = SID_CLOCK_SPEED / 50.125;
-	uint32_t tick_cycles_remaining = 0;
+	E64::timer_t t0;
+	t0.set_interval_frequency(50.125);
+	t0.start_repeat();
+	E64::timer_t t1;
+	t1.set_interval_time(10);
+	t1.start_once();
 	//
 	
 	end_of_frame_time = std::chrono::steady_clock::now();
@@ -57,26 +63,33 @@ int main(int argc, char **argv)
 		/*
 		 * Audio: Measure audio_buffer and determine cycles to run
 		 */
-		double frame_cycles_remaining = host->get_queued_audio_size_bytes(); // first contains buffer in bytes
-		stats->set_queued_audio_bytes(frame_cycles_remaining); // store in stats
-		frame_cycles_remaining = SID_CLOCK_SPEED * (AUDIO_BUFFER_SIZE - frame_cycles_remaining) / (host->get_bytes_per_ms() * 1000); // adjust to needed buffer size + change to cycles
-		frame_cycles_remaining += SID_CLOCK_SPEED / FPS;
+		uint32_t audio_buffer = host->get_queued_audio_size_bytes();
+		stats->set_queued_audio_bytes(audio_buffer);
+		uint32_t cycles = SID_CLOCK_SPEED * (AUDIO_BUFFER_SIZE - audio_buffer) / (host->get_bytes_per_ms() * 1000); // adjust to needed buffer size + change to cycles
+		cycles += SID_CLOCK_SPEED / FPS;
+		
+		//core->do_sound_and_timers(cycles);
 		
 		/*
 		 * Audio: Run cycles, keeping audio_callback ticks into account
 		 */
-		while (frame_cycles_remaining) {
-			if (tick_cycles_remaining > frame_cycles_remaining) {
-				tick_cycles_remaining -= frame_cycles_remaining;
-				sound->run(frame_cycles_remaining, host);
-				frame_cycles_remaining = 0;
-			} else {
-				frame_cycles_remaining -= tick_cycles_remaining;
-				sound->run(tick_cycles_remaining, host);
+		uint32_t accumulated_cycles = 0;
+		
+		while (cycles--) {
+			if (t0.clock()) {
+				sound->run(accumulated_cycles, host);
+				accumulated_cycles = 0;
 				core->timer0_callback();
-				tick_cycles_remaining = cycles_per_tick;
 			}
+			if (t1.clock()) {
+				sound->run(accumulated_cycles, host);
+				accumulated_cycles = 0;
+				printf("boem!\n");
+			}
+			accumulated_cycles++;
 		}
+		
+		sound->run(accumulated_cycles, host);
 		
 		// Time measurement
 		stats->start_core_time();

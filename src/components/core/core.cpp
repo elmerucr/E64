@@ -162,6 +162,34 @@ function timer0_callback()
     ticks = ticks - 1
 end
 
+function timer1_callback()
+    print("timer1_callbackl()")
+end
+
+function timer2_callback()
+    print("timer2_callbackl()")
+end
+
+function timer3_callback()
+    print("timer3_callbackl()")
+end
+
+function timer4_callback()
+    print("timer4_callbackl()")
+end
+
+function timer5_callback()
+    print("timer5_callbackl()")
+end
+
+function timer6_callback()
+    print("timer6_callbackl()")
+end
+
+function timer7_callback()
+    print("timer7_callbackl()")
+end
+
 function frame()
     -- fill up with something
     print(teller)
@@ -270,6 +298,19 @@ void E64::core_t::timer0_callback()
 	lua_getglobal(L, "timer0_callback");
 	lua_pcall(L, 0, 0, 0);
 }
+
+void E64::core_t::timer1_callback()
+{
+	lua_getglobal(L, "timer1_callback");
+	lua_pcall(L, 0, 0, 0);
+}
+
+//void E64::core_t::do_sound_and_timers(uint32_t cycles)
+//{
+//	uint32_t accumulated_cycles = 0;
+//	
+//	
+//}
 
 void E64::core_t::do_frame()
 {
