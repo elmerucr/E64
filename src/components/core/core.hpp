@@ -15,6 +15,7 @@
 #include "sound.hpp"
 #include "blitter.hpp"
 #include "keyboard.hpp"
+#include "timer.hpp"
 #include <string>
 #include <vector>
 
@@ -39,7 +40,7 @@ private:
 	uint16_t console_displayed_command{0};
 	uint16_t console_command_cursor_pos;
 	
-	bool timer0_active{false};
+	timer_t timer[8];
 public:
 	core_t(settings_t *_s, host_t *h, keyboard_t *k, sound_ic *s);
 	~core_t();
@@ -52,7 +53,7 @@ public:
 	
 	void reset();
 	
-	//void do_sound_and_timers(uint32_t cycles);
+	void do_sound_and_timers(uint32_t cycles);
 	void do_frame();
 	
 	void console_prompt();

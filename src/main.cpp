@@ -16,8 +16,6 @@
 #include <chrono>
 #include <thread>
 
-#include "timer.hpp"
-
 int main(int argc, char **argv)
 {
 	std::chrono::time_point<std::chrono::steady_clock> app_start_time = std::chrono::steady_clock::now();
@@ -40,15 +38,6 @@ int main(int argc, char **argv)
 	
 	bool running = true;
 	
-	// TODO: place this elsewhere
-	E64::timer_t t0;
-	t0.set_interval_frequency(50.125);
-	t0.start_repeat();
-	E64::timer_t t1;
-	t1.set_interval_time(10);
-	t1.start_once();
-	//
-	
 	end_of_frame_time = std::chrono::steady_clock::now();
 	
 	stats->reset();
@@ -65,31 +54,10 @@ int main(int argc, char **argv)
 		 */
 		uint32_t audio_buffer = host->get_queued_audio_size_bytes();
 		stats->set_queued_audio_bytes(audio_buffer);
-		uint32_t cycles = SID_CLOCK_SPEED * (AUDIO_BUFFER_SIZE - audio_buffer) / (host->get_bytes_per_ms() * 1000); // adjust to needed buffer size + change to cycles
+		int32_t cycles = SID_CLOCK_SPEED * (AUDIO_BUFFER_SIZE - audio_buffer) / (host->get_bytes_per_ms() * 1000); // adjust to needed buffer size + change to cycles
 		cycles += SID_CLOCK_SPEED / FPS;
 		
-		//core->do_sound_and_timers(cycles);
-		
-		/*
-		 * Audio: Run cycles, keeping audio_callback ticks into account
-		 */
-		uint32_t accumulated_cycles = 0;
-		
-		while (cycles--) {
-			if (t0.clock()) {
-				sound->run(accumulated_cycles, host);
-				accumulated_cycles = 0;
-				core->timer0_callback();
-			}
-			if (t1.clock()) {
-				sound->run(accumulated_cycles, host);
-				accumulated_cycles = 0;
-				printf("boem!\n");
-			}
-			accumulated_cycles++;
-		}
-		
-		sound->run(accumulated_cycles, host);
+		core->do_sound_and_timers(cycles);
 		
 		// Time measurement
 		stats->start_core_time();

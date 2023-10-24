@@ -18,6 +18,7 @@ include_directories(
     src/components/keyboard/
     src/components/sound/
     src/components/sound/resid-0.16/
+    src/components/timer/
 )
 
 add_subdirectory(src/)

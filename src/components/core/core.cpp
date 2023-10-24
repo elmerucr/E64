@@ -272,6 +272,11 @@ E64::core_t::core_t(E64::settings_t *_s, E64::host_t *h, E64::keyboard_t *k, E64
 	blitter->terminal_printf(monitor->number, "Monitor");
 	monitor_prompt();
 	blitter->terminal_activate_cursor(monitor->number);
+	
+	timer[0].set_interval_frequency(50.125);
+	timer[0].start_repeat();
+	timer[1].set_interval_time(10);
+	timer[1].start_once();
 }
 
 E64::core_t::~core_t()
@@ -305,12 +310,91 @@ void E64::core_t::timer1_callback()
 	lua_pcall(L, 0, 0, 0);
 }
 
-//void E64::core_t::do_sound_and_timers(uint32_t cycles)
-//{
-//	uint32_t accumulated_cycles = 0;
-//	
-//	
-//}
+void E64::core_t::timer2_callback()
+{
+	lua_getglobal(L, "timer2_callback");
+	lua_pcall(L, 0, 0, 0);
+}
+
+void E64::core_t::timer3_callback()
+{
+	lua_getglobal(L, "timer3_callback");
+	lua_pcall(L, 0, 0, 0);
+}
+
+void E64::core_t::timer4_callback()
+{
+	lua_getglobal(L, "timer4_callback");
+	lua_pcall(L, 0, 0, 0);
+}
+
+void E64::core_t::timer5_callback()
+{
+	lua_getglobal(L, "timer5_callback");
+	lua_pcall(L, 0, 0, 0);
+}
+
+void E64::core_t::timer6_callback()
+{
+	lua_getglobal(L, "timer6_callback");
+	lua_pcall(L, 0, 0, 0);
+}
+
+void E64::core_t::timer7_callback()
+{
+	lua_getglobal(L, "timer7_callback");
+	lua_pcall(L, 0, 0, 0);
+}
+
+void E64::core_t::do_sound_and_timers(uint32_t cycles)
+{
+	uint32_t accumulated_cycles = 0;
+	
+	while (cycles--) {
+		if (timer[0].clock()) {
+			sound->run(accumulated_cycles, host);
+			accumulated_cycles = 0;
+			timer0_callback();
+		}
+		if (timer[1].clock()) {
+			sound->run(accumulated_cycles, host);
+			accumulated_cycles = 0;
+			timer1_callback();
+		}
+		if (timer[2].clock()) {
+			sound->run(accumulated_cycles, host);
+			accumulated_cycles = 0;
+			timer2_callback();
+		}
+		if (timer[3].clock()) {
+			sound->run(accumulated_cycles, host);
+			accumulated_cycles = 0;
+			timer3_callback();
+		}
+		if (timer[4].clock()) {
+			sound->run(accumulated_cycles, host);
+			accumulated_cycles = 0;
+			timer4_callback();
+		}
+		if (timer[5].clock()) {
+			sound->run(accumulated_cycles, host);
+			accumulated_cycles = 0;
+			timer5_callback();
+		}
+		if (timer[6].clock()) {
+			sound->run(accumulated_cycles, host);
+			accumulated_cycles = 0;
+			timer6_callback();
+		}
+		if (timer[7].clock()) {
+			sound->run(accumulated_cycles, host);
+			accumulated_cycles = 0;
+			timer7_callback();
+		}
+		accumulated_cycles++;
+	}
+	sound->run(accumulated_cycles, host);
+}
 
 void E64::core_t::do_frame()
 {

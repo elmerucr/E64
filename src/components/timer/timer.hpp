@@ -48,8 +48,8 @@ private:
 	uint64_t counter;
 	void check_clock_interval();
 	
-	bool activated{false};
-	bool once{false};
+	bool activated;
+	bool once;
 };
 
 }

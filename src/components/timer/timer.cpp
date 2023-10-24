@@ -14,6 +14,9 @@ E64::timer_t::timer_t()
 {
 	// defaults to 1s
 	clock_interval = SID_CLOCK_SPEED;
+	
+	activated = false;
+	once = false;
 }
 
 void E64::timer_t::check_clock_interval()
