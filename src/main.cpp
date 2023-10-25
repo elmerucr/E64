@@ -54,6 +54,7 @@ int main(int argc, char **argv)
 		 */
 		uint32_t audio_buffer = host->get_queued_audio_size_bytes();
 		stats->set_queued_audio_bytes(audio_buffer);
+		// note that we need int32_t and not uint32_t!
 		int32_t cycles = SID_CLOCK_SPEED * (AUDIO_BUFFER_SIZE - audio_buffer) / (host->get_bytes_per_ms() * 1000); // adjust to needed buffer size + change to cycles
 		cycles += SID_CLOCK_SPEED / FPS;
 		

@@ -11,6 +11,7 @@
 #include <iostream>
 
 E64::sound_ic *sound;
+E64::timer_t *tim;
 
 static int l_poke_sound(lua_State *L)
 {
@@ -80,6 +81,32 @@ static int l_mixer_sid1_right_set_volume(lua_State *L)
 	return 0;
 }
 
+static int l_timer0_set_interval_frequency(lua_State *L)
+{
+	double freq = lua_tonumber(L, 1);
+	tim[0].set_interval_frequency(freq);
+	return 0;
+}
+
+static int l_timer0_start_repeat(lua_State *L)
+{
+	tim[0].start_repeat();
+	return 0;
+}
+
+static int l_timer1_set_interval_time(lua_State *L)
+{
+	double time = lua_tonumber(L, 1);
+	tim[1].set_interval_time(time);
+	return 0;
+}
+
+static int l_timer1_start_once(lua_State *L)
+{
+	tim[1].start_once();
+	return 0;
+}
+
 const char lua_code[] = R"Lua(
 
 local teller = 0
@@ -130,6 +157,12 @@ sid1_voice2_set_pw(0xf0f)
 -- initial value of ticks
 local ticks = 50
 local counter = 1
+
+-- timer stuff
+timer0_set_interval_frequency(50.125)
+timer0_start_repeat()
+timer1_set_interval_time(10.0)
+timer1_start_once()
 
 -- callback function
 function timer0_callback()
@@ -218,6 +251,7 @@ E64::core_t::core_t(E64::settings_t *_s, E64::host_t *h, E64::keyboard_t *k, E64
 	host = h;
 	keyboard = k;
 	sound = s;	// assign sound before pushing c functions
+	tim = timer;	// assign timer to t before...
 	
 	lua_pushcfunction(L, l_poke_sound);
 	lua_setglobal(L, "poke_sound");
@@ -241,6 +275,16 @@ E64::core_t::core_t(E64::settings_t *_s, E64::host_t *h, E64::keyboard_t *k, E64
 	lua_setglobal(L, "mixer_sid1_left_set_volume");
 	lua_pushcfunction(L, l_mixer_sid1_right_set_volume);
 	lua_setglobal(L, "mixer_sid1_right_set_volume");
+	
+	lua_pushcfunction(L, l_timer0_set_interval_frequency);
+	lua_setglobal(L, "timer0_set_interval_frequency");
+	lua_pushcfunction(L, l_timer0_start_repeat);
+	lua_setglobal(L, "timer0_start_repeat");
+	
+	lua_pushcfunction(L, l_timer1_set_interval_time);
+	lua_setglobal(L, "timer1_set_interval_time");
+	lua_pushcfunction(L, l_timer1_start_once);
+	lua_setglobal(L, "timer1_start_once");
 	
 	luaL_dostring(L, lua_code);
 	
@@ -272,11 +316,6 @@ E64::core_t::core_t(E64::settings_t *_s, E64::host_t *h, E64::keyboard_t *k, E64
 	blitter->terminal_printf(monitor->number, "Monitor");
 	monitor_prompt();
 	blitter->terminal_activate_cursor(monitor->number);
-	
-	timer[0].set_interval_frequency(50.125);
-	timer[0].start_repeat();
-	timer[1].set_interval_time(10);
-	timer[1].start_once();
 }
 
 E64::core_t::~core_t()
