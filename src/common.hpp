@@ -15,7 +15,7 @@
  */
 #define E64_MAJOR_VERSION    0
 #define E64_MINOR_VERSION    20
-#define E64_BUILD            20231025
+#define E64_BUILD            20231028
 #define E64_YEAR             2023
 
 /*

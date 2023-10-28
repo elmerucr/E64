@@ -11,6 +11,8 @@
 #include "common.hpp"
 #include "settings.hpp"
 #include "lua.hpp"
+#include "lualib.h"
+#include "lauxlib.h"
 #include "host.hpp"
 #include "sound.hpp"
 #include "blitter.hpp"
@@ -39,8 +41,6 @@ private:
 	std::string console_current_command;
 	uint16_t console_displayed_command{0};
 	uint16_t console_command_cursor_pos;
-	
-	timer_t timer[8];
 public:
 	core_t(settings_t *_s, host_t *h, keyboard_t *k, sound_ic *s);
 	~core_t();

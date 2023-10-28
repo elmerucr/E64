@@ -11,7 +11,25 @@
 #include <iostream>
 
 E64::sound_ic *sound;
-E64::timer_t *tim;
+E64::timer_t timer[8];
+
+static int l_testlib_test_a(lua_State *L)
+{
+	printf("test_a\n");
+	return 0;
+}
+
+static int l_testlib_test_b(lua_State *L)
+{
+	printf("test_b\n");
+	return 0;
+}
+
+static const luaL_Reg testlib [] = {
+	{ "test_a", l_testlib_test_a },
+	{ "test_b", l_testlib_test_b },
+	{ NULL, NULL }
+};
 
 static int l_poke_sound(lua_State *L)
 {
@@ -84,30 +102,33 @@ static int l_mixer_sid1_right_set_volume(lua_State *L)
 static int l_timer0_set_interval_frequency(lua_State *L)
 {
 	double freq = lua_tonumber(L, 1);
-	tim[0].set_interval_frequency(freq);
+	timer[0].set_interval_frequency(freq);
 	return 0;
 }
 
 static int l_timer0_start_repeat(lua_State *L)
 {
-	tim[0].start_repeat();
+	timer[0].start_repeat();
 	return 0;
 }
 
 static int l_timer1_set_interval_time(lua_State *L)
 {
 	double time = lua_tonumber(L, 1);
-	tim[1].set_interval_time(time);
+	timer[1].set_interval_time(time);
 	return 0;
 }
 
 static int l_timer1_start_once(lua_State *L)
 {
-	tim[1].start_once();
+	timer[1].start_once();
 	return 0;
 }
 
 const char lua_code[] = R"Lua(
+
+testlib.test_a()
+testlib.test_b()
 
 local teller = 0
 
@@ -197,6 +218,7 @@ end
 
 function timer1_callback()
     print("timer1_callbackl()")
+    sidfuncs.crap_a()
 end
 
 function timer2_callback()
@@ -247,11 +269,17 @@ E64::core_t::core_t(E64::settings_t *_s, E64::host_t *h, E64::keyboard_t *k, E64
 	
 	luaL_openlibs(L);
 	
+	/*
+	 * register testlib
+	 */
+	luaL_newlib(L, testlib);
+	lua_setglobal(L, "testlib");
+	
 	settings = _s;
 	host = h;
 	keyboard = k;
 	sound = s;	// assign sound before pushing c functions
-	tim = timer;	// assign timer to t before...
+	//tim = timer;	// assign timer to t before...
 	
 	lua_pushcfunction(L, l_poke_sound);
 	lua_setglobal(L, "poke_sound");
@@ -602,6 +630,10 @@ std::string& trim(std::string &str)
 	return ltrim(rtrim(str));
 }
 
+/*
+ * See:
+ * https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
+ */
 void E64::core_t::console_process_command()
 {
 	trim(console_current_command);
