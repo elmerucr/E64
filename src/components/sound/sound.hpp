@@ -16,6 +16,10 @@
 #include "host.hpp"
 #include "settings.hpp"
 
+/*
+ * TODO: Write description of how dealing with shadow registers: they're alway written to!
+ */
+
 namespace E64
 {
 

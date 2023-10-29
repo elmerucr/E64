@@ -13,25 +13,7 @@
 E64::sound_ic *sound;
 E64::timer_t timer[8];
 
-static int l_testlib_test_a(lua_State *L)
-{
-	printf("test_a\n");
-	return 0;
-}
-
-static int l_testlib_test_b(lua_State *L)
-{
-	printf("test_b\n");
-	return 0;
-}
-
-static const luaL_Reg testlib [] = {
-	{ "test_a", l_testlib_test_a },
-	{ "test_b", l_testlib_test_b },
-	{ NULL, NULL }
-};
-
-static int l_poke_sound(lua_State *L)
+static int l_sound_pokeb(lua_State *L)
 {
 	uint16_t address = lua_tointeger(L, 1);
 	uint8_t value = lua_tointeger(L, 2);
@@ -39,65 +21,36 @@ static int l_poke_sound(lua_State *L)
 	return 0;
 }
 
-static int l_peek_sound(lua_State *L)
+static int l_sound_pokew(lua_State *L)
+{
+	uint16_t address = lua_tointeger(L, 1);
+	uint16_t value = lua_tointeger(L, 2);
+	sound->write_byte(address, value >> 8);
+	sound->write_byte(address + 1, value & 0xff);
+	return 0;
+}
+
+static int l_sound_peekb(lua_State *L)
 {
 	uint16_t address = lua_tointeger(L, 1);
 	lua_pushinteger(L, sound->read_byte(address));
 	return 1;
 }
 
-static int l_sid1_voice1_set_freq(lua_State *L)
+static int l_sound_peekw(lua_State *L)
 {
-	uint16_t freq = lua_tointeger(L, 1);
-	sound->write_byte(128, freq >> 8);
-	sound->write_byte(129, freq & 0xff);
-	return 0;
+	uint16_t address = lua_tointeger(L, 1);
+	lua_pushinteger(L, (sound->read_byte(address) << 8) | sound->read_byte(address + 1));
+	return 1;
 }
 
-static int l_sid1_voice1_set_pw(lua_State *L)
-{
-	uint16_t freq = lua_tointeger(L, 1);
-	sound->write_byte(130, freq >> 8);
-	sound->write_byte(131, freq & 0xff);
-	return 0;
-}
-
-static int l_sid1_voice2_set_freq(lua_State *L)
-{
-	uint16_t freq = lua_tointeger(L, 1);
-	sound->write_byte(136, freq >> 8);
-	sound->write_byte(137, freq & 0xff);
-	return 0;
-}
-
-static int l_sid1_voice2_set_pw(lua_State *L)
-{
-	uint16_t freq = lua_tointeger(L, 1);
-	sound->write_byte(138, freq >> 8);
-	sound->write_byte(139, freq & 0xff);
-	return 0;
-}
-
-static int l_sid1_set_mode_volume(lua_State *L)
-{
-	uint8_t mod_vol = lua_tointeger(L, 1);
-	sound->write_byte(155, mod_vol);
-	return 0;
-}
-
-static int l_mixer_sid1_left_set_volume(lua_State *L)
-{
-	uint8_t vol = lua_tointeger(L, 1);
-	sound->write_byte(0x200, vol);
-	return 0;
-}
-
-static int l_mixer_sid1_right_set_volume(lua_State *L)
-{
-	uint8_t vol = lua_tointeger(L, 1);
-	sound->write_byte(0x201, vol);
-	return 0;
-}
+static const luaL_Reg l_soundlib [] = {
+	{ "pokeb", l_sound_pokeb },
+	{ "pokew", l_sound_pokew },
+	{ "peekb", l_sound_peekb },
+	{ "peekw", l_sound_peekw },
+	{ NULL, NULL }
+};
 
 static int l_timer0_set_interval_frequency(lua_State *L)
 {
@@ -127,12 +80,10 @@ static int l_timer1_start_once(lua_State *L)
 
 const char lua_code[] = R"Lua(
 
-testlib.test_a()
-testlib.test_b()
-
 local teller = 0
 
 -- spy vs spy i track 1
+-- 0x000 means note not played
 local track1 = {
     0x04e2, 0x09c4, 0x0ea2, 0x1389, 0x04e2, 0x09c4, 0x0000, 0x0000,
     0x03e0, 0x07c1, 0x0b9d, 0x0f81, 0x03e0, 0x07c1, 0x0000, 0x0000,
@@ -151,6 +102,7 @@ local track1 = {
 }
 
 -- spy vs spy i track 2
+-- 0x000 means note not played
 local track2 = {
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
@@ -166,14 +118,14 @@ local track2 = {
     0x04e2, 0x09c4, 0x0ea2, 0x1389, 0x04e2, 0x09c4, 0x0000, 0x0000
  }
 
--- volume
-mixer_sid1_left_set_volume(128)
-mixer_sid1_right_set_volume(128)
-sid1_set_mode_volume(15)
+-- volumes
+sound.pokeb(0x200, 0x80)
+sound.pokeb(0x201, 0x80)
+sound.pokeb(0x01b, 0x0f)
 
 -- pulse width
-sid1_voice1_set_pw(0xf0f)
-sid1_voice2_set_pw(0xf0f)
+sound.pokew(0x002, 0x0f0f)
+sound.pokew(0x00a, 0x0f0f)
 
 -- initial value of ticks
 local ticks = 50
@@ -189,36 +141,37 @@ timer1_start_once()
 function timer0_callback()
     if ticks == 0 then
         if track1[counter] ~= 0 then
-            sid1_voice1_set_freq(track1[counter])
-            poke_sound(0x05, 0x04)
-            poke_sound(0x06, 0x15)
-            poke_sound(0x04, 0x41)
+            sound.pokew(0x00, track1[counter])
+            --sid1_voice1_set_freq(track1[counter])
+            sound.pokeb(0x05, 0x04)
+	    sound.pokeb(0x06, 0x15)
+	    sound.pokeb(0x04, 0x41)
         end
         if track2[counter] ~= 0 then
-            sid1_voice2_set_freq(track2[counter])
-            poke_sound(13, 0x04)
-            poke_sound(14, 0x15)
-            poke_sound(12, 0x41)
+	    sound.pokew(0x08, track2[counter])
+            --sid1_voice2_set_freq(track2[counter])
+	    sound.pokeb(0x0d, 0x04)
+	    sound.pokeb(0x0e, 0x15)
+            sound.pokeb(0x0c, 0x41)
         end
         ticks = 10
         counter = counter + 1
         if counter == (#track1 + 1) then
             counter = 1
         end
-    elseif ticks == 3 then
-        poke_sound(0x05, 0x00)
-        poke_sound(0x06, 0x00)
-        poke_sound(0x04, 0x40)
-        poke_sound(13, 0x00)
-        poke_sound(14, 0x00)
-        poke_sound(12, 0x40)
+    elseif ticks == 2 then
+        sound.pokeb(0x05, 0x00)
+	sound.pokeb(0x06, 0x00)
+	sound.pokeb(0x04, 0x40)
+	sound.pokeb(0x0d, 0x00)
+	sound.pokeb(0x0e, 0x00)
+	sound.pokeb(0x0c, 0x40)
     end
     ticks = ticks - 1
 end
 
 function timer1_callback()
     print("timer1_callbackl()")
-    sidfuncs.crap_a()
 end
 
 function timer2_callback()
@@ -269,40 +222,13 @@ E64::core_t::core_t(E64::settings_t *_s, E64::host_t *h, E64::keyboard_t *k, E64
 	
 	luaL_openlibs(L);
 	
-	/*
-	 * register testlib
-	 */
-	luaL_newlib(L, testlib);
-	lua_setglobal(L, "testlib");
-	
 	settings = _s;
 	host = h;
 	keyboard = k;
 	sound = s;	// assign sound before pushing c functions
-	//tim = timer;	// assign timer to t before...
 	
-	lua_pushcfunction(L, l_poke_sound);
-	lua_setglobal(L, "poke_sound");
-	lua_pushcfunction(L, l_peek_sound);
-	lua_setglobal(L, "peek_sound");
-	
-	lua_pushcfunction(L, l_sid1_voice1_set_freq);
-	lua_setglobal(L, "sid1_voice1_set_freq");
-	lua_pushcfunction(L, l_sid1_voice1_set_pw);
-	lua_setglobal(L, "sid1_voice1_set_pw");
-	
-	lua_pushcfunction(L, l_sid1_voice2_set_freq);
-	lua_setglobal(L, "sid1_voice2_set_freq");
-	lua_pushcfunction(L, l_sid1_voice2_set_pw);
-	lua_setglobal(L, "sid1_voice2_set_pw");
-	
-	lua_pushcfunction(L, l_sid1_set_mode_volume);
-	lua_setglobal(L, "sid1_set_mode_volume");
-	
-	lua_pushcfunction(L, l_mixer_sid1_left_set_volume);
-	lua_setglobal(L, "mixer_sid1_left_set_volume");
-	lua_pushcfunction(L, l_mixer_sid1_right_set_volume);
-	lua_setglobal(L, "mixer_sid1_right_set_volume");
+	luaL_newlib(L, l_soundlib);
+	lua_setglobal(L, "sound");
 	
 	lua_pushcfunction(L, l_timer0_set_interval_frequency);
 	lua_setglobal(L, "timer0_set_interval_frequency");
@@ -314,7 +240,12 @@ E64::core_t::core_t(E64::settings_t *_s, E64::host_t *h, E64::keyboard_t *k, E64
 	lua_pushcfunction(L, l_timer1_start_once);
 	lua_setglobal(L, "timer1_start_once");
 	
-	luaL_dostring(L, lua_code);
+	/*
+	 * Load "resident" Lua program into system
+	 */
+	if (luaL_dostring(L, lua_code)) {
+		printf("[core] Lua error: %s", lua_tostring(L, -1));
+	}
 	
 	/*
 	 * Start Blitter
@@ -368,49 +299,65 @@ void E64::core_t::reset()
 void E64::core_t::timer0_callback()
 {
 	lua_getglobal(L, "timer0_callback");
-	lua_pcall(L, 0, 0, 0);
+	if (lua_pcall(L, 0, 0, 0)) {
+		printf("[core] Lua error: %s", lua_tostring(L, -1));
+	}
 }
 
 void E64::core_t::timer1_callback()
 {
 	lua_getglobal(L, "timer1_callback");
-	lua_pcall(L, 0, 0, 0);
+	if (lua_pcall(L, 0, 0, 0)) {
+		printf("[core] Lua error: %s", lua_tostring(L, -1));
+	}
 }
 
 void E64::core_t::timer2_callback()
 {
 	lua_getglobal(L, "timer2_callback");
-	lua_pcall(L, 0, 0, 0);
+	if (lua_pcall(L, 0, 0, 0)) {
+		printf("[core] Lua error: %s", lua_tostring(L, -1));
+	}
 }
 
 void E64::core_t::timer3_callback()
 {
 	lua_getglobal(L, "timer3_callback");
-	lua_pcall(L, 0, 0, 0);
+	if (lua_pcall(L, 0, 0, 0)) {
+		printf("[core] Lua error: %s", lua_tostring(L, -1));
+	}
 }
 
 void E64::core_t::timer4_callback()
 {
 	lua_getglobal(L, "timer4_callback");
-	lua_pcall(L, 0, 0, 0);
+	if (lua_pcall(L, 0, 0, 0)) {
+		printf("[core] Lua error: %s", lua_tostring(L, -1));
+	}
 }
 
 void E64::core_t::timer5_callback()
 {
 	lua_getglobal(L, "timer5_callback");
-	lua_pcall(L, 0, 0, 0);
+	if (lua_pcall(L, 0, 0, 0)) {
+		printf("[core] Lua error: %s", lua_tostring(L, -1));
+	}
 }
 
 void E64::core_t::timer6_callback()
 {
 	lua_getglobal(L, "timer6_callback");
-	lua_pcall(L, 0, 0, 0);
+	if (lua_pcall(L, 0, 0, 0)) {
+		printf("[core] Lua error: %s", lua_tostring(L, -1));
+	}
 }
 
 void E64::core_t::timer7_callback()
 {
 	lua_getglobal(L, "timer7_callback");
-	lua_pcall(L, 0, 0, 0);
+	if (lua_pcall(L, 0, 0, 0)) {
+		printf("[core] Lua error: %s", lua_tostring(L, -1));
+	}
 }
 
 void E64::core_t::do_sound_and_timers(uint32_t cycles)
