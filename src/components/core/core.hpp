@@ -62,15 +62,6 @@ public:
 	
 	void monitor_prompt();
 	void monitor_process_keypresses();
-	
-	void timer0_callback();
-	void timer1_callback();
-	void timer2_callback();
-	void timer3_callback();
-	void timer4_callback();
-	void timer5_callback();
-	void timer6_callback();
-	void timer7_callback();
 };
 
 }
