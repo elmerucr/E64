@@ -10,14 +10,15 @@
 #include <cstdint>
 #include <iostream>
 
-E64::sound_ic *sound;
-E64::timer_t timer[8];
+E64::blitter_ic *b;
+E64::sound_ic *s;
+E64::timer_t *t;
 
 static int l_sound_pokeb(lua_State *L)
 {
 	uint16_t address = lua_tointeger(L, 1);
 	uint8_t value = lua_tointeger(L, 2);
-	sound->write_byte(address, value);
+	s->write_byte(address, value);
 	return 0;
 }
 
@@ -25,22 +26,22 @@ static int l_sound_pokew(lua_State *L)
 {
 	uint16_t address = lua_tointeger(L, 1);
 	uint16_t value = lua_tointeger(L, 2);
-	sound->write_byte(address, value >> 8);
-	sound->write_byte(address + 1, value & 0xff);
+	s->write_byte(address, value >> 8);
+	s->write_byte(address + 1, value & 0xff);
 	return 0;
 }
 
 static int l_sound_peekb(lua_State *L)
 {
 	uint16_t address = lua_tointeger(L, 1);
-	lua_pushinteger(L, sound->read_byte(address));
+	lua_pushinteger(L, s->read_byte(address));
 	return 1;
 }
 
 static int l_sound_peekw(lua_State *L)
 {
 	uint16_t address = lua_tointeger(L, 1);
-	lua_pushinteger(L, (sound->read_byte(address) << 8) | sound->read_byte(address + 1));
+	lua_pushinteger(L, (s->read_byte(address) << 8) | s->read_byte(address + 1));
 	return 1;
 }
 
@@ -57,7 +58,16 @@ static int l_timer_set_interval_frequency(lua_State *L)
 	uint8_t no = lua_tointeger(L, 1);
 	no = no & 0b111;
 	double frequency = lua_tonumber(L, 2);
-	timer[no].set_interval_frequency(frequency);
+	t[no].set_interval_frequency(frequency);
+	return 0;
+}
+
+static int l_timer_set_interval_time(lua_State *L)
+{
+	uint8_t no = lua_tointeger(L, 1);
+	no = no & 0b111;
+	double time = lua_tonumber(L, 2);
+	t[no].set_interval_time(time);
 	return 0;
 }
 
@@ -65,41 +75,32 @@ static int l_timer_start_repeat(lua_State *L)
 {
 	uint8_t no = lua_tointeger(L, 1);
 	no = no & 0b111;
-	timer[no].start_repeat();
+	t[no].start_repeat();
+	return 0;
+}
+
+static int l_timer_start_once(lua_State *L)
+{
+	uint8_t no = lua_tointeger(L, 1);
+	no = no & 0b111;
+	t[no].start_once();
 	return 0;
 }
 
 static const luaL_Reg l_timerlib [] = {
 	{ "set_interval_frequency", l_timer_set_interval_frequency },
+	{ "set_interval_time", l_timer_set_interval_time },
 	{ "start_repeat", l_timer_start_repeat },
+	{ "start_once", l_timer_start_once },
 	{ NULL, NULL }
 };
-
-static int l_timer0_start_repeat(lua_State *L)
-{
-	timer[0].start_repeat();
-	return 0;
-}
-
-static int l_timer1_set_interval_time(lua_State *L)
-{
-	double time = lua_tonumber(L, 1);
-	timer[1].set_interval_time(time);
-	return 0;
-}
-
-static int l_timer1_start_once(lua_State *L)
-{
-	timer[1].start_once();
-	return 0;
-}
 
 const char lua_code[] = R"Lua(
 
 local ticks
 local counter
 
--- spy vs spy i track 1
+-- Spy vs Spy I track 1
 -- 0x000 means note not played
 local track1 = {
     0x04e2, 0x09c4, 0x0ea2, 0x1389, 0x04e2, 0x09c4, 0x0000, 0x0000,
@@ -118,17 +119,19 @@ local track1 = {
     0x045a, 0x08b4, 0x0d0a, 0x1167, 0x03a9, 0x0751, 0x0af7, 0x0ea2
 }
 
--- spy vs spy i track 2
+-- Spy vs Spy I track 2
 -- 0x000 means note not played
 local track2 = {
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+
     0x04e2, 0x09c4, 0x0ea2, 0x1389, 0x04e2, 0x09c4, 0x0000, 0x0000,
     0x04e2, 0x09c4, 0x0ea2, 0x1389, 0x04e2, 0x09c4, 0x0000, 0x0000,
     0x04e2, 0x09c4, 0x0ea2, 0x1389, 0x04e2, 0x09c4, 0x0000, 0x0000,
@@ -152,8 +155,8 @@ function init()
     -- timer stuff
     timer.set_interval_frequency(0, 50.125)
     timer.start_repeat(0)
-    timer1_set_interval_time(10.0)
-    timer1_start_once()
+    timer.set_interval_time(1, 5.0)
+    timer.start_once(1)
 end
 
 function do_sound()
@@ -226,7 +229,7 @@ end
 
 )Lua";
 
-E64::core_t::core_t(E64::settings_t *_s, E64::host_t *h, E64::keyboard_t *k, E64::sound_ic *s)
+E64::core_t::core_t(E64::settings_t *_s, E64::host_t *h, E64::keyboard_t *k, E64::sound_ic *snd)
 {
 	/*
 	 * Start Lua
@@ -245,21 +248,15 @@ E64::core_t::core_t(E64::settings_t *_s, E64::host_t *h, E64::keyboard_t *k, E64
 	settings = _s;
 	host = h;
 	keyboard = k;
-	sound = s;	// assign sound before pushing c functions
+	
+	sound = s = snd;	// assign sound before pushing c functions
+	t = timer;		// assign timer before pushing c functions
 	
 	luaL_newlib(L, l_soundlib);
 	lua_setglobal(L, "sound");
 	
 	luaL_newlib(L, l_timerlib);
 	lua_setglobal(L, "timer");
-
-	lua_pushcfunction(L, l_timer0_start_repeat);
-	lua_setglobal(L, "timer0_start_repeat");
-	
-	lua_pushcfunction(L, l_timer1_set_interval_time);
-	lua_setglobal(L, "timer1_set_interval_time");
-	lua_pushcfunction(L, l_timer1_start_once);
-	lua_setglobal(L, "timer1_start_once");
 	
 	/*
 	 * Load "resident" Lua program into system
@@ -601,9 +598,13 @@ void E64::core_t::console_process_command()
 	} else if (token.compare("pwd") == 0) {
 		blitter->terminal_printf(console->number, "\n%s", settings->working_dir);
 	} else if (token.compare("run") == 0) {
-		// TODO: mode switch
-		blitter->terminal_printf(console->number, "\nrun");
 		current_state = RUN;
+		blitter->terminal_printf(console->number, "\nrun");
+		lua_getglobal(L, "init");
+		if (lua_pcall(L, 0, 0, 0)) {
+			printf("[core] Lua error: %s", lua_tostring(L, -1));
+			// TODO: drop back to console?
+		}
 	} else if (token.compare("ver") == 0) {
 		blitter->terminal_printf(console->number, "\nVersion %i.%i.%i", E64_MAJOR_VERSION, E64_MINOR_VERSION, E64_BUILD);
 	} else {

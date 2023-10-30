@@ -42,7 +42,7 @@ private:
 	uint16_t console_displayed_command{0};
 	uint16_t console_command_cursor_pos;
 public:
-	core_t(settings_t *_s, host_t *h, keyboard_t *k, sound_ic *s);
+	core_t(settings_t *_s, host_t *h, keyboard_t *k, sound_ic *snd);
 	~core_t();
 	
 	state current_state{CONSOLE};
@@ -50,6 +50,9 @@ public:
 	blitter_ic *blitter;
 	blit_t *console;
 	blit_t *monitor;
+	sound_ic *sound;
+	
+	timer_t timer[8];
 	
 	void reset();
 	
