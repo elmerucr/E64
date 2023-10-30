@@ -96,7 +96,8 @@ static int l_timer1_start_once(lua_State *L)
 
 const char lua_code[] = R"Lua(
 
-local teller = 0
+local ticks
+local counter
 
 -- spy vs spy i track 1
 -- 0x000 means note not played
@@ -132,39 +133,39 @@ local track2 = {
     0x04e2, 0x09c4, 0x0ea2, 0x1389, 0x04e2, 0x09c4, 0x0000, 0x0000,
     0x04e2, 0x09c4, 0x0ea2, 0x1389, 0x04e2, 0x09c4, 0x0000, 0x0000,
     0x04e2, 0x09c4, 0x0ea2, 0x1389, 0x04e2, 0x09c4, 0x0000, 0x0000
- }
+}
 
--- volumes
-sound.pokeb(0x200, 0x80)
-sound.pokeb(0x201, 0x80)
-sound.pokeb(0x01b, 0x0f)
+function init()
+    teller = 0
+    ticks = 50
+    counter = 1
 
--- pulse width
-sound.pokew(0x002, 0x0f0f)
-sound.pokew(0x00a, 0x0f0f)
+    -- volumes
+    sound.pokeb(0x200, 0x80)
+    sound.pokeb(0x201, 0x80)
+    sound.pokeb(0x01b, 0x0f)
 
--- initial value of ticks
-local ticks = 50
-local counter = 1
+    -- pulse width
+    sound.pokew(0x002, 0x0f0f)
+    sound.pokew(0x00a, 0x0f0f)
 
--- timer stuff
-timer.set_interval_frequency(0, 50.125)
-timer.start_repeat(0)
-timer1_set_interval_time(10.0)
-timer1_start_once()
+    -- timer stuff
+    timer.set_interval_frequency(0, 50.125)
+    timer.start_repeat(0)
+    timer1_set_interval_time(10.0)
+    timer1_start_once()
+end
 
 function do_sound()
     if ticks == 0 then
         if track1[counter] ~= 0 then
             sound.pokew(0x00, track1[counter])
-            --sid1_voice1_set_freq(track1[counter])
             sound.pokeb(0x05, 0x04)
 	    sound.pokeb(0x06, 0x15)
 	    sound.pokeb(0x04, 0x41)
         end
         if track2[counter] ~= 0 then
 	    sound.pokew(0x08, track2[counter])
-            --sid1_voice2_set_freq(track2[counter])
 	    sound.pokeb(0x0d, 0x04)
 	    sound.pokeb(0x0e, 0x15)
             sound.pokeb(0x0c, 0x41)
@@ -219,9 +220,8 @@ function timer7_callback()
 end
 
 function frame()
-    -- fill up with something
-    print(teller)
-    teller = teller + 1
+    -- dummy function
+    print("frame()")
 end
 
 )Lua";
@@ -265,6 +265,14 @@ E64::core_t::core_t(E64::settings_t *_s, E64::host_t *h, E64::keyboard_t *k, E64
 	 * Load "resident" Lua program into system
 	 */
 	if (luaL_dostring(L, lua_code)) {
+		printf("[core] Lua error: %s", lua_tostring(L, -1));
+	}
+	
+	/*
+	 * TODO: this init callback must be part of the run command sequence
+	 */
+	lua_getglobal(L, "init");
+	if (lua_pcall(L, 0, 0, 0)) {
 		printf("[core] Lua error: %s", lua_tostring(L, -1));
 	}
 	
@@ -440,7 +448,9 @@ void E64::core_t::do_frame()
 			break;
 		case RUN:
 			lua_getglobal(L, "frame");
-			lua_pcall(L, 0, 0, 0);
+			if (lua_pcall(L, 0, 0, 0)) {
+				printf("[core] Lua error: %s", lua_tostring(L, -1));
+			}
 			break;
 	}
 }
