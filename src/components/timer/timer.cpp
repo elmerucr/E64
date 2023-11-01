@@ -12,7 +12,7 @@
 
 E64::timer_t::timer_t()
 {
-	// defaults to 1s
+	// defaults to 1s = reasonable
 	clock_interval = SID_CLOCK_SPEED;
 	
 	activated = false;
@@ -21,16 +21,26 @@ E64::timer_t::timer_t()
 
 void E64::timer_t::check_clock_interval()
 {
+	/*
+	 * Less than 1ms not ok
+	 */
 	if (clock_interval < ((uint64_t)SID_CLOCK_SPEED / 1000)) {
 		printf("[timer] warning: clock_interval too small, set to 0.001s\n");
 		clock_interval = (uint64_t)SID_CLOCK_SPEED / 1000;
 	}
+	
+	/*
+	 * More than 1hr not ok
+	 */
 	if (clock_interval > ((uint64_t)SID_CLOCK_SPEED * 3600)) {
 		printf("[timer] warning: clock interval too large, set to 3600s\n");
 		clock_interval = (uint64_t)SID_CLOCK_SPEED * 3600;
 	}
 }
 
+/*
+ * f = per second
+ */
 void E64::timer_t::set_interval_frequency(double f)
 {
 	if (f <= 0.0) f = 0.000001;
@@ -38,6 +48,9 @@ void E64::timer_t::set_interval_frequency(double f)
 	check_clock_interval();
 }
 
+/*
+ * Time in seconds
+ */
 void E64::timer_t::set_interval_time(double t)
 {
 	if (t < 0.0) t = 0.0;

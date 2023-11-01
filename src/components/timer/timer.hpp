@@ -25,6 +25,10 @@ public:
 	void start_repeat();
 	void stop();
 	
+	inline bool is_activated() { return activated; }
+	inline bool is_once() { return once; }
+	inline bool is_repeat() { return !once; }
+	
 	// proceed 1 cycle
 	inline bool clock() {
 		if (activated) {

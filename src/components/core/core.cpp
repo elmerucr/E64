@@ -326,73 +326,78 @@ void E64::core_t::do_sound_and_timers(uint32_t cycles)
 {
 	uint32_t cycles_done = 0;
 	
-	while (cycles--) {
-		if (timer[0].clock()) {
-			sound->run(cycles_done, host);
-			cycles_done = 0;
-			lua_getglobal(L, "timer0_callback");
-			if (lua_pcall(L, 0, 0, 0)) {
-				printf("[core] Lua error: %s", lua_tostring(L, -1));
+	if (current_state == RUN) {
+		while (cycles--) {
+			if (timer[0].clock()) {
+				sound->run(cycles_done, host);
+				cycles_done = 0;
+				lua_getglobal(L, "timer0_callback");
+				if (lua_pcall(L, 0, 0, 0)) {
+					printf("[core] Lua error: %s", lua_tostring(L, -1));
+				}
 			}
-		}
-		if (timer[1].clock()) {
-			sound->run(cycles_done, host);
-			cycles_done = 0;
-			lua_getglobal(L, "timer1_callback");
-			if (lua_pcall(L, 0, 0, 0)) {
-				printf("[core] Lua error: %s", lua_tostring(L, -1));
+			if (timer[1].clock()) {
+				sound->run(cycles_done, host);
+				cycles_done = 0;
+				lua_getglobal(L, "timer1_callback");
+				if (lua_pcall(L, 0, 0, 0)) {
+					printf("[core] Lua error: %s", lua_tostring(L, -1));
+				}
 			}
-		}
-		if (timer[2].clock()) {
-			sound->run(cycles_done, host);
-			cycles_done = 0;
-			lua_getglobal(L, "timer2_callback");
-			if (lua_pcall(L, 0, 0, 0)) {
-				printf("[core] Lua error: %s", lua_tostring(L, -1));
+			if (timer[2].clock()) {
+				sound->run(cycles_done, host);
+				cycles_done = 0;
+				lua_getglobal(L, "timer2_callback");
+				if (lua_pcall(L, 0, 0, 0)) {
+					printf("[core] Lua error: %s", lua_tostring(L, -1));
+				}
 			}
-		}
-		if (timer[3].clock()) {
-			sound->run(cycles_done, host);
-			cycles_done = 0;
-			lua_getglobal(L, "timer3_callback");
-			if (lua_pcall(L, 0, 0, 0)) {
-				printf("[core] Lua error: %s", lua_tostring(L, -1));
+			if (timer[3].clock()) {
+				sound->run(cycles_done, host);
+				cycles_done = 0;
+				lua_getglobal(L, "timer3_callback");
+				if (lua_pcall(L, 0, 0, 0)) {
+					printf("[core] Lua error: %s", lua_tostring(L, -1));
+				}
 			}
-		}
-		if (timer[4].clock()) {
-			sound->run(cycles_done, host);
-			cycles_done = 0;
-			lua_getglobal(L, "timer4_callback");
-			if (lua_pcall(L, 0, 0, 0)) {
-				printf("[core] Lua error: %s", lua_tostring(L, -1));
+			if (timer[4].clock()) {
+				sound->run(cycles_done, host);
+				cycles_done = 0;
+				lua_getglobal(L, "timer4_callback");
+				if (lua_pcall(L, 0, 0, 0)) {
+					printf("[core] Lua error: %s", lua_tostring(L, -1));
+				}
 			}
-		}
-		if (timer[5].clock()) {
-			sound->run(cycles_done, host);
-			cycles_done = 0;
-			lua_getglobal(L, "timer5_callback");
-			if (lua_pcall(L, 0, 0, 0)) {
-				printf("[core] Lua error: %s", lua_tostring(L, -1));
+			if (timer[5].clock()) {
+				sound->run(cycles_done, host);
+				cycles_done = 0;
+				lua_getglobal(L, "timer5_callback");
+				if (lua_pcall(L, 0, 0, 0)) {
+					printf("[core] Lua error: %s", lua_tostring(L, -1));
+				}
 			}
-		}
-		if (timer[6].clock()) {
-			sound->run(cycles_done, host);
-			cycles_done = 0;
-			lua_getglobal(L, "timer6_callback");
-			if (lua_pcall(L, 0, 0, 0)) {
-				printf("[core] Lua error: %s", lua_tostring(L, -1));
+			if (timer[6].clock()) {
+				sound->run(cycles_done, host);
+				cycles_done = 0;
+				lua_getglobal(L, "timer6_callback");
+				if (lua_pcall(L, 0, 0, 0)) {
+					printf("[core] Lua error: %s", lua_tostring(L, -1));
+				}
 			}
-		}
-		if (timer[7].clock()) {
-			sound->run(cycles_done, host);
-			cycles_done = 0;
-			lua_getglobal(L, "timer7_callback");
-			if (lua_pcall(L, 0, 0, 0)) {
-				printf("[core] Lua error: %s", lua_tostring(L, -1));
+			if (timer[7].clock()) {
+				sound->run(cycles_done, host);
+				cycles_done = 0;
+				lua_getglobal(L, "timer7_callback");
+				if (lua_pcall(L, 0, 0, 0)) {
+					printf("[core] Lua error: %s", lua_tostring(L, -1));
+				}
 			}
+			cycles_done++;
 		}
-		cycles_done++;
+	} else {
+		cycles_done = cycles;
 	}
+	
 	sound->run(cycles_done, host);
 }
 
