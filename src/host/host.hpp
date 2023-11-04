@@ -96,9 +96,6 @@ enum scancodes {
 
 class host_t {
 private:
-	hud_t *hud{nullptr};
-	settings_t *settings{nullptr};
-	
 	/*
 	 * Audio related
 	 */
@@ -168,6 +165,9 @@ private:
 public:
 	host_t(settings_t *s);
 	~host_t();
+	
+	hud_t *hud{nullptr};
+	settings_t *settings{nullptr};
 	
 	char *sdl_preference_path;
 	

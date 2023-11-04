@@ -326,7 +326,7 @@ void E64::core_t::do_sound_and_timers(uint32_t cycles)
 {
 	uint32_t cycles_done = 0;
 	
-	if (current_state == RUN) {
+	if (current_mode == RUN) {
 		while (cycles--) {
 			if (timer[0].clock()) {
 				sound->run(cycles_done, host);
@@ -403,8 +403,12 @@ void E64::core_t::do_sound_and_timers(uint32_t cycles)
 
 void E64::core_t::do_frame()
 {
-	switch (current_state) {
+	switch (current_mode) {
 		case CONSOLE:
+			if (console_delayed_prompt) {
+				console_delayed_prompt = false;
+				console_prompt();
+			}
 			blitter->terminal_process_cursor_state(console->number);
 			if (keyboard->events_waiting()) {
 				blitter->terminal_deactivate_cursor(console->number);
@@ -425,6 +429,8 @@ void E64::core_t::do_frame()
 			blitter->add_operation_draw_hor_border();
 			
 			while (blitter->run_next_operation()) {}
+			
+			snprintf(host->hud->extra_stats, 64, "CONSOLE");
 			break;
 		case MON:
 			blitter->terminal_process_cursor_state(monitor->number);
@@ -447,12 +453,18 @@ void E64::core_t::do_frame()
 			blitter->add_operation_draw_hor_border();
 			
 			while (blitter->run_next_operation()) {}
+			
+			snprintf(host->hud->extra_stats, 64, "MON");
 			break;
 		case RUN:
+			run_process_keypressess();
+			
 			lua_getglobal(L, "frame");
 			if (lua_pcall(L, 0, 0, 0)) {
 				printf("[core] Lua error: %s", lua_tostring(L, -1));
 			}
+			
+			snprintf(host->hud->extra_stats, 64, "RUN");
 			break;
 	}
 }
@@ -520,7 +532,6 @@ void E64::core_t::console_process_keypresses()
 				console_command_history.push_back(console_current_command);
 				console_displayed_command = console_command_history.size();
 				console_process_command();
-				console_prompt();
 				break;
 			case ASCII_REVERSE_ON:
 				console->reverse = true;
@@ -599,12 +610,13 @@ void E64::core_t::console_process_command()
 		blitter->terminal_printf(console->number, buffer);
 	} else if (token.compare("mon") == 0) {
 		blitter->terminal_printf(console->number, "\nmonitor");
-		current_state = MON;
+		current_mode = MON;
 	} else if (token.compare("pwd") == 0) {
 		blitter->terminal_printf(console->number, "\n%s", settings->working_dir);
 	} else if (token.compare("run") == 0) {
-		current_state = RUN;
-		blitter->terminal_printf(console->number, "\nrun");
+		console_delayed_prompt = true;
+		current_mode = RUN;
+		//blitter->terminal_printf(console->number, "\nrun");
 		lua_getglobal(L, "init");
 		if (lua_pcall(L, 0, 0, 0)) {
 			printf("[core] Lua error: %s", lua_tostring(L, -1));
@@ -617,6 +629,10 @@ void E64::core_t::console_process_command()
 	}
 	
 	console_current_command.erase();
+	
+	if (!console_delayed_prompt) {
+		console_prompt();
+	}
 }
 
 void E64::core_t::monitor_process_keypresses()
@@ -650,4 +666,19 @@ void E64::core_t::monitor_process_keypresses()
 void E64::core_t::monitor_prompt()
 {
 	blitter->terminal_printf(monitor->number, "\n.");
+}
+
+void E64::core_t::run_process_keypressess()
+{
+	uint8_t symbol;
+	while ((symbol = keyboard->pop_event())) {
+		switch (symbol) {
+			case ASCII_ESCAPE:
+				blitter->terminal_printf(console->number, "\nescape key pressed");
+				current_mode = CONSOLE;
+				break;
+			default:
+				break;
+		}
+	}
 }

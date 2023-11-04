@@ -24,6 +24,8 @@ public:
 	hud_t();
 	~hud_t();
 	
+	char extra_stats[64] = "\0";
+	
 	blitter_ic *blitter;
 	
 	void redraw();

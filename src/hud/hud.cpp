@@ -40,6 +40,7 @@ void E64::hud_t::print_stats(const char *text)
 {
 	blitter->terminal_clear(0);
 	blitter->terminal_printf(0, "%s", text);
+	blitter->terminal_printf(0, " current mode: %s", extra_stats);
 }
 
 void E64::hud_t::redraw()

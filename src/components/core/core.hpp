@@ -27,7 +27,7 @@ typedef enum {
 	CONSOLE,
 	MON,
 	RUN
-} state;
+} mode;
 
 class core_t {
 private:
@@ -41,11 +41,12 @@ private:
 	std::string console_current_command;
 	uint16_t console_displayed_command{0};
 	uint16_t console_command_cursor_pos;
+	bool console_delayed_prompt{false};
 public:
 	core_t(settings_t *_s, host_t *h, keyboard_t *k, sound_ic *snd);
 	~core_t();
 	
-	state current_state{CONSOLE};
+	mode current_mode{CONSOLE};
 	
 	blitter_ic *blitter;
 	blit_t *console;
@@ -65,6 +66,8 @@ public:
 	
 	void monitor_prompt();
 	void monitor_process_keypresses();
+	
+	void run_process_keypressess();
 };
 
 }
